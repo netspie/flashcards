@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using MudBlazor;
+using MudBlazor.Services;
 
 namespace FlashcardApp
 {
@@ -15,9 +17,14 @@ namespace FlashcardApp
                 });
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddMudServices(config =>
+            {
+                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+                config.SnackbarConfiguration.VisibleStateDuration = 2000;
+            });
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
 

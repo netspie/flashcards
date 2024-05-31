@@ -1,0 +1,21 @@
+﻿@page "/collections/add"
+
+<MudText Typo="Typo.h3" Class="mb-2">Collection Edit</MudText>
+
+<MudStack Class="gap-4 h-full">
+    <MudTextField ShrinkLabel @bind-Value="Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
+    <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=AddCollection>Add</MudButton>
+</MudStack>
+
+@code {
+    [Parameter] public string Name { get; set; } = "";
+
+    [Inject] private ISnackbar Snackbar { get; set; }
+    [Inject] private NavigationManager Navigation { get; set; }
+
+    private async Task AddCollection()
+    {
+        Snackbar.Add("Collection has been added");
+        Navigation.NavigateTo("/collections");
+    }
+}

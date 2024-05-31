@@ -1,0 +1,19 @@
+﻿@page "/collections"
+
+@inject NavigationManager Navigation
+
+<MudText Typo="Typo.h3" Class="mb-2">Collections</MudText>
+
+<MudStack Class="gap-4">
+    <MudStack Class="gap-2">
+        <CollectionListItem>Jp Words</CollectionListItem>
+        <CollectionListItem>Jp Phrases</CollectionListItem>
+    </MudStack>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/collections/add"))>
+        Add Collection
+    </MudButton>
+</MudStack>
+
+@code {
+
+}

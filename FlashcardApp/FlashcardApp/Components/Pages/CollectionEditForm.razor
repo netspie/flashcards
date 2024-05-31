@@ -1,0 +1,35 @@
+﻿@page "/collections/edit"
+
+<MudText Typo="Typo.h3" Class="mb-2">Collection Edit</MudText>
+
+<MudStack Class="gap-4 h-full">
+    <MudTextField ShrinkLabel @bind-Value="Name" Label="Name" Variant="Variant.Outlined"></MudTextField>
+    <MudStack Class="gap-4 grow-1 h-full">
+        <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit">Save</MudButton>
+    </MudStack>
+    <MudButton Variant=Variant.Filled Color=Color.Secondary Class="absolute w-fit bottom-4 right-4" OnClick=OpenDeleteDialog>Delete</MudButton>
+</MudStack>
+
+@code {
+    [Parameter] public string Name { get; set; } = "JP Words";
+
+    [Inject] private IDialogService DialogService { get; set; }
+    [Inject] private ISnackbar Snackbar { get; set; }
+    [Inject] private NavigationManager Navigation { get; set; }
+
+    private async Task OpenDeleteDialog()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Deleting can not be undone!",
+            yesText: "Delete!", cancelText: "Cancel");
+
+        if (result is not null)
+        {
+            Snackbar.Add("Collection has been deleted");
+            Navigation.NavigateTo("/collections");
+        }
+
+        StateHasChanged();
+    }
+}
