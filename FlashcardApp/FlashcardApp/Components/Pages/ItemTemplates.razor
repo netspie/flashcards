@@ -1,19 +1,28 @@
 ﻿@page "/itemTemplates"
+@using FlashcardApp.Services
 
 @inject NavigationManager Navigation
+@inject ItemTemplateService ItemTemplateService
 
 <MudText Typo="Typo.h3" Class="mb-2">Item Templates</MudText>
 
 <MudStack Class="gap-4">
     <MudStack Class="gap-2">
-        <ItemTemplateListItem>Jp Word</ItemTemplateListItem>
-        <ItemTemplateListItem>Jp Phrase</ItemTemplateListItem>
+        @foreach (var dto in _dtos)
+        {
+            <ItemTemplateListItem>@dto.Name</ItemTemplateListItem>
+        }
     </MudStack>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/itemTemplates/add"))>
-        Add Collection
+        Add
     </MudButton>
 </MudStack>
 
 @code {
+    private Entities.ItemTemplate[]? _dtos = [];
 
+    protected override async Task OnInitializedAsync()
+    {
+        _dtos = await ItemTemplateService.GetAll();
+    }
 }

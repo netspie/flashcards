@@ -539,9 +539,6 @@ video {
   width: -moz-fit-content;
   width: fit-content;
 }
-.flex-row {
-  flex-direction: row;
-}
 .gap-1 {
   gap: 0.25rem;
 }
@@ -574,7 +571,4 @@ video {
 }
 .pt-16 {
   padding-top: 4rem;
-}
-.pt-4 {
-  padding-top: 1rem;
 }
