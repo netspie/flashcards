@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 <MudStack Row=true>
-    <MudButton Variant="Variant.Outlined" OnClick=OnCollectionButton>@ChildContent</MudButton>
+    <MudButton Variant="Variant.Outlined" OnClick=OnItemTemplateButton>@ChildContent</MudButton>
     <MudStack Row=true Class="gap-1">
         <MudIconButton Icon=@Icons.Material.Filled.Edit Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnEditButton />
         <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnEditButton />
@@ -13,13 +13,13 @@
 
     [Inject] public NavigationManager? Navigation { get; set; }
 
-    private void OnCollectionButton()
+    private void OnItemTemplateButton()
     {
-        Navigation?.NavigateTo("/collections/{id}");
+        Navigation?.NavigateTo("/itemTemplates/{id}");
     }
 
     private void OnEditButton()
     {
-        Navigation?.NavigateTo("/collections/edit");
+        Navigation?.NavigateTo("/itemTemplates/edit");
     }
 }

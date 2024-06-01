@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace FlashcardApp
+namespace FlashcardApp.Platforms.MacCatalyst
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

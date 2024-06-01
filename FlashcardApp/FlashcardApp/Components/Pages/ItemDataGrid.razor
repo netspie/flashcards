@@ -1,0 +1,101 @@
+﻿@inherits LayoutComponentBase
+
+<div>
+    <MudDataGrid @ref=_mudDataGrid Items="@_elements" Filterable=false Bordered=false Hover=true RowClick=@OnItemClick T="Item" Outlined=false RowsPerPage=@Limit Elevation=0>
+        <Columns>
+            <PropertyColumn Property="x => x.Front" Title="Front" Filterable=false />
+            <PropertyColumn Property="x => x.Back" Title="Back" Filterable=false />
+        </Columns>
+        <PagerContent>
+            <MudStack Row=true Style="width: 100%;">
+                <MudStack Row=true Style="width: 100%; display: flex; justify-content: right;">
+                    <div class="mud-table-pagination-caption">
+                        <div class="mud-table-page-number-information">
+                            <span>@DTO.Range.Start</span>
+                            -
+                            <span>@(Math.Min(DTO.Range.Limit + DTO.Range.Start, DTO.Range.TotalCount))</span>
+                            of
+                            <span>@(DTO.Range.TotalCount)</span>
+                        </div>
+                    </div>
+                </MudStack>
+                <div style="display: flex; justify-content: right;">
+                    <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowLeft @onclick=@OnFirstPage aria-label="Previous page" />
+                    <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardArrowLeft @onclick=@OnPrevPage aria-label="First page" />
+                    <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardArrowRight @onclick=@OnNextPage aria-label="Previous page" />
+                    <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowRight @onclick=@OnLastPage aria-label="Previous page" />
+                </div>
+            </MudStack>
+        </PagerContent>
+    </MudDataGrid>
+</div>
+
+@code {
+    private const int Limit = 10;
+
+    [Parameter] public ItemsDTO? DTO { get; set; }
+
+    [Inject] public NavigationManager Navigation { get; set; }
+
+    private MudDataGrid<Item>? _mudDataGrid;
+    private List<Item> _elements = new();
+
+    private RangeArg _rangeArg = new(0, Limit);
+
+    protected override void OnInitialized()
+    {
+        _elements = DTO.Items.Select(w => new Item(w.Id, w.Front, w.Back)).ToList();
+    }
+
+    private async Task OnItemClick(DataGridRowClickEventArgs<Item> args)
+    {
+        Navigation.NavigateTo($"/collections/x/items/{args.Item.Id}");
+    }
+
+    private async Task OnPrevPage()
+    {
+        _rangeArg = new RangeArg(Math.Max(_rangeArg.Start - _rangeArg.Limit, 0), _rangeArg.Limit);
+        //await RefreshViewModel();
+    }
+
+    private async Task OnNextPage()
+    {
+        _rangeArg = new RangeArg(_rangeArg.Start + _rangeArg.Limit, _rangeArg.Limit);
+        //await RefreshViewModel();
+    }
+
+    private async Task OnFirstPage()
+    {
+        _rangeArg = new RangeArg(0, _rangeArg.Limit);
+        //await RefreshViewModel();
+    }
+
+    private async Task OnLastPage()
+    {
+        _rangeArg = new RangeArg(Math.Max(DTO.Range.TotalCount - _rangeArg.Limit, 0), DTO.Range.Limit);
+        //await RefreshViewModel();
+    }
+
+    public record Item(
+        string Id,
+        string Front,
+        string Back);
+
+    public record ItemsDTO(
+        ItemDTO[] Items,
+        RangeDTO Range);
+
+    public record ItemDTO(
+        string Id,
+        string Front,
+        string Back);
+
+    public record RangeDTO(
+        int TotalCount,
+        int Start,
+        int Limit);
+
+    public record RangeArg(
+        int Start,
+        int Limit);
+}

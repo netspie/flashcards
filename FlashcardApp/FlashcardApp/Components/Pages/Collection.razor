@@ -1,0 +1,24 @@
+﻿@page "/collections/{id}"
+
+<MudText Typo="Typo.h3" Class="mb-2">Collection</MudText>
+
+<MudStack Class="gap-4">
+    <MudField Label="Name" Variant="Variant.Text">@Name</MudField>
+
+    <ItemDataGrid DTO=@(new ItemDataGrid.ItemsDTO(
+        Items: [
+            new("id-1", "物価", "prices")],
+        Range: new(
+            TotalCount: 100,
+            Start: 11,
+            Limit: 10))) />
+
+    @* <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/collections/add"))>
+        Add Collection
+    </MudButton> *@
+</MudStack>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string Name { get; set; } = "Collection Name";
+}

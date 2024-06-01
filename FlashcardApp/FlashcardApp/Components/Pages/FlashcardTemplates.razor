@@ -1,0 +1,32 @@
+﻿@page "/itemTemplates/{itemTemplateId}/flashcardTemplates"
+
+@inject NavigationManager Navigation
+
+<MudText Typo="Typo.h3" Class="mb-2">Flashcard Templates</MudText>
+<MudText Typo="Typo.h4" Class="mb-2">JP Word</MudText>
+
+<MudStack Class="gap-4">
+    <MudStack Class="gap-2">
+        <TemplateItemListItem>Reading Card</TemplateItemListItem>
+        <TemplateItemListItem>Speaking Card</TemplateItemListItem>
+    </MudStack>
+    <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary">
+        <MudStack Class="p-2">
+            <MudText>Add Flashcard Template</MudText>
+            <MudTextField ShrinkLabel @bind-Value=@_newFlashcardTemplateName Label="Name" Variant="Variant.Outlined"></MudTextField>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => {})>
+                Add
+            </MudButton>
+        </MudStack>
+    </MudMenu>
+</MudStack>
+
+@code {
+    [Parameter] public string? ItemTemplateId { get; set; }
+
+    private bool _isOpen = false;
+
+    public void ToggleOpen() => _isOpen = !_isOpen;
+
+    private string _newFlashcardTemplateName;
+}

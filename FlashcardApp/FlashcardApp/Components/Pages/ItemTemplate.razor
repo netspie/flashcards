@@ -1,0 +1,24 @@
+﻿@page "/itemTemplates/{id}"
+
+@inject NavigationManager Navigation
+
+<MudText Typo="Typo.h3" Class="mb-2">Item Template</MudText>
+
+<MudStack Class="gap-4">
+    <MudField Label="Name" Variant="Variant.Text">@Name</MudField>
+
+    <MudStack Class="gap-2">
+        <TemplateItemListItem>Japanese Word</TemplateItemListItem>
+        <TemplateItemListItem>English Word</TemplateItemListItem>
+        <TemplateItemListItem>Reading</TemplateItemListItem>
+    </MudStack>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/itemTemplates/x/flashcardTemplates"))>
+        Flashcard Templates
+    </MudButton>
+</MudStack>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string Name { get; set; } = "Item Template Name";
+}

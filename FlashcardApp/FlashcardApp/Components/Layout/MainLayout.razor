@@ -4,16 +4,29 @@
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
-<div class="h-full flex flex-row">
-
-    <div class="h-full">
+<MudLayout>
+    <MudAppBar Elevation="1" Dense=true>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+    </MudAppBar>
+    <MudDrawer @bind-Open=@_isOpen Width="200px" ClipMode=DrawerClipMode.Never Elevation="1" Variant="@DrawerVariant.Responsive" Class="w-fit">
         <NavMenu />
-    </div>
-
-    <main>
-        <article class="content px-4 pt-4">
+    </MudDrawer>
+    <MudMainContent Class="pt-16">
+        <MudContainer Class="mt-6">
             @Body
-        </article>
-    </main>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
 
-</div>
+@code {
+
+#if WINDOWS
+    private bool _isOpen = true;
+#else
+    private bool _isOpen = false;
+#endif
+
+    void ToggleDrawer() => _isOpen = !_isOpen;
+}

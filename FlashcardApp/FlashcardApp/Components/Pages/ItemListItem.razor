@@ -1,0 +1,36 @@
+﻿@inherits LayoutComponentBase
+
+<MudStack Row=true Class="rounded-lg border-[1px] p-2 border-slate-100">
+
+    @if (Properties.Length >= 1)
+    {
+        <MudField Label=@Properties[0].Name Variant="Variant.Text" Class="w-1/2">@Properties[0].Content</MudField>
+    }
+
+    @if (Properties.Length >= 2)
+    {
+        <MudField Label=@Properties[1].Name Variant="Variant.Text" Class="w-1/2">@Properties[1].Content</MudField>
+    }
+
+    <MudStack Row=true Class="gap-1">
+        <MudIconButton Icon=@Icons.Material.Filled.Edit Variant=Variant.Outlined Color=Color.Primary Size=Size.Small />
+        <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Outlined Color=Color.Primary Size=Size.Small />
+    </MudStack>
+
+</MudStack>
+
+@code {
+    [Parameter] public Property[] Properties { get; set; } = [];
+
+    [Inject] public NavigationManager? Navigation { get; set; }
+
+    private void OnEditButton()
+    {
+        Navigation?.NavigateTo("/items/{id}/edit");
+    }
+
+    public record Property(string Name, string Content)
+    {
+        public static implicit operator Property((string Name, string Content) args) => new(args.Name, args.Content);
+    }
+}

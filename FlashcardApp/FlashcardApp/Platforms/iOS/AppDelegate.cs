@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace FlashcardApp
+namespace FlashcardApp.Platforms.iOS
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

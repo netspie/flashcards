@@ -1,0 +1,19 @@
+﻿@page "/itemTemplates"
+
+@inject NavigationManager Navigation
+
+<MudText Typo="Typo.h3" Class="mb-2">Item Templates</MudText>
+
+<MudStack Class="gap-4">
+    <MudStack Class="gap-2">
+        <ItemTemplateListItem>Jp Word</ItemTemplateListItem>
+        <ItemTemplateListItem>Jp Phrase</ItemTemplateListItem>
+    </MudStack>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/itemTemplates/add"))>
+        Add Collection
+    </MudButton>
+</MudStack>
+
+@code {
+
+}

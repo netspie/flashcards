@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace FlashcardApp
+namespace FlashcardApp.Platforms.MacCatalyst
 {
     public class Program
     {
