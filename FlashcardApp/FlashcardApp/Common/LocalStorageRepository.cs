@@ -12,7 +12,7 @@ public class LocalStorageRepository<TEntity> : IRepository<TEntity>
     public LocalStorageRepository(
         string pathToDirectory)
     {
-        _pathToDirectory = pathToDirectory;
+        _pathToDirectory = pathToDirectory.Replace("\\", "/");
         _readJsonSettings = new JsonSerializerSettings()
         {
             NullValueHandling = NullValueHandling.Ignore,
