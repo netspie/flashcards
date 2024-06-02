@@ -1,0 +1,85 @@
+﻿@using FlashcardApp.Services
+@inherits LayoutComponentBase
+
+@inject NavigationManager Navigation
+@inject ItemTemplateService ItemTemplateService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudStack Row=true>
+    <MudButton Variant="Variant.Outlined">@Name</MudButton>
+    <MudStack Row=true Class="gap-1">
+        <MudIconButton Icon=@Icons.Material.Filled.Edit Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnEditButton />
+        @if (!IsFirst)
+        {
+            <MudIconButton Icon=@Icons.Material.Filled.ArrowUpward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(-1)) />
+        }
+        @if (!IsLast)
+        {
+            <MudIconButton Icon=@Icons.Material.Filled.ArrowDownward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(1)) />
+        }
+        <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Outlined Color=Color.Secondary Size=Size.Small OnClick=@OnRemoveButton />
+    </MudStack>
+</MudStack>
+
+@code {
+    [Parameter] public string? ItemTemplateId { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public int Index { get; set; }
+    [Parameter] public bool IsFirst { get; set; }
+    [Parameter] public bool IsLast { get; set; }
+
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private void OnEditButton()
+    {
+        //Navigation?.NavigateTo("/items/{id}/edit");
+    }
+
+    private async Task OnMove(int dir)
+    {
+        var itemTemplate = await ItemTemplateService.Get(ItemTemplateId);
+        var f = itemTemplate.Fields;
+        var i = Index;
+
+        (f[i], f[i + dir]) = (f[i + dir], f[i]);
+
+        var msg = await ItemTemplateService.Update(itemTemplate) ?
+            "Field has been moved" :
+            "Field could not be moved";
+
+        Snackbar.Add(msg);
+
+        await OnChanged.InvokeAsync();
+
+        StateHasChanged();
+    }
+
+    private async Task OnRemoveButton()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you 100% sure you wanna remove this field?",
+            yesText: "Remove!", cancelText: "Cancel");
+
+        if (result is not null && ItemTemplateId is not null)
+        {
+            var itemTemplate = await ItemTemplateService.Get(ItemTemplateId);
+            if (!itemTemplate.Fields.Remove(Name))
+            {
+                Snackbar.Add("Field could not be removed");
+                return;
+            }
+
+            var msg = await ItemTemplateService.Update(itemTemplate) ?
+                "Field has been removed" :
+                "Field could not be removed";
+
+            Snackbar.Add(msg);
+
+            await OnChanged.InvokeAsync();
+        }
+
+        StateHasChanged();
+    }
+}

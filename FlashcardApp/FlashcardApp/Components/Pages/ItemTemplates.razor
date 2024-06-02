@@ -1,28 +1,67 @@
 ﻿@page "/itemTemplates"
+
 @using FlashcardApp.Services
 
 @inject NavigationManager Navigation
 @inject ItemTemplateService ItemTemplateService
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h3" Class="mb-2">Item Templates</MudText>
 
-<MudStack Class="gap-4">
-    <MudStack Class="gap-2">
+<MudStack Class="gap-4 align-left">
+    <MudStack Class="item-templates gap-2">
         @foreach (var dto in _dtos)
         {
-            <ItemTemplateListItem>@dto.Name</ItemTemplateListItem>
+            <ItemTemplateListItem 
+                Id=@dto.Id 
+                Name=@dto.Name
+                OnChanged=Refresh />
         }
     </MudStack>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/itemTemplates/add"))>
-        Add
-    </MudButton>
+    <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+        <MudStack Class="p-2">
+            <MudText>Add Item Template</MudText>
+            <MudTextField ShrinkLabel @bind-Value=@_itemTemplateName Label="Name" Variant="Variant.Outlined"></MudTextField>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnAddItemTemplateButton>
+                Add
+            </MudButton>
+        </MudStack>
+    </MudMenu>
 </MudStack>
 
 @code {
     private Entities.ItemTemplate[]? _dtos = [];
 
+    private string _itemTemplateName;
+
     protected override async Task OnInitializedAsync()
     {
-        _dtos = await ItemTemplateService.GetAll();
+        await Refresh();
     }
+
+    private async Task OnAddItemTemplateButton()
+    {
+        if (_itemTemplateName is null or [])
+        {
+            Snackbar.Add("Provide a name");
+            return;
+        }
+
+        var itemTemplate = new Entities.ItemTemplate()
+        {
+            Name = _itemTemplateName
+        };
+
+        var msg = await ItemTemplateService.Create(itemTemplate) ?
+            "Item template has been added" :
+            "Item template could not be added";
+
+        Snackbar.Add(msg);
+
+        _itemTemplateName = "";
+
+        await Refresh();
+    }
+
+    private async Task Refresh() => _dtos = await ItemTemplateService.GetAll();
 }

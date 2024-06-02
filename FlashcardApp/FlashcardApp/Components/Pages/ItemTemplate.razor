@@ -1,17 +1,40 @@
 ﻿@page "/itemTemplates/{id}"
+@using FlashcardApp.Services
 
 @inject NavigationManager Navigation
+@inject ItemTemplateService ItemTemplateService
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h3" Class="mb-2">Item Template</MudText>
 
 <MudStack Class="gap-4">
-    <MudField Label="Name" Variant="Variant.Text">@Name</MudField>
+    <MudField Label="Name" Variant="Variant.Text">@_dto.Name</MudField>
 
     <MudStack Class="gap-2">
-        <TemplateItemListItem>Japanese Word</TemplateItemListItem>
-        <TemplateItemListItem>English Word</TemplateItemListItem>
-        <TemplateItemListItem>Reading</TemplateItemListItem>
+        @foreach (var field in _dto.Fields)
+        {
+            var i = _dto.Fields.IndexOf(field);
+            var len = _dto.Fields.Count;
+
+            <ItemTemplateFieldListItem 
+                Name=@field 
+                ItemTemplateId=@Id 
+                Index=_dto.Fields.IndexOf(field)
+                IsFirst=@(i is 0)
+                IsLast=@(i == len - 1)
+                OnChanged=Refresh />
+        }
     </MudStack>
+
+    <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+        <MudStack Class="p-2">
+            <MudText>Add Field</MudText>
+            <MudTextField ShrinkLabel @bind-Value=@_newFieldName Label="Name" Variant="Variant.Outlined"></MudTextField>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnAddFieldButton>
+                Add
+            </MudButton>
+        </MudStack>
+    </MudMenu>
 
     <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/itemTemplates/x/flashcardTemplates"))>
         Flashcard Templates
@@ -20,5 +43,43 @@
 
 @code {
     [Parameter] public string? Id { get; set; }
-    [Parameter] public string Name { get; set; } = "Item Template Name";
+
+    private string _newFieldName;
+
+    private Entities.ItemTemplate? _dto;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+    private async Task OnAddFieldButton()
+    {
+        if (_newFieldName is null or [])
+        {
+            Snackbar.Add("Provide a name");
+            return;
+        }
+
+        if (_dto.Fields.Any(f => f == _newFieldName))
+        {
+            Snackbar.Add("Such field already exists");
+            return;
+        }
+
+        _dto.Fields.Add(_newFieldName);
+
+        var msg = await ItemTemplateService.Update(_dto) ?
+            "Item template has been added" :
+            "Item template could not be added";
+
+        Snackbar.Add(msg);
+
+        _newFieldName = "";
+
+        await Refresh();
+    }
+
+
+    private async Task Refresh() => _dto = await ItemTemplateService.Get(Id);
 }

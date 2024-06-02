@@ -1,25 +1,54 @@
-﻿@inherits LayoutComponentBase
+﻿@using FlashcardApp.Services
+
+@inherits LayoutComponentBase
+
+@inject NavigationManager Navigation
+@inject ItemTemplateService ItemTemplateService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <MudStack Row=true>
-    <MudButton Variant="Variant.Outlined" OnClick=OnItemTemplateButton>@ChildContent</MudButton>
+    <MudButton Variant="Variant.Outlined" OnClick=OnItemTemplateButton>@Name</MudButton>
     <MudStack Row=true Class="gap-1">
         <MudIconButton Icon=@Icons.Material.Filled.Edit Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnEditButton />
-        <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnEditButton />
+        <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnArchiveButton />
     </MudStack>
 </MudStack>
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string? Name { get; set; }
 
-    [Inject] public NavigationManager? Navigation { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
 
     private void OnItemTemplateButton()
     {
-        Navigation?.NavigateTo("/itemTemplates/{id}");
+        Navigation?.NavigateTo($"/itemTemplates/{Id}");
     }
 
     private void OnEditButton()
     {
         Navigation?.NavigateTo("/itemTemplates/edit");
+    }
+
+    private async Task OnArchiveButton()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you 100% sure you wanna archive this item?",
+            yesText: "Archive!", cancelText: "Cancel");
+
+        if (result is not null && Id is not null)
+        {
+            var msg = await ItemTemplateService.Delete(Id) ?
+                "Item template has been archived" :
+                "Item template could not be archived";
+
+            Snackbar.Add(msg);
+
+            await OnChanged.InvokeAsync();
+        }
+
+        StateHasChanged();
     }
 }
