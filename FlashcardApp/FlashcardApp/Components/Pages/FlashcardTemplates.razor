@@ -6,19 +6,13 @@
 <MudText Typo="Typo.h4" Class="mb-2">JP Word</MudText>
 
 <MudStack Class="gap-4">
-    <MudStack Class="gap-2">
-        <TemplateItemListItem>Reading Card</TemplateItemListItem>
-        <TemplateItemListItem>Speaking Card</TemplateItemListItem>
-    </MudStack>
-    <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary">
-        <MudStack Class="p-2">
-            <MudText>Add Flashcard Template</MudText>
-            <MudTextField ShrinkLabel @bind-Value=@_newFlashcardTemplateName Label="Name" Variant="Variant.Outlined"></MudTextField>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => {})>
-                Add
-            </MudButton>
-        </MudStack>
-    </MudMenu>
+    <EditableList
+        Items=@([("", "Reading"), ("", "Listening"), ("", "Speaking"), ("", "Writing")])
+        OnItemAdded=OnAdded
+        OnItemSelected=OnSelected
+        OnItemEdit=OnEdit
+        OnItemMoved=OnMoved
+        OnItemRemoved=OnRemoved />
 </MudStack>
 
 @code {
@@ -29,4 +23,30 @@
     public void ToggleOpen() => _isOpen = !_isOpen;
 
     private string _newFlashcardTemplateName;
+
+    private Task<bool>? OnAdded(EditableList list, string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    private Task? OnSelected(EditableList list, EditableListItem item)
+    {
+        throw new NotImplementedException();
+    }
+
+    private Task<bool>? OnEdit(EditableList list, EditableListItem item)
+    {
+        throw new NotImplementedException();
+    }
+
+    private Task<bool>? OnMoved(EditableList list, EditableListItem item, int dir)
+    {
+        throw new NotImplementedException();
+    }
+
+    private Task<bool>? OnRemoved(EditableList list, EditableListItem item)
+    {
+        throw new NotImplementedException();
+    }
+
 }

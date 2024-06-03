@@ -1,6 +1,96 @@
 ﻿
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
+@if (Items is null) { return; }
+
+<MudStack Class="gap-2">
+    @for (var i = 0; i < Items.Count; i++)
+    {
+        var item = Items[i];
+        <EditableListItem 
+            Id=@item.Id
+            Name=@item.Name 
+            Index=i
+            IsFirst=@(i is 0)
+            IsLast=@(i == Items.Count - 1)
+
+            OnSelected=OnSelectedInternal
+            OnEdit=OnEditInternal
+            OnMoved=OnMovedInternal
+            OnRemoved=OnRemovedInternal />
+    }
+
+    <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+        <MudStack Class="p-2">
+            <MudText>Add</MudText>
+            <MudTextField ShrinkLabel @bind-Value=@_newItemName Label="Name" Variant=Variant.Outlined></MudTextField>
+            <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAddItemButton>
+                Add
+            </MudButton>
+        </MudStack>
+    </MudMenu>
+</MudStack>
 
 @code {
-    public EventCallback On { get; set; }
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public List<(string Id, string Name)>? Items { get;set; }
+
+    [Parameter] public Func<EditableList, EditableListItem, Task>? OnItemSelected { get; set; }
+    [Parameter] public Func<EditableList, string, Task<bool>>? OnItemAdded { get; set; }
+    [Parameter] public Func<EditableList, EditableListItem, Task<bool>>? OnItemEdit { get; set; }
+    [Parameter] public Func<EditableList, EditableListItem, int, Task<bool>>? OnItemMoved { get; set; }
+    [Parameter] public Func<EditableList, EditableListItem, Task<bool>>? OnItemRemoved { get; set; }
+
+    private string _newItemName;
+
+    private Task? OnSelectedInternal(EditableListItem item) => OnItemSelected?.Invoke(this, item);
+
+    private Task<bool>? OnEditInternal(EditableListItem item)
+    {
+        InvokeAsync(StateHasChanged);
+        return OnItemEdit?.Invoke(this, item);
+    }
+
+    private Task<bool>? OnMovedInternal(EditableListItem item, int dir)
+    {
+        (Items[item.Index], Items[item.Index - dir]) = (Items[item.Index - dir], Items[item.Index]);
+        InvokeAsync(StateHasChanged);
+        return OnItemMoved?.Invoke(this, item, dir);
+    }
+
+    private Task<bool>? OnRemovedInternal(EditableListItem item)
+    {
+        Items?.RemoveAt(item.Index);
+        InvokeAsync(StateHasChanged);
+        return OnItemRemoved?.Invoke(this, item);
+    }
+
+    private async Task OnAddItemButton()
+    {
+        if (_newItemName is null or [])
+        {
+            Snackbar.Add("Provide a name");
+            return;
+        }
+
+        if (Items.Any(item => item.Name == _newItemName))
+        {
+            Snackbar.Add("Item of such name already exists");
+            return;
+        }
+
+        Items.Add(new("", _newItemName));
+
+        await InvokeAsync(StateHasChanged);
+
+        if (OnItemAdded is not null && OnItemAdded?.Invoke(this, _newItemName) is Task<bool> itemAddedResult)
+        {
+            var msg = await itemAddedResult ?
+                "Item name has been changed" :
+                "Item name could not be changed";
+
+            Snackbar.Add(msg);
+        }
+    }
 }

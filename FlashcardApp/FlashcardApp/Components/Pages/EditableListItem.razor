@@ -1,0 +1,112 @@
+﻿@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudStack Row=true>
+    <MudButton Variant="Variant.Outlined" OnClick=OnNameButton>@Name</MudButton>
+    <MudStack Row=true Class="gap-1">
+        <MudMenu Icon=@Icons.Material.Filled.Edit Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+            <MudStack Class="p-2">
+                <MudText>Change Name</MudText>
+                <MudTextField ShrinkLabel @bind-Value=@_fieldName Label="Name" Variant="Variant.Outlined"></MudTextField>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnEditButton>
+                    Edit
+                </MudButton>
+            </MudStack>
+        </MudMenu>
+        @if (!IsFirst)
+        {
+            <MudIconButton Icon=@Icons.Material.Filled.ArrowUpward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(-1)) />
+        }
+        @if (!IsLast)
+        {
+            <MudIconButton Icon=@Icons.Material.Filled.ArrowDownward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(1)) />
+        }
+        <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Outlined Color=Color.Secondary Size=Size.Small OnClick=@OnRemoveButton />
+    </MudStack>
+</MudStack>
+
+@code {
+    public EventCallback On { get; set; }
+
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public int Index { get; set; }
+    [Parameter] public bool IsFirst { get; set; }
+    [Parameter] public bool IsLast { get; set; }
+
+    [Parameter] public Func<EditableListItem, Task>? OnSelected { get; set; }
+    [Parameter] public Func<EditableListItem, Task<bool>>? OnEdit { get; set; }
+    [Parameter] public Func<EditableListItem, int, Task<bool>>? OnMoved { get; set; }
+    [Parameter] public Func<EditableListItem, Task<bool>>? OnRemoved { get; set; }
+
+    private string? _fieldName;
+
+    protected override void OnInitialized()
+    {
+        _fieldName = Name;
+    }
+
+    private async Task OnNameButton()
+    {
+        if (OnSelected is not null && OnSelected.Invoke(this) is Task<bool> result)
+            await result;
+    }
+
+    private async Task OnEditButton()
+    {
+        if (_fieldName is null or [])
+        {
+            Snackbar.Add("Provide a name");
+            return;
+        }
+
+        Name = _fieldName;
+
+        await InvokeAsync(StateHasChanged);
+
+        if (OnEdit is not null && OnEdit.Invoke(this) is Task<bool> nameChangedResult)
+        {
+            var msg = await nameChangedResult ?
+                "Item name has been changed" :
+                "Item name could not be changed";
+
+            Snackbar.Add(msg);
+        }
+    }
+
+    private async Task OnMove(int dir)
+    {
+        Index += dir;
+
+        await InvokeAsync(StateHasChanged);
+
+        if (OnMoved is not null && OnMoved.Invoke(this, dir) is Task<bool> onMovedResult)
+        {
+            var msg = await onMovedResult ?
+                "Item has been moved" :
+                "Item could not be moved";
+
+            Snackbar.Add(msg);
+        }
+    }
+
+    private async Task OnRemoveButton()
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you 100% sure you wanna remove this item?",
+            yesText: "Remove", cancelText: "Cancel");
+
+        if (result is null)
+            return;
+
+        if (OnRemoved is not null && OnRemoved.Invoke(this) is Task<bool> onRemovedResult)
+        {
+            var msg = await onRemovedResult ?
+                "Item has been removed" :
+                "Item could not be removed";
+
+            Snackbar.Add(msg);
+        }
+    }
+}
