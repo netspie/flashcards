@@ -1,0 +1,65 @@
+﻿@using FlashcardApp.Common
+
+@inherits LayoutComponentBase
+
+@inject AudioService AudioService
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+
+<MudStack>
+    <div class="f5 mb2">
+        @if (!AudioService.IsRecording)
+        {
+            <MudIconButton Icon=@Icons.Material.Filled.Mic Variant=Variant.Filled Color=Color.Primary Size=Size.Small OnClick=StartRecording />
+        }
+        else
+        {
+            <MudIconButton Icon=@Icons.Material.Filled.Stop Variant=Variant.Filled Color=Color.Secondary Size=Size.Small OnClick=StopRecording />
+        }
+    </div>
+    <audio controls @ref=_audioPlayer src="@_audioSource" class="bg-purple-100 rounded-lg hidden">
+        Your browser does not support the audio element.
+    </audio>
+</MudStack>
+
+<script>
+    window.playAudio = (audioElement) => {
+        audioElement.play();
+    };
+</script>
+
+@code {
+    private Stream? _recordedAudioStream;
+    private string? _audioSource;
+    private ElementReference? _audioPlayer;
+
+    [Parameter] public EventCallback<string> OnRecorded { get; set; }
+
+    public async void StartRecording()
+    {
+        if (await Permissions.RequestAsync<Permissions.Microphone>() != PermissionStatus.Granted)
+        {
+            Snackbar.Add("Can't record");
+        }
+        else
+        {
+            await AudioService.StartRecordingAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async void StopRecording()
+    {
+        _recordedAudioStream = await AudioService.StopRecordingAsync();
+
+        var audioBytes = new byte[_recordedAudioStream.Length];
+        await _recordedAudioStream.ReadAsync(audioBytes, 0, (int)_recordedAudioStream.Length);
+        var base64String = Convert.ToBase64String(audioBytes);
+
+        _audioSource = $"data:audio/mpeg;base64,{base64String}";
+
+        await InvokeAsync(StateHasChanged);
+        await JS.InvokeVoidAsync("playAudio", _audioPlayer);
+        await OnRecorded.InvokeAsync(_audioSource);
+    }
+}

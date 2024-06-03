@@ -30,56 +30,10 @@
             </MudButton>
         </MudStack>
     </MudMenu>
+    <AudioRecorder />
 </MudStack>
 
-<div class="flex-column mt3">
-    <div class="f5 mb2">
-        Record an audio
-    </div>
-    <div class="f5 mb2">
-        @if (!AudioService.IsRecording)
-        {
-            <button @onclick="StartRecording"> Start</button>
-        }
-        else
-        {
-            <button @onclick="StopRecording"> Stop</button>
-        }
-    </div>
-    <audio controls src="@AudioSource">
-        Your browser does not support the audio element.
-    </audio>
-</div>
-
 @code {
-
-    private Stream recordedAudioStream;
-    private string AudioSource { get; set; }
-    public async void StartRecording()
-    {
-        if (await Permissions.RequestAsync<Permissions.Microphone>() != PermissionStatus.Granted)
-        {
-            Snackbar.Add("Can't record");
-        }
-        else
-        {
-            await AudioService.StartRecordingAsync();
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    public async void StopRecording()
-    {
-        recordedAudioStream = await AudioService.StopRecordingAsync();
-
-        var audioBytes = new byte[recordedAudioStream.Length];
-        await recordedAudioStream.ReadAsync(audioBytes, 0, (int)recordedAudioStream.Length);
-        var base64String = Convert.ToBase64String(audioBytes);
-
-        AudioSource = $"data:audio/mpeg;base64,{base64String}";
-        StateHasChanged();
-    }
-
     private Entities.ItemTemplate[]? _dtos = [];
 
     private string _itemTemplateName;
