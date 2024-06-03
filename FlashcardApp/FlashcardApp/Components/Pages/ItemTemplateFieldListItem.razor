@@ -9,7 +9,15 @@
 <MudStack Row=true>
     <MudButton Variant="Variant.Outlined">@Name</MudButton>
     <MudStack Row=true Class="gap-1">
-        <MudIconButton Icon=@Icons.Material.Filled.Edit Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnEditButton />
+        <MudMenu Icon=@Icons.Material.Filled.Edit Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+            <MudStack Class="p-2">
+                <MudText>Change Field Name</MudText>
+                <MudTextField ShrinkLabel @bind-Value=@_fieldName Label="Name" Variant="Variant.Outlined"></MudTextField>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnEditButton>
+                    Edit
+                </MudButton>
+            </MudStack>
+        </MudMenu>
         @if (!IsFirst)
         {
             <MudIconButton Icon=@Icons.Material.Filled.ArrowUpward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(-1)) />
@@ -31,9 +39,32 @@
 
     [Parameter] public EventCallback OnChanged { get; set; }
 
-    private void OnEditButton()
+    private string? _fieldName;
+
+    protected override void OnInitialized()
     {
-        //Navigation?.NavigateTo("/items/{id}/edit");
+        _fieldName = Name;
+    }
+
+    private async Task OnEditButton()
+    {
+        if (_fieldName is null or [])
+        {
+            Snackbar.Add("Provide a name");
+            return;
+        }
+
+        var itemTemplate = await ItemTemplateService.Get(ItemTemplateId);
+        itemTemplate.Fields[Index] = _fieldName;
+
+        var msg = await ItemTemplateService.Update(itemTemplate) ?
+            "Field name has been changed" :
+            "Field name could not be changed";
+
+        Snackbar.Add(msg);
+
+        StateHasChanged();
+        await OnChanged.InvokeAsync();
     }
 
     private async Task OnMove(int dir)
@@ -60,7 +91,7 @@
         bool? result = await DialogService.ShowMessageBox(
             "Warning",
             "Are you 100% sure you wanna remove this field?",
-            yesText: "Remove!", cancelText: "Cancel");
+            yesText: "Remove", cancelText: "Cancel");
 
         if (result is not null && ItemTemplateId is not null)
         {

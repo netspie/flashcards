@@ -4,6 +4,7 @@ using FlashcardApp.Services;
 using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Services;
+using Plugin.Maui.Audio;
 
 namespace FlashcardApp
 {
@@ -22,7 +23,7 @@ namespace FlashcardApp
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices(config =>
             {
-                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
                 config.SnackbarConfiguration.VisibleStateDuration = 2000;
             });
 
@@ -32,6 +33,8 @@ namespace FlashcardApp
             builder.Services.AddSingleton(CreateRepo<Entities.ItemTemplate>("itemTemplates"));
 
             builder.Services.AddSingleton<ItemTemplateService>();
+            builder.Services.AddSingleton<IAudioManager>(new AudioManager());
+            builder.Services.AddSingleton<AudioService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

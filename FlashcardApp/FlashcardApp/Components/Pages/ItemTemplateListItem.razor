@@ -7,12 +7,18 @@
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudStack Row=true>
+<MudStack Row=true Class="gap-1">
     <MudButton Variant="Variant.Outlined" OnClick=OnItemTemplateButton>@Name</MudButton>
-    <MudStack Row=true Class="gap-1">
-        <MudIconButton Icon=@Icons.Material.Filled.Edit Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnEditButton />
-        <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@OnArchiveButton />
-    </MudStack>
+    <MudMenu Icon=@Icons.Material.Filled.Edit Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+        <MudStack Class="p-2">
+            <MudText>Change Item Template Name</MudText>
+            <MudTextField ShrinkLabel @bind-Value=@_itemTemplateName Label="Name" Variant="Variant.Outlined"></MudTextField>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnEditButton>
+                Edit
+            </MudButton>
+        </MudStack>
+    </MudMenu>
+    <MudIconButton Icon=@Icons.Material.Filled.Remove Variant=Variant.Filled Color=Color.Primary Size=Size.Small OnClick=@OnArchiveButton />
 </MudStack>
 
 @code {
@@ -21,14 +27,37 @@
 
     [Parameter] public EventCallback OnChanged { get; set; }
 
+    private string? _itemTemplateName;
+
+    protected override void OnInitialized()
+    {
+        _itemTemplateName = Name;
+    }
+
     private void OnItemTemplateButton()
     {
         Navigation?.NavigateTo($"/itemTemplates/{Id}");
     }
 
-    private void OnEditButton()
+    private async Task OnEditButton()
     {
-        Navigation?.NavigateTo("/itemTemplates/edit");
+        if (_itemTemplateName is null or [])
+        {
+            Snackbar.Add("Provide a name");
+            return;
+        }
+
+        var itemTemplate = await ItemTemplateService.Get(Id);
+        itemTemplate.Name = _itemTemplateName;
+
+        var msg = await ItemTemplateService.Update(itemTemplate) ?
+            "Item template name has been changed" :
+            "Item template name could not be changed";
+
+        Snackbar.Add(msg);
+
+        StateHasChanged();
+        await OnChanged.InvokeAsync();
     }
 
     private async Task OnArchiveButton()
@@ -46,9 +75,8 @@
 
             Snackbar.Add(msg);
 
+            StateHasChanged();
             await OnChanged.InvokeAsync();
         }
-
-        StateHasChanged();
     }
 }
