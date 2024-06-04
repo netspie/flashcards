@@ -1,0 +1,33 @@
+﻿using Microsoft.AspNetCore.Components.Forms;
+
+namespace FlashcardApp.Common;
+
+public static class FunctionalExtensions
+{
+    public static T? Do<T>(this T? input, Action<T> action)
+    {
+        if (input is null)
+            return default;
+
+        action(input);
+
+        return input;
+    }
+
+    public static async Task<bool> Do(this Task<bool> task, Func<Task> action)
+    {
+        var result = await task;
+        if (result)
+            await action();
+
+        return result;
+    }
+
+    public static async Task<bool> Map<T>(this T? input, Func<T, Task<bool>> action)
+    {
+        if (input is null)
+            return default;
+
+        return await action(input);
+    }
+}

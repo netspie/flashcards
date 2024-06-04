@@ -36,9 +36,8 @@
         </MudStack>
     </MudMenu>
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/itemTemplates/x/flashcardTemplates"))>
-        Flashcard Templates
-    </MudButton>
+    <MudText Typo="Typo.h5" Class="mb-2">Flashcard Templates</MudText>
+    <FlashcardTemplates ItemTemplateId=@Id />
 </MudStack>
 
 @code {

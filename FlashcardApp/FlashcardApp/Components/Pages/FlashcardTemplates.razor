@@ -1,13 +1,16 @@
-﻿@page "/itemTemplates/{itemTemplateId}/flashcardTemplates"
+﻿@inherits LayoutComponentBase
 
+@using FlashcardApp.Common
+@using FlashcardApp.Services
+
+@inject ItemTemplateService ItemTemplateService
 @inject NavigationManager Navigation
 
-<MudText Typo="Typo.h3" Class="mb-2">Flashcard Templates</MudText>
-<MudText Typo="Typo.h4" Class="mb-2">JP Word</MudText>
+@if (_dto is null) { return; }
 
 <MudStack Class="gap-4">
     <EditableList
-        Items=@([("", "Reading"), ("", "Listening"), ("", "Speaking"), ("", "Writing")])
+        Items=@_dto.FlashcardTemplates.Select(ft => (ft.Id, ft.Name)).ToList()
         OnItemAdded=OnAdded
         OnItemSelected=OnSelected
         OnItemEdit=OnEdit
@@ -18,35 +21,56 @@
 @code {
     [Parameter] public string? ItemTemplateId { get; set; }
 
-    private bool _isOpen = false;
-
-    public void ToggleOpen() => _isOpen = !_isOpen;
+    private Entities.ItemTemplate? _dto;
 
     private string _newFlashcardTemplateName;
 
+    protected override Task OnInitializedAsync() =>
+        RefreshView();
+
     private Task<bool>? OnAdded(EditableList list, string name)
     {
-        throw new NotImplementedException();
+        _dto.AddFlashcardTemplate(name);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
     }
 
-    private Task? OnSelected(EditableList list, EditableListItem item)
+    private async Task? OnSelected(EditableList list, EditableListItem item)
     {
-        throw new NotImplementedException();
+        //Navigation.NavigateTo($"/itemTemplates/{ItemTemplateId}/flashcardTemplates/{item.Id}");
     }
 
     private Task<bool>? OnEdit(EditableList list, EditableListItem item)
     {
-        throw new NotImplementedException();
+        _dto.RenameFlashcardTemplate(item.Id, item.Name);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
     }
 
     private Task<bool>? OnMoved(EditableList list, EditableListItem item, int dir)
     {
-        throw new NotImplementedException();
+        _dto.MoveFlashcardTemplate(item.Id, dir);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
     }
 
     private Task<bool>? OnRemoved(EditableList list, EditableListItem item)
     {
-        throw new NotImplementedException();
+        _dto.RemoveFlashcardTemplate(item.Id);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
     }
 
+    public async Task RefreshDTO() =>
+        _dto = await ItemTemplateService.Get(ItemTemplateId);
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
+    }
 }

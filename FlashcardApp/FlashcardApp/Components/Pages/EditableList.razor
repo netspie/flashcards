@@ -87,8 +87,8 @@
         if (OnItemAdded is not null && OnItemAdded?.Invoke(this, _newItemName) is Task<bool> itemAddedResult)
         {
             var msg = await itemAddedResult ?
-                "Item name has been changed" :
-                "Item name could not be changed";
+                "Item has been added" :
+                "Item could not be added";
 
             Snackbar.Add(msg);
         }
