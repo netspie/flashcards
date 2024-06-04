@@ -1,7 +1,7 @@
-﻿@inherits LayoutComponentBase
-
-@using FlashcardApp.Common
+﻿@using FlashcardApp.Common
 @using FlashcardApp.Services
+
+@inherits LayoutComponentBase
 
 @inject ItemTemplateService ItemTemplateService
 @inject NavigationManager Navigation
@@ -38,7 +38,7 @@
 
     private async Task? OnSelected(EditableList list, EditableListItem item)
     {
-        //Navigation.NavigateTo($"/itemTemplates/{ItemTemplateId}/flashcardTemplates/{item.Id}");
+        Navigation.NavigateTo($"/itemTemplates/{ItemTemplateId}/flashcardTemplates/{item.Id}");
     }
 
     private Task<bool>? OnEdit(EditableList list, EditableListItem item)

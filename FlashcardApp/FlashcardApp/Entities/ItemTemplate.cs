@@ -26,6 +26,35 @@ public class ItemTemplate : Entity
 
         (f[i], f[i + dir]) = (f[i+dir], f[i]);
     }
+
+    public bool AddFlashcardTemplateSideField(string flashcardTemplateId, int sideIndex, string field)
+    {
+        if (!Fields.Contains(field))
+            return false;
+
+        GetFlashcardTemplate(flashcardTemplateId)
+            .Sides[sideIndex]
+            .Fields
+            .Add(field);
+
+        return true;
+    }
+
+    public bool RenameFlashcardTemplateSideField(string flashcardTemplateId, int sideIndex, string oldFieldName, string newFieldName)
+    {
+        if (!Fields.Contains(newFieldName))
+            return false;
+
+        //GetFlashcardTemplate(flashcardTemplateId)
+        //    .Sides[sideIndex]
+        //    .Fields
+        //    .Add(field);
+
+        return true;
+    }
+
+    private FlashcardTemplate GetFlashcardTemplate(string flashcardTemplateId) =>
+        FlashcardTemplates.FirstOrDefault(ft => ft.Id == flashcardTemplateId);
 }
 
 public class FlashcardTemplate(string name = "New Flashcard Template")
@@ -34,8 +63,9 @@ public class FlashcardTemplate(string name = "New Flashcard Template")
     public string Name { get; set; } = name;
     public List<Side> Sides { get; init; } = [];
 
-    public record Side()
+    public record Side
     {
+        public string Name { get; set; } = "New Side";
         public List<string> Fields { get; init; } = [];
     }
 }
