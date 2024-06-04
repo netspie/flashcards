@@ -30,4 +30,12 @@ public static class FunctionalExtensions
 
         return await action(input);
     }
+
+    public static TOut Map<TIn, TOut>(this TIn? input, Func<TIn, TOut> mapper)
+    {
+        if (input is null)
+            return default;
+
+        return mapper(input);
+    }
 }

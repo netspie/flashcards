@@ -1,4 +1,6 @@
 ﻿@page "/itemTemplates/{id}"
+
+@using FlashcardApp.Common
 @using FlashcardApp.Services
 
 @inject NavigationManager Navigation
@@ -11,30 +13,13 @@
     <MudField Label="Name" Variant="Variant.Text">@_dto.Name</MudField>
 
     <MudStack Class="gap-2">
-        @foreach (var field in _dto.Fields)
-        {
-            var i = _dto.Fields.IndexOf(field);
-            var len = _dto.Fields.Count;
-
-            <ItemTemplateFieldListItem 
-                Name=@field 
-                ItemTemplateId=@Id 
-                Index=_dto.Fields.IndexOf(field)
-                IsFirst=@(i is 0)
-                IsLast=@(i == len - 1)
-                OnChanged=Refresh />
-        }
+        <EditableList
+            Items=@_dto.Fields.Select(f => (f.Id, f.Name)).ToList()
+            OnItemAdded=OnFieldAdded
+            OnItemEdit=OnFieldEdit
+            OnItemMoved=OnFieldMoved
+            OnItemRemoved=OnFieldRemoved />
     </MudStack>
-
-    <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
-        <MudStack Class="p-2">
-            <MudText>Add Field</MudText>
-            <MudTextField ShrinkLabel @bind-Value=@_newFieldName Label="Name" Variant="Variant.Outlined"></MudTextField>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnAddFieldButton>
-                Add
-            </MudButton>
-        </MudStack>
-    </MudMenu>
 
     <MudText Typo="Typo.h5" Class="mb-2">Flashcard Templates</MudText>
     <FlashcardTemplates ItemTemplateId=@Id />
@@ -43,42 +28,49 @@
 @code {
     [Parameter] public string? Id { get; set; }
 
-    private string _newFieldName;
-
     private Entities.ItemTemplate? _dto;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() =>
+        await RefreshView();
+
+    private Task<bool>? OnFieldAdded(EditableList list, string name)
     {
-        await Refresh();
+        _dto.AddField(name);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
     }
 
-    private async Task OnAddFieldButton()
+    private Task<bool>? OnFieldEdit(EditableList list, EditableListItem item)
     {
-        if (_newFieldName is null or [])
-        {
-            Snackbar.Add("Provide a name");
-            return;
-        }
-
-        if (_dto.Fields.Any(f => f == _newFieldName))
-        {
-            Snackbar.Add("Such field already exists");
-            return;
-        }
-
-        _dto.Fields.Add(_newFieldName);
-
-        var msg = await ItemTemplateService.Update(_dto) ?
-            "Item template has been added" :
-            "Item template could not be added";
-
-        Snackbar.Add(msg);
-
-        _newFieldName = "";
-
-        await Refresh();
+        _dto.RenameField(item.Id, item.Name);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
     }
 
+    private Task<bool>? OnFieldMoved(EditableList list, EditableListItem item, int dir)
+    {
+        _dto.MoveField(item.Id, dir);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
+    }
 
-    private async Task Refresh() => _dto = await ItemTemplateService.Get(Id);
+    private Task<bool>? OnFieldRemoved(EditableList list, EditableListItem item)
+    {
+        _dto.RemoveField(item.Id);
+        return ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
+    }
+
+    public async Task RefreshDTO() =>
+        _dto = await ItemTemplateService.Get(Id);
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
+    }
 }
