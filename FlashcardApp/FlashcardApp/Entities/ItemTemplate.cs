@@ -10,8 +10,15 @@ public class ItemTemplate : Entity
     public List<FlashcardTemplate> FlashcardTemplates { get; init; } = [];
     public bool Archived { get; set; } = false;
 
-    public void AddField(string name) =>
+    public bool AddField(string name)
+    {
+        if (Fields.Any(f => f.Name == name))
+            return false;
+
         Fields.Add(new Field { Name = name });
+
+        return true;
+    }
 
     public void RenameField(string fieldId, string name) =>
         Fields
@@ -50,17 +57,54 @@ public class ItemTemplate : Entity
         (f[i], f[i + dir]) = (f[i+dir], f[i]);
     }
 
+    public void AddAllFlashcardTemplateSideFields(string flashcardTemplateId, int sideIndex)
+    {
+        var fieldIds = GetFlashcardTemplate(flashcardTemplateId)
+            .Sides[sideIndex]
+            .FieldIds;
+
+        var allFieldIds = Fields.Select(f => f.Id).Except(fieldIds).ToArray();
+
+        fieldIds.AddRange(allFieldIds);
+    }
+
     public bool AddFlashcardTemplateSideField(string flashcardTemplateId, int sideIndex, string fieldId)
     {
         if (!Fields.Any(f => f.Id == fieldId))
             return false;
 
-        GetFlashcardTemplate(flashcardTemplateId)
+        var fieldIds = GetFlashcardTemplate(flashcardTemplateId)
             .Sides[sideIndex]
-            .FieldIds
-            .Add(fieldId);
+            .FieldIds;
+
+        if (fieldIds.Contains(fieldId))
+            return false;
+
+        fieldIds.Add(fieldId);
 
         return true;
+    }
+
+    public bool MoveFlashcardTemplateSideField(string flashcardTemplateId, int sideIndex, string fieldId, int dir)
+    {
+        if (!Fields.Any(f => f.Id == fieldId))
+            return false;
+
+        var f = GetFlashcardTemplate(flashcardTemplateId).Sides[sideIndex].FieldIds;
+        var i = f.FindIndex(id => id == fieldId);
+
+        (f[i], f[i + dir]) = (f[i + dir], f[i]);
+
+        return true;
+    }
+
+    public bool RemoveFlashcardTemplateSideField(string flashcardTemplateId, int sideIndex, string fieldId)
+    {
+        if (!Fields.Any(f => f.Id == fieldId))
+            return false;
+
+        var f = GetFlashcardTemplate(flashcardTemplateId).Sides[sideIndex].FieldIds;
+        return f.Remove(fieldId);
     }
 
     private FlashcardTemplate GetFlashcardTemplate(string flashcardTemplateId) =>

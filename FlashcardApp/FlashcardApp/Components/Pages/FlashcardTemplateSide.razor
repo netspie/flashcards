@@ -4,6 +4,7 @@
 @using FlashcardApp.Services
 
 @inject ItemTemplateService ItemTemplateService
+@inject ISnackbar Snackbar
 
 @if (_dto is null || _dtoFlashcard is null) { return; }
 
@@ -11,11 +12,37 @@
 
 <MudStack Class="gap-4">
     <EditableList 
+        AddEnabled=@false
+        EditEnabled=@false
         Items=@GetFields()
-        OnItemAdded=OnFieldAdded
-        OnItemEdit=OnFieldEdit
         OnItemMoved=OnFieldMoved
         OnItemRemoved=OnFieldRemoved />
+
+    <MudStack Row=@true>
+
+
+    <MudMenu Label="Add" Variant=@Variant.Filled Color=@Color.Primary Class="w-fit self-start">
+        <MudStack Class="p-2">
+            <MudText>Add Field</MudText>
+            <MudSelect @ref=@_fieldSelect T=@string Label="Field" Variant=@Variant.Outlined AnchorOrigin=@Origin.BottomCenter>
+                @foreach(var field in _dto.Fields)
+                {
+                    if (_dtoFlashcard.Sides[SideIndex].FieldIds.Contains(field.Id))
+                        continue; 
+
+                    <MudSelectItem T=@string Value=field.Name />
+                }
+            </MudSelect>
+            <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnFieldAdded>
+                Add
+            </MudButton>
+        </MudStack>
+        </MudMenu>
+        <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAllFieldsAdded>
+            Add All
+        </MudButton>
+    </MudStack>
+
 </MudStack>
 
 @code {
@@ -23,15 +50,45 @@
     [Parameter] public string? FlashcardTemplateId { get; set; }
     [Parameter] public int SideIndex { get; set; }
 
+    private MudSelect<string>? _fieldSelect;
+
     private Entities.ItemTemplate? _dto;
     private Entities.FlashcardTemplate? _dtoFlashcard;
 
     protected override async Task OnInitializedAsync() =>
         await RefreshDTO();
 
-    private async Task<bool>? OnFieldAdded(EditableList list, string field)
+    private async Task<bool>? OnAllFieldsAdded()
     {
-        if (!_dto.AddFlashcardTemplateSideField(FlashcardTemplateId, SideIndex, ""))
+        _dto.AddAllFlashcardTemplateSideFields(FlashcardTemplateId, SideIndex);
+        return await ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
+    }
+
+    private async Task<bool>? OnFieldAdded()
+    {
+        var fieldName = _fieldSelect?.SelectedValues?.FirstOrDefault();
+        if (fieldName is null or [])
+            return false;
+
+        var fieldId = _dto.Fields.First(f => f.Name == fieldName).Id;
+
+        if (!_dto.AddFlashcardTemplateSideField(FlashcardTemplateId, SideIndex, fieldId))
+        {
+            await RefreshView();
+            Snackbar.Add("Could not add the field");
+            return false;
+        }
+
+        return await ItemTemplateService
+            .Update(_dto)
+            .Do(RefreshView);
+    }
+
+    private async Task<bool>? OnFieldMoved(EditableList list, EditableListItem fielditem, int dir)
+    {
+        if (!_dto.MoveFlashcardTemplateSideField(FlashcardTemplateId, SideIndex, fielditem.Id, dir))
         {
             await RefreshView();
             return false;
@@ -42,25 +99,15 @@
             .Do(RefreshView);
     }
 
-    private Task<bool>? OnFieldEdit(EditableList list, EditableListItem fielditem)
+    private async Task<bool>? OnFieldRemoved(EditableList list, EditableListItem fielditem)
     {
-        //_dtoFlashcard.Sides[SideIndex].Fields[fielditem.Index] = fielditem.Name;
-        return ItemTemplateService
-            .Update(_dto)
-            .Do(RefreshView);
-    }
+        if (!_dto.RemoveFlashcardTemplateSideField(FlashcardTemplateId, SideIndex, fielditem.Id))
+        {
+            await RefreshView();
+            return false;
+        }
 
-    private Task<bool>? OnFieldMoved(EditableList list, EditableListItem fielditem, int dir)
-    {
-        return ItemTemplateService
-            .Update(_dto)
-            .Do(RefreshView);
-    }
-
-    private Task<bool>? OnFieldRemoved(EditableList list, EditableListItem fielditem)
-    {
-        //_dtoFlashcard.Sides[SideIndex].Fields.RemoveAt(fielditem.Index);
-        return ItemTemplateService
+        return await ItemTemplateService
             .Update(_dto)
             .Do(RefreshView);
     }

@@ -542,6 +542,12 @@ video {
   width: -moz-fit-content;
   width: fit-content;
 }
+.w-full {
+  width: 100%;
+}
+.flex-grow {
+  flex-grow: 1;
+}
 .gap-1 {
   gap: 0.25rem;
 }

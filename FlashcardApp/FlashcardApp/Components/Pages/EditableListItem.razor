@@ -1,18 +1,22 @@
 ﻿@inject IDialogService DialogService
 @inject ISnackbar Snackbar
 
-<MudStack Row=true>
+<MudStack Row=true Class="w-full">
     <MudButton Variant="Variant.Outlined" OnClick=OnNameButton>@Name</MudButton>
-    <MudStack Row=true Class="gap-1">
-        <MudMenu Icon=@Icons.Material.Filled.Edit Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
-            <MudStack Class="p-2">
-                <MudText>Change Name</MudText>
-                <MudTextField ShrinkLabel @bind-Value=@_fieldName Label="Name" Variant="Variant.Outlined"></MudTextField>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnEditButton>
-                    Edit
-                </MudButton>
-            </MudStack>
-        </MudMenu>
+    <MudStack Row=true Class="gap-1" Style="flex-grow: 1">
+        <div class="grow-1 w-full"/>
+        @if (EditEnabled)
+        {
+            <MudMenu Icon=@Icons.Material.Filled.Edit Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+                <MudStack Class="p-2">
+                    <MudText>Change Name</MudText>
+                    <MudTextField ShrinkLabel @bind-Value=@_fieldName Label="Name" Variant="Variant.Outlined"></MudTextField>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@OnEditButton>
+                        Edit
+                    </MudButton>
+                </MudStack>
+            </MudMenu>
+        }
         @if (!IsFirst)
         {
             <MudIconButton Icon=@Icons.Material.Filled.ArrowUpward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(-1)) />
@@ -38,6 +42,8 @@
     [Parameter] public Func<EditableListItem, Task<bool>>? OnEdit { get; set; }
     [Parameter] public Func<EditableListItem, int, Task<bool>>? OnMoved { get; set; }
     [Parameter] public Func<EditableListItem, Task<bool>>? OnRemoved { get; set; }
+
+    [Parameter] public bool EditEnabled { get; set; } = true;
 
     private string? _fieldName;
 

@@ -4,16 +4,18 @@
 
 @if (Items is null) { return; }
 
-<MudStack Class="gap-2">
+<MudStack Class="gap-2 w-full">
     @for (var i = 0; i < Items.Count; i++)
     {
         var item = Items[i];
         <EditableListItem 
             Id=@item.Id
             Name=@item.Name 
-            Index=i
+            Index=@i
             IsFirst=@(i is 0)
             IsLast=@(i == Items.Count - 1)
+
+            EditEnabled=@EditEnabled
 
             OnSelected=OnSelectedInternal
             OnEdit=OnEditInternal
@@ -21,15 +23,18 @@
             OnRemoved=OnRemovedInternal />
     }
 
-    <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
-        <MudStack Class="p-2">
-            <MudText>Add</MudText>
-            <MudTextField ShrinkLabel @bind-Value=@_newItemName Label="Name" Variant=Variant.Outlined></MudTextField>
-            <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAddItemButton>
-                Add
-            </MudButton>
-        </MudStack>
-    </MudMenu>
+    @if (AddEnabled)
+    {
+        <MudMenu Label="Add" Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+            <MudStack Class="p-2">
+                <MudText>Add</MudText>
+                <MudTextField ShrinkLabel @bind-Value=@_newItemName Label="Name" Variant=Variant.Outlined></MudTextField>
+                <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAddItemButton>
+                    Add
+                </MudButton>
+            </MudStack>
+        </MudMenu>
+    }
 </MudStack>
 
 @code {
@@ -41,6 +46,9 @@
     [Parameter] public Func<EditableList, EditableListItem, Task<bool>>? OnItemEdit { get; set; }
     [Parameter] public Func<EditableList, EditableListItem, int, Task<bool>>? OnItemMoved { get; set; }
     [Parameter] public Func<EditableList, EditableListItem, Task<bool>>? OnItemRemoved { get; set; }
+
+    [Parameter] public bool AddEnabled { get; set; } = true;
+    [Parameter] public bool EditEnabled { get; set; } = true;
 
     private string _newItemName;
 

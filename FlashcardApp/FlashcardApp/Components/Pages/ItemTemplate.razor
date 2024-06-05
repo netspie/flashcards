@@ -33,10 +33,12 @@
     protected override async Task OnInitializedAsync() =>
         await RefreshView();
 
-    private Task<bool>? OnFieldAdded(EditableList list, string name)
+    private async Task<bool>? OnFieldAdded(EditableList list, string name)
     {
-        _dto.AddField(name);
-        return ItemTemplateService
+        if (!_dto.AddField(name))
+            return false;
+
+        return await ItemTemplateService
             .Update(_dto)
             .Do(RefreshView);
     }
