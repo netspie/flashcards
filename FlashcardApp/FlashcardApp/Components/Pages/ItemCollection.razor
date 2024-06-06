@@ -1,13 +1,16 @@
 ﻿@page "/collections/{collectionId}"
+
 @using FlashcardApp.Common
 @using FlashcardApp.Services
 
+@inject ItemService ItemService
 @inject ItemTemplateService ItemTemplateService
 @inject ItemCollectionService ItemCollectionService
+@inject NavigationManager Navigation
 
 <MudText Typo="Typo.h3" Class="mb-2">Collection</MudText>
 
-@if (_itemCollection is null || _itemTemplates is null) { return; }
+@if (_itemCollection is null || _itemTemplates is null || _items is null) { return; }
 
 <MudStack Class="gap-4">
     <MudField Label="Name" Variant="Variant.Text">@_itemCollection.Name</MudField>
@@ -18,17 +21,19 @@
         SelectedValueId=@_itemCollection.DefaultItemTemplateId 
         OnValueChanged=@OnDefaultItemTemplateChanged />
 
-    <ItemDataGrid DTO=@(new ItemDataGrid.ItemsDTO(
-        Items: [
-            new("id-1", "物価", "prices")],
-        Range: new(
-            TotalCount: 100,
-            Start: 11,
-            Limit: 10))) />
+    <MudText Typo="Typo.h4" Class="mb-2">Items</MudText>
+    <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@(() => Navigation.NavigateTo($"/collections/{CollectionId}/items/add"))>
+        Add Item
+    </MudButton>
+    <ItemDataGrid 
+        CollectionId=@CollectionId
+        DTO=@(new ItemDataGrid.ItemsDTO(
+            Items: _items.Select(i => new ItemDataGrid.ItemDTO(i.Id, i.Fields[0].Value, i.Fields[2].Value)).ToArray(),
+            Range: new(
+                TotalCount: 100,
+                Start: 11,
+                Limit: 10))) />
 
-    @* <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-fit" OnClick=@(() => Navigation.NavigateTo("/collections/add"))>
-        Add Collection
-    </MudButton> *@
 </MudStack>
 
 @code {
@@ -36,6 +41,8 @@
 
     private Entities.ItemCollection? _itemCollection;
     private Entities.ItemTemplate[]? _itemTemplates;
+
+    private Entities.Item[]? _items;
 
     protected override async Task OnInitializedAsync() =>
         await RefreshView();
@@ -52,6 +59,7 @@
     {
         _itemTemplates = await ItemTemplateService.GetAll();
         _itemCollection = await ItemCollectionService.Get(CollectionId);
+        _items = await ItemService.GetAll();
     }
 
     public async Task RefreshView()

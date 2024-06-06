@@ -30,9 +30,11 @@ public static class MauiProgram
         static IRepository<T> CreateRepo<T>(string folderName) where T : Entity =>
             new LocalStorageRepository<T>(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/FlashcardApp/" + folderName);
 
+        builder.Services.AddSingleton(CreateRepo<Entities.Item>("items"));
         builder.Services.AddSingleton(CreateRepo<Entities.ItemTemplate>("itemTemplates"));
         builder.Services.AddSingleton(CreateRepo<Entities.ItemCollection>("collections"));
 
+        builder.Services.AddSingleton<ItemService>();
         builder.Services.AddSingleton<ItemTemplateService>();
         builder.Services.AddSingleton<ItemCollectionService>();
 

@@ -33,6 +33,7 @@
 @code {
     private const int Limit = 10;
 
+    [Parameter] public string? CollectionId { get; set; }
     [Parameter] public ItemsDTO? DTO { get; set; }
 
     [Inject] public NavigationManager Navigation { get; set; }
@@ -49,7 +50,7 @@
 
     private async Task OnItemClick(DataGridRowClickEventArgs<Item> args)
     {
-        Navigation.NavigateTo($"/collections/x/items/{args.Item.Id}");
+        Navigation.NavigateTo($"/collections/{CollectionId}/items/{args.Item.Id}");
     }
 
     private async Task OnPrevPage()

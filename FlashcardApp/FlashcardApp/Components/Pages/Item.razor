@@ -1,49 +1,138 @@
 ﻿@page "/collections/{collectionId}/items/{itemId}"
+@page "/collections/{collectionId}/items/add"
+
+@using FlashcardApp.Services
+
+@inject ItemService ItemService
+@inject ItemTemplateService ItemTemplateService
+@inject ItemCollectionService ItemCollectionService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
 
 <MudText Typo="Typo.h3" Class="mb-2">Item</MudText>
 
+@if (_fields is null) { return; }
+
 <MudStack Class="gap-4">
-    @foreach (var property in _properties)
-    {
-        <MudTextField ShrinkLabel @bind-Value=@property.Content Label=@property.Name Variant="Variant.Outlined" />
-    }
+    <MudStack Class="gap-2">
+        @foreach (var field in _fields)
+        {
+            <MudTextField ShrinkLabel Label=@field.Name @bind-Value=@field.Value Variant=Variant.Outlined />
+        }
+        <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnItemSubmit>
+            @GetSubmitButtonText()
+        </MudButton>
+    </MudStack>
 </MudStack>
 
+@{
+    string GetSubmitButtonText() => Mode switch
+    {
+        SubmitMode.Add => "Add",
+        SubmitMode.Update => "Update",
+        _ => "zonk :("
+    };
+}
+
 @code {
-    [Parameter] public string CollectionId { get; set; }
-    [Parameter] public string ItemId { get; set; }
+    [Parameter] public string? CollectionId { get; set; }
+    [Parameter] public string? ItemId { get; set; }
 
-    private PropertyField[] _properties;
+    [Parameter] public SubmitMode? Mode { get; set; }
 
-    private ItemDTO _dto = new(
-        "x",
-        [
-            new("Japanese Word", "物価"),
-            new("Enlish Word", "prices"),
-            new("Pitch Accent", "_-"),
-            new("Reading", "ぶっか"),
-            new("Usually Written", "物価"),
-            new("Sentence 1 JP", "物価.."),
-            new("S EN", "物価.."),
-        ]
-    );
+    private Entities.Item? _item;
+    private Entities.ItemTemplate? _itemTemplate;
+    private Entities.ItemCollection? _itemCollection;
 
-    protected override void OnInitialized()
+    private Field[]? _fields;
+
+    protected override async Task OnInitializedAsync() 
     {
-        _properties = _dto.Properties.Select(p => new PropertyField(p.Name, p.Content)).ToArray();
+        Mode = ItemId is null ? SubmitMode.Add : SubmitMode.Update;
+
+        await RefreshDTO();
+
+        _fields = _item?.Fields is not null ?
+            _item.Fields.Select(f => new Field()
+            {
+                Id = f.Id,
+                Name = _itemTemplate?.Fields.FirstOrDefault(itf => itf.Id == f.Id)?.Name ?? f.Name,
+                Value = f.Value
+            }).ToArray() :
+            _itemTemplate.Fields.Select(f => new Field()
+            {
+                Id = f.Id,
+                Name = f.Name,
+                Value = ""
+            }).ToArray();
+
+        await InvokeAsync(StateHasChanged);
     }
 
-    public class PropertyField(string name, string content)
+    private async Task OnItemSubmit()
     {
-        public string Name { get; set; } = name;
-        public string Content { get; set; } = content;
+        var resultTask = Mode switch
+        {
+            SubmitMode.Add => ItemService.Create(
+                new Entities.Item
+                {
+                    CollectionId = _item?.CollectionId ?? CollectionId,
+                    ItemTemplateId = _item?.ItemTemplateId ?? _itemTemplate.Id,
+                    Fields = _fields.Select(f => new Entities.Item.Field(f.Id, f.Name, f.Value)).ToList()
+                }),
+
+            SubmitMode.Update => ItemService.Update(
+                new Entities.Item
+                {
+                    Id = _item.Id,
+                    CollectionId = _item?.CollectionId ?? CollectionId,
+                    ItemTemplateId = _item?.ItemTemplateId ?? _itemTemplate.Id,
+                    Fields = _fields.Select(f => new Entities.Item.Field(f.Id, f.Name, f.Value)).ToList()
+                }),
+
+            _ => Task.FromResult(false)
+        };
+
+        if (await resultTask)
+        {
+            Snackbar.Add(Mode is SubmitMode.Add ? "New item created" : "Item updated");
+            Navigation.NavigateTo($"/collections/{CollectionId}");
+            return;
+        }
+
+        Snackbar.Add(Mode is SubmitMode.Add ? "Could not create new item" : "Could not update the item");
     }
 
-    public record ItemDTO(
-        string Id,
-        PropertyDTO[] Properties);
+    public async Task RefreshDTO()
+    {
+        if (ItemId is not null)
+        {
+            _item = await ItemService.Get(ItemId);
+            _itemTemplate = await ItemTemplateService.Get(_item.ItemTemplateId);
+            
+            return;
+        }
 
-    public record PropertyDTO(
-        string Name,
-        string Content);
+        _itemCollection = await ItemCollectionService.Get(CollectionId);
+        _itemTemplate = await ItemTemplateService.Get(_itemCollection.DefaultItemTemplateId);
+    }
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private record Field
+    {
+        public string? Id { get; set; }
+        public string? Name { get; set; }
+        public string? Value { get; set; }
+    }
+
+    public enum SubmitMode
+    {
+        Add,
+        Update
+    }
 }
