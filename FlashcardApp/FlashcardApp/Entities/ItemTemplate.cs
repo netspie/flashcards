@@ -8,7 +8,7 @@ public class ItemTemplate : Entity
     public required string Name { get; set; } = "New Item Template";
     public List<Field> Fields { get; init; } = [];
     public List<FlashcardTemplate> FlashcardTemplates { get; init; } = [];
-    public bool Archived { get; set; } = false;
+    public bool IsArchived { get; set; } = false;
 
     public bool AddField(string name)
     {

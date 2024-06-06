@@ -19,24 +19,22 @@
         OnItemRemoved=OnFieldRemoved />
 
     <MudStack Row=@true>
+        <MudMenu Label="Add" Variant=@Variant.Filled Color=@Color.Primary Class="w-fit self-start">
+            <MudStack Class="p-2">
+                <MudText>Add Field</MudText>
+                <MudSelect @ref=@_fieldSelect T=@string Label="Field" Variant=@Variant.Outlined AnchorOrigin=@Origin.BottomCenter>
+                    @foreach(var field in _dto.Fields)
+                    {
+                        if (_dtoFlashcard.Sides[SideIndex].FieldIds.Contains(field.Id))
+                            continue; 
 
-
-    <MudMenu Label="Add" Variant=@Variant.Filled Color=@Color.Primary Class="w-fit self-start">
-        <MudStack Class="p-2">
-            <MudText>Add Field</MudText>
-            <MudSelect @ref=@_fieldSelect T=@string Label="Field" Variant=@Variant.Outlined AnchorOrigin=@Origin.BottomCenter>
-                @foreach(var field in _dto.Fields)
-                {
-                    if (_dtoFlashcard.Sides[SideIndex].FieldIds.Contains(field.Id))
-                        continue; 
-
-                    <MudSelectItem T=@string Value=field.Name />
-                }
-            </MudSelect>
-            <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnFieldAdded>
-                Add
-            </MudButton>
-        </MudStack>
+                        <MudSelectItem T=@string Value=field.Name />
+                    }
+                </MudSelect>
+                <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnFieldAdded>
+                    Add
+                </MudButton>
+            </MudStack>
         </MudMenu>
         <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAllFieldsAdded>
             Add All

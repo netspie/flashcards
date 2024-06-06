@@ -1,0 +1,90 @@
+﻿@page "/"
+@page "/collections"
+
+@using FlashcardApp.Common
+@using FlashcardApp.Services
+
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject ItemTemplateService ItemTemplateService
+@inject ItemCollectionService ItemCollectionService
+
+<MudText Typo="Typo.h3" Class="mb-2">Collections</MudText>
+
+<MudStack Class="gap-4">
+    <MudStack Class="gap-2">
+        <EditableList
+            Items=@_itemCollections.Select(f => (f.Id, f.Name)).ToList()
+            OnItemEdit=OnCollectionEdit
+            OnItemRemoved=OnCollectionRemoved
+            AddEnabled=@false
+            MoveEnabled=@false />
+        <MudMenu Label="Add" Variant=@Variant.Filled Color=@Color.Primary Class="w-fit self-start">
+            <MudStack Class="p-2">
+                <MudText>Add Collection</MudText>
+                <MudTextField ShrinkLabel @bind-Value=@_newCollectionName Label="Name" Variant=Variant.Outlined></MudTextField>
+                <MudSelect @ref=@_itemTemplateSelect T=@string Label="Item Template" Variant=@Variant.Outlined AnchorOrigin=@Origin.BottomCenter>
+                    @foreach (var itemTemplate in _itemTemplates)
+                    {
+                        <MudSelectItem T=@string Value=itemTemplate.Name itemid=@itemTemplate.Id />
+                    }
+                </MudSelect>
+                <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnCollectionAdded>
+                    Add
+                </MudButton>
+            </MudStack>
+        </MudMenu>
+    </MudStack>
+</MudStack>
+
+@code {
+    private Entities.ItemCollection[]? _itemCollections;
+    private Entities.ItemTemplate[]? _itemTemplates;
+
+    private string? _newCollectionName;
+    private MudSelect<string>? _itemTemplateSelect;
+
+    protected override async Task OnInitializedAsync() =>
+        await RefreshView();
+
+    private async Task OnCollectionAdded() 
+    {
+        var itemTemplateName = _itemTemplateSelect?.SelectedValues?.FirstOrDefault();
+        var itemTemplateId = _itemTemplates?.FirstOrDefault(f => f.Name == itemTemplateName)?.Id;
+
+        if (!await ItemCollectionService.Create(new Entities.ItemCollection(_newCollectionName, itemTemplateId)))
+        {
+            Snackbar.Add("Could not create collection");
+            return;
+        }
+
+        Snackbar.Add("Collection has been created");
+        await RefreshView();
+    }
+
+    private Task<bool>? OnCollectionEdit(EditableList list, EditableListItem item)
+    {
+        var dto = _itemCollections.First(dto => dto.Id == item.Id);
+        dto.Name = item.Name;
+        return ItemCollectionService
+            .Update(dto)
+            .Do(RefreshView);
+    }
+
+    private Task<bool>? OnCollectionRemoved(EditableList list, EditableListItem item) =>
+        ItemCollectionService
+            .Delete(item.Id)
+            .Do(RefreshView);
+
+    public async Task RefreshDTO()
+    {
+        _itemTemplates = await ItemTemplateService.GetAll();
+        _itemCollections = await ItemCollectionService.GetAll();
+    }
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
+    }
+}

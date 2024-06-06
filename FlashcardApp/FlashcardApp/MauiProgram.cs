@@ -6,42 +6,44 @@ using MudBlazor;
 using MudBlazor.Services;
 using Plugin.Maui.Audio;
 
-namespace FlashcardApp
-{
-    public static class MauiProgram
-    {
-        public static MauiApp CreateMauiApp()
-        {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+namespace FlashcardApp;
 
-            builder.Services.AddMauiBlazorWebView();
-            builder.Services.AddMudServices(config =>
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
             {
-                config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
-                config.SnackbarConfiguration.VisibleStateDuration = 2000;
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
 
-            static IRepository<T> CreateRepo<T>(string folderName) where T : Entity =>
-                new LocalStorageRepository<T>(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/FlashcardApp/" + folderName);
+        builder.Services.AddMauiBlazorWebView();
+        builder.Services.AddMudServices(config =>
+        {
+            config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+            config.SnackbarConfiguration.VisibleStateDuration = 2000;
+        });
 
-            builder.Services.AddSingleton(CreateRepo<Entities.ItemTemplate>("itemTemplates"));
+        static IRepository<T> CreateRepo<T>(string folderName) where T : Entity =>
+            new LocalStorageRepository<T>(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/FlashcardApp/" + folderName);
 
-            builder.Services.AddSingleton<ItemTemplateService>();
-            builder.Services.AddSingleton<IAudioManager>(new AudioManager());
-            builder.Services.AddSingleton<AudioService>();
+        builder.Services.AddSingleton(CreateRepo<Entities.ItemTemplate>("itemTemplates"));
+        builder.Services.AddSingleton(CreateRepo<Entities.ItemCollection>("collections"));
+
+        builder.Services.AddSingleton<ItemTemplateService>();
+        builder.Services.AddSingleton<ItemCollectionService>();
+
+        builder.Services.AddSingleton<IAudioManager>(new AudioManager());
+        builder.Services.AddSingleton<AudioService>();
 
 #if DEBUG
-            builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+        builder.Services.AddBlazorWebViewDeveloperTools();
+    	builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
-        }
+        return builder.Build();
     }
 }

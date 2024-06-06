@@ -17,11 +17,11 @@
                 </MudStack>
             </MudMenu>
         }
-        @if (!IsFirst)
+        @if (MoveEnabled && !IsFirst)
         {
             <MudIconButton Icon=@Icons.Material.Filled.ArrowUpward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(-1)) />
         }
-        @if (!IsLast)
+        @if (MoveEnabled && !IsLast)
         {
             <MudIconButton Icon=@Icons.Material.Filled.ArrowDownward Variant=Variant.Outlined Color=Color.Primary Size=Size.Small OnClick=@(() => OnMove(1)) />
         }
@@ -30,8 +30,6 @@
 </MudStack>
 
 @code {
-    public EventCallback On { get; set; }
-
     [Parameter] public string? Id { get; set; }
     [Parameter] public string? Name { get; set; }
     [Parameter] public int Index { get; set; }
@@ -44,6 +42,7 @@
     [Parameter] public Func<EditableListItem, Task<bool>>? OnRemoved { get; set; }
 
     [Parameter] public bool EditEnabled { get; set; } = true;
+    [Parameter] public bool MoveEnabled { get; set; } = true;
 
     private string? _fieldName;
 

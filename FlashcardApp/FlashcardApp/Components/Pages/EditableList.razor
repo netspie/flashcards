@@ -16,6 +16,7 @@
             IsLast=@(i == Items.Count - 1)
 
             EditEnabled=@EditEnabled
+            MoveEnabled=@MoveEnabled
 
             OnSelected=OnSelectedInternal
             OnEdit=OnEditInternal
@@ -49,6 +50,7 @@
 
     [Parameter] public bool AddEnabled { get; set; } = true;
     [Parameter] public bool EditEnabled { get; set; } = true;
+    [Parameter] public bool MoveEnabled { get; set; } = true;
 
     private string _newItemName;
 
