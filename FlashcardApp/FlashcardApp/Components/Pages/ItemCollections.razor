@@ -15,6 +15,7 @@
     <MudStack Class="gap-2">
         <EditableList
             Items=@_itemCollections.Select(f => (f.Id, f.Name)).ToList()
+            OnItemSelected=OnCollectionSelected
             OnItemEdit=OnCollectionEdit
             OnItemRemoved=OnCollectionRemoved
             AddEnabled=@false
@@ -47,7 +48,10 @@
     protected override async Task OnInitializedAsync() =>
         await RefreshView();
 
-    private async Task OnCollectionAdded() 
+    private async Task OnCollectionSelected(EditableList list, EditableListItem item) =>
+        Navigation.NavigateTo($"collections/{item.Id}");
+
+    private async Task OnCollectionAdded()
     {
         var itemTemplateName = _itemTemplateSelect?.SelectedValues?.FirstOrDefault();
         var itemTemplateId = _itemTemplates?.FirstOrDefault(f => f.Name == itemTemplateName)?.Id;

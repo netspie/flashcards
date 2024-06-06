@@ -1,9 +1,22 @@
-﻿@page "/collections/{id}"
+﻿@page "/collections/{collectionId}"
+@using FlashcardApp.Common
+@using FlashcardApp.Services
+
+@inject ItemTemplateService ItemTemplateService
+@inject ItemCollectionService ItemCollectionService
 
 <MudText Typo="Typo.h3" Class="mb-2">Collection</MudText>
 
+@if (_itemCollection is null || _itemTemplates is null) { return; }
+
 <MudStack Class="gap-4">
-    <MudField Label="Name" Variant="Variant.Text">@Name</MudField>
+    <MudField Label="Name" Variant="Variant.Text">@_itemCollection.Name</MudField>
+
+    <Dropdown 
+        Name="Default Item Template" 
+        Items=@_itemTemplates.Select(it => (it.Id, it.Name)).ToArray() 
+        SelectedValueId=@_itemCollection.DefaultItemTemplateId 
+        OnValueChanged=@OnDefaultItemTemplateChanged />
 
     <ItemDataGrid DTO=@(new ItemDataGrid.ItemsDTO(
         Items: [
@@ -19,6 +32,31 @@
 </MudStack>
 
 @code {
-    [Parameter] public string? Id { get; set; }
-    [Parameter] public string Name { get; set; } = "Collection Name";
+    [Parameter] public string? CollectionId { get; set; }
+
+    private Entities.ItemCollection? _itemCollection;
+    private Entities.ItemTemplate[]? _itemTemplates;
+
+    protected override async Task OnInitializedAsync() =>
+        await RefreshView();
+
+    private Task<bool> OnDefaultItemTemplateChanged(string itemTemplateId)
+    {
+        _itemCollection.DefaultItemTemplateId = itemTemplateId;
+        return ItemCollectionService
+           .Update(_itemCollection)
+           .Do(RefreshView);
+    }
+
+    public async Task RefreshDTO()
+    {
+        _itemTemplates = await ItemTemplateService.GetAll();
+        _itemCollection = await ItemCollectionService.Get(CollectionId);
+    }
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
+    }
 }

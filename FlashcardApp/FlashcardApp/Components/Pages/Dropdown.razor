@@ -1,0 +1,52 @@
+﻿@inject ISnackbar Snackbar
+
+@if (_items is null) { return; }
+
+<MudSelect @ref=@_select T=@Item Label=@Name Variant=@Variant.Outlined AnchorOrigin=@Origin.BottomCenter Required=@false Clearable=@true Value=@_selectedItem ValueChanged=@OnValueChangedInternal>
+    @foreach (var item in _items)
+    {
+        <MudSelectItem T=@Item Value=item />
+    }
+</MudSelect>
+
+@code {
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public string? SelectedValueId { get; set; }
+    [Parameter] public (string Id, string Name)[]? Items { get; set; }
+    [Parameter] public Func<string, Task<bool>>? OnValueChanged { get; set; }
+
+    private Item[]? _items;
+    private Item? _selectedItem;
+
+    private MudSelect<Item>? _select;
+
+    protected override void OnInitialized()
+    {
+        _items = Items?.Select(i => new Item(i.Id, i.Name))?.ToArray();
+        _selectedItem = _items?.FirstOrDefault(i => i.Id == SelectedValueId);
+    }
+
+    private async Task OnValueChangedInternal(Item item)
+    {
+        if (OnValueChanged is not null)
+        {
+            var result = await OnValueChanged?.Invoke(item.Id);
+            if (result)
+            {
+                _selectedItem = _items?.FirstOrDefault(i => i.Id == item.Id);
+                Snackbar.Add("Value has been changed");
+            }
+            else
+                Snackbar.Add("Could not change the value");
+
+            return;
+        }
+
+        _selectedItem = _items?.FirstOrDefault(i => i.Id == item.Id);
+    }
+
+    private record Item(string Id, string Name)
+    {
+        public override string ToString() => Name;
+    }
+}
