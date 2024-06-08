@@ -1,5 +1,8 @@
 ﻿@inherits LayoutComponentBase
 
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
 <MudThemeProvider IsDarkMode=true />
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -7,6 +10,10 @@
 <MudLayout>
     <MudAppBar Elevation="1" Dense=true>
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        @if (_hasBackButton && Navigation.Uri != Navigation.BaseUri)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => OnKey(false, false, "Escape"))" />
+        }
         <MudSpacer />
         <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
     </MudAppBar>
@@ -20,13 +27,52 @@
     </MudMainContent>
 </MudLayout>
 
+<script>
+    function addDocumentKeyDownHandler(object, methodName) {
+        document.addEventListener('keydown', function (evt) {
+            object.invokeMethodAsync(methodName, evt.ctrlKey, event.altKey, evt.key)
+                .then(result => { })
+                .catch(error => console.log('Error calling C# method:', error));
+        });
+    }
+
+    function back() {
+        history.back()
+    }
+</script>
+
 @code {
 
 #if WINDOWS
     private bool _isOpen = true;
+    private bool _hasBackButton = true;
 #else
     private bool _isOpen = false;
+    private bool _hasBackButton = false;
 #endif
 
     void ToggleDrawer() => _isOpen = !_isOpen;
+
+    private DotNetObjectReference<MainLayout>? _ref;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        _ref?.Dispose();
+        _ref = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("addDocumentKeyDownHandler", _ref, nameof(OnKey));
+    }
+
+    public void Dispose() => _ref?.Dispose();
+
+    [JSInvokableAttribute("OnKey")]
+    public async Task OnKey(bool isCtrl, bool altKey, string key)
+    {
+        if (isCtrl || altKey || key != "Escape")
+            return;
+
+        await JS.InvokeVoidAsync("back");
+    }
 }

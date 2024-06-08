@@ -1,10 +1,24 @@
 ﻿@inherits LayoutComponentBase
 
+@if (Items is null or []) { return; }
+
 <div>
-    <MudDataGrid @ref=_mudDataGrid Items="@_elements" Filterable=false Bordered=false Hover=true RowClick=@OnItemClick T="Item" Outlined=false RowsPerPage=@Limit Elevation=0>
+    <MudStack Class="w-[200px]">
+        <MudSelect @ref=@_columnNumberSelect T=@string Label="Column Count" Variant=@Variant.Outlined
+                   AnchorOrigin=@Origin.BottomCenter Required=@false Clearable=@true Value=@_columnNumberSelected ValueChanged=@OnColumnNumberChanged ShrinkLabel>
+            @for (int i = 0; i < Items[0].Fields.Count; i++)
+            {
+                <MudSelectItem T=@string Value=@($"{i + 1}") />
+            }
+        </MudSelect>
+    </MudStack>
+    <MudDataGrid @ref=_mudDataGrid T=@Entities.Item Items=@Items Filterable=false Bordered=false Hover=true RowClick=@OnItemClick Outlined=false RowsPerPage=@Limit Elevation=0>
         <Columns>
-            <PropertyColumn Property="x => x.Front" Title="Front" Filterable=false />
-            <PropertyColumn Property="x => x.Back" Title="Back" Filterable=false />
+            @for (int i = 0; i < (_columnNumber > 0 ? _columnNumber : Items[0].Fields.Count); i++)
+            {
+                int j = i;
+                <PropertyColumn Property=@(x => x.Fields[j].Value) Title=@Items[0].Fields[j].Name Filterable=false />
+            }
         </Columns>
         <PagerContent>
             <MudStack Row=true Style="width: 100%;">
@@ -33,22 +47,34 @@
 @code {
     private const int Limit = 10;
 
-    [Parameter] public string? CollectionId { get; set; }
+    [Parameter] public string? CollectionId { get; set; } 
     [Parameter] public ItemsDTO? DTO { get; set; }
+    [Parameter] public Entities.Item[]? Items { get; set; }
 
     [Inject] public NavigationManager Navigation { get; set; }
 
-    private MudDataGrid<Item>? _mudDataGrid;
-    private List<Item> _elements = new();
+    private MudDataGrid<Entities.Item>? _mudDataGrid;
+
+    private MudSelect<string>? _columnNumberSelect;
+    private string? _columnNumberSelected;
+    private int _columnNumber = 4;
 
     private RangeArg _rangeArg = new(0, Limit);
 
     protected override void OnInitialized()
     {
-        _elements = DTO.Items.Select(w => new Item(w.Id, w.Front, w.Back)).ToList();
+        if (_columnNumber > 0)
+            _columnNumberSelected = _columnNumber.ToString();
     }
 
-    private async Task OnItemClick(DataGridRowClickEventArgs<Item> args)
+    private async Task OnColumnNumberChanged(string columnNumber)
+    {
+        _columnNumberSelected = columnNumber;
+        if (!int.TryParse(columnNumber, out _columnNumber))
+            _columnNumber = -1;
+    }
+
+    private async Task OnItemClick(DataGridRowClickEventArgs<Entities.Item> args)
     {
         Navigation.NavigateTo($"/collections/{CollectionId}/items/{args.Item.Id}");
     }

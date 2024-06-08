@@ -27,6 +27,7 @@
     </MudButton>
     <ItemDataGrid 
         CollectionId=@CollectionId
+        Items=@_items
         DTO=@(new ItemDataGrid.ItemsDTO(
             Items: _items.Select(i => new ItemDataGrid.ItemDTO(i.Id, i.Fields[0].Value, i.Fields[2].Value)).ToArray(),
             Range: new(
@@ -36,6 +37,7 @@
 
 </MudStack>
 
+
 @code {
     [Parameter] public string? CollectionId { get; set; }
 
@@ -44,8 +46,10 @@
 
     private Entities.Item[]? _items;
 
-    protected override async Task OnInitializedAsync() =>
+    protected override async Task OnInitializedAsync()
+    {
         await RefreshView();
+    }
 
     private Task<bool> OnDefaultItemTemplateChanged(string itemTemplateId)
     {

@@ -40,6 +40,22 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 
 		<NpmLastInstall>node_modules/./last-install</NpmLastInstall>
+
+		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+
+		<AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+
+		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+
+		<AppInstallerUri>D:\Installs</AppInstallerUri>
+
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     </PropertyGroup>
 
     <ItemGroup>
