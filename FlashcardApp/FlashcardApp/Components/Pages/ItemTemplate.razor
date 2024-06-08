@@ -30,8 +30,10 @@
 
     private Entities.ItemTemplate? _dto;
 
-    protected override async Task OnInitializedAsync() =>
+    protected override async Task OnInitializedAsync()
+    {
         await RefreshView();
+    }
 
     private async Task<bool>? OnFieldAdded(EditableList list, string name)
     {

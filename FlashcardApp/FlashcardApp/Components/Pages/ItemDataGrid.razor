@@ -1,4 +1,6 @@
-﻿@using FlashcardApp.Services
+﻿@using FlashcardApp.Common
+@using FlashcardApp.Services
+@using System.Linq.Expressions
 
 @inherits LayoutComponentBase
 
@@ -34,7 +36,9 @@
             @for (int i = 0; i < (_columnNumber > 0 ? _columnNumber : _items[0].Fields.Count); i++)
             {
                 int j = i;
-                <PropertyColumn Property=@(x => x.Fields[j].Value) Title=@_items[0].Fields[j].Name Filterable=false />
+                <PropertyColumn 
+                    Property=@(item => item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value) 
+                    Title=@_items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name Filterable=false />
             }
         </Columns>
         <PagerContent>
@@ -76,7 +80,8 @@
 @code {
     private const int Limit = 5;
 
-    [Parameter] public string? CollectionId { get; set; } 
+    [Parameter] public string? CollectionId { get; set; }
+    [Parameter] public string[]? ItemTemplateFieldsOrder { get; set; }
 
     private Entities.Item[]? _items { get; set; }
     private RangeDTO? _rangeDTO { get; set; }

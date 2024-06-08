@@ -25,7 +25,9 @@
     <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@(() => Navigation.NavigateTo($"/collections/{CollectionId}/items/add"))>
         Add Item
     </MudButton>
-    <ItemDataGrid CollectionId=@CollectionId />
+    <ItemDataGrid 
+        CollectionId=@CollectionId 
+        ItemTemplateFieldsOrder=@(_itemTemplates?.FirstOrDefault(it => it.Id == _itemCollection.DefaultItemTemplateId)?.Fields?.Select(f => f.Id)?.ToArray()) />
 
 </MudStack>
 

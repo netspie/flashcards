@@ -1,6 +1,7 @@
 ﻿@page "/collections/{collectionId}/items/{itemId}"
 @page "/collections/{collectionId}/items/add"
 
+@using FlashcardApp.Common
 @using FlashcardApp.Services
 
 @inject ItemService ItemService
@@ -58,13 +59,18 @@
                 Id = f.Id,
                 Name = _itemTemplate?.Fields.FirstOrDefault(itf => itf.Id == f.Id)?.Name ?? f.Name,
                 Value = f.Value
-            }).ToArray() :
+            })
+            .OrderBy(field => _itemTemplate?.Fields?.IndexWhere(f => f.Id == field.Id))
+            .ToArray() 
+            :
             _itemTemplate.Fields.Select(f => new Field()
             {
                 Id = f.Id,
                 Name = f.Name,
                 Value = ""
-            }).ToArray();
+            })
+            .OrderBy(field => _itemTemplate?.Fields?.IndexWhere(f => f.Id == field.Id) )
+            .ToArray();
 
         await InvokeAsync(StateHasChanged);
     }
