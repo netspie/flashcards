@@ -3,6 +3,8 @@
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 
+@implements IDisposable
+
 <MudThemeProvider IsDarkMode=true />
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -55,6 +57,8 @@
 
     private DotNetObjectReference<MainLayout>? _ref;
 
+    public void Dispose() => _ref?.Dispose();
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
@@ -64,8 +68,6 @@
         _ref = DotNetObjectReference.Create(this);
         await JS.InvokeVoidAsync("addDocumentKeyDownHandler", _ref, nameof(OnKey));
     }
-
-    public void Dispose() => _ref?.Dispose();
 
     [JSInvokableAttribute("OnKey")]
     public async Task OnKey(bool isCtrl, bool altKey, string key)
