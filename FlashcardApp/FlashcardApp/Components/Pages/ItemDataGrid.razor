@@ -7,18 +7,30 @@
 
 @if (_items is null or []) { return; }
 
-<div>
-    <MudStack Class="w-[200px]">
-        <MudSelect @ref=@_columnNumberSelect T=@string Label="Column Count" Variant=@Variant.Outlined
-                   AnchorOrigin=@Origin.BottomCenter Required=@false Clearable=@true Value=@_columnNumberSelected ValueChanged=@OnColumnNumberChanged ShrinkLabel>
-            @for (int i = 0; i < _items[0].Fields.Count; i++)
-            {
-                <MudSelectItem T=@string Value=@($"{i + 1}") />
-            }
-        </MudSelect>
+<MudStack Class="gap-2">
+    <MudStack Row=@true Class="gap-5">
+        <MudStack Row=@true Class="w-[200px]">
+            <MudSelect 
+                @ref=@_columnNumberSelect T=@string Label="Column Count" Variant=@Variant.Outlined
+                AnchorOrigin=@Origin.BottomCenter Required=@false Clearable=@true Value=@_columnNumberSelected ValueChanged=@OnColumnNumberChanged ShrinkLabel>
+
+                @for (int i = 0; i < _items[0].Fields.Count; i++)
+                {
+                    <MudSelectItem T=@string Value=@($"{i + 1}") />
+                }
+            </MudSelect>
+        </MudStack>
+        @if (_mudDataGrid is not null && _mudDataGrid.SelectedItems.Count() > 0)
+        {
+            <MudIconButton Icon=@Icons.Material.Filled.Delete Color=Color.Secondary Edge=@Edge.Start OnClick=@OnItemDelete />
+        }
     </MudStack>
-    <MudDataGrid @ref=_mudDataGrid T=@Entities.Item Items=@_items Filterable=false Bordered=false Hover=true RowClick=@OnItemClick Outlined=false RowsPerPage=@Limit Elevation=0>
+    <MudDataGrid 
+        @ref=_mudDataGrid T=@Entities.Item Items=@_items Filterable=false Bordered=false Hover=true RowClick=@OnItemClick 
+        Outlined=false RowsPerPage=@Limit Elevation=0 MultiSelection=@true 
+        SelectedItemsChanged=@OnSelectedItemsChanged>
         <Columns>
+            <SelectColumn T=@Entities.Item />
             @for (int i = 0; i < (_columnNumber > 0 ? _columnNumber : _items[0].Fields.Count); i++)
             {
                 int j = i;
@@ -59,7 +71,7 @@
             </MudStack>
         </PagerContent>
     </MudDataGrid>
-</div>
+</MudStack>
 
 @code {
     private const int Limit = 5;
@@ -92,9 +104,20 @@
             _columnNumber = -1;
     }
 
+    private async Task OnSelectedItemsChanged(HashSet<Entities.Item> args)
+    {
+        await RefreshView();
+    }
+
     private async Task OnItemClick(DataGridRowClickEventArgs<Entities.Item> args)
     {
         Navigation.NavigateTo($"/collections/{CollectionId}/items/{args.Item.Id}");
+    }
+
+    private async Task OnItemDelete()
+    {
+        await ItemService.Delete(_mudDataGrid.SelectedItems.Select(i => i.Id));
+        await RefreshView();
     }
 
     private async Task OnPrevPage()
@@ -121,11 +144,17 @@
         await RefreshDTO();
     }
 
-    private async Task RefreshDTO()
+    public async Task RefreshDTO()
     {
         var itemsData = await ItemService.GetRange(_rangeArg);
 
         _items = itemsData.items;
         _rangeDTO = itemsData.range;
+    }
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
     }
 }

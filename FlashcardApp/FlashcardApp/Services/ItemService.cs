@@ -10,6 +10,7 @@ internal record ItemService(IRepository<Item> Repository)
     public Task<bool> Create(Item entity) => Repository.Create(entity);
     public Task<bool> Update(Item entity) => Repository.Update(entity);
     public Task<bool> Delete(string id) => Repository.Delete(id);
+    public async Task<bool> Delete(IEnumerable<string> ids) => (await Task.WhenAll(ids.Select(Repository.Delete).ToArray())).FirstOrDefault();
 
     public async Task<(Item[] items, RangeDTO range)> GetRange(RangeArg range)
     {
