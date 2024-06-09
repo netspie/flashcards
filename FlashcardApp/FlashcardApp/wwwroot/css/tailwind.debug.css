@@ -548,6 +548,12 @@ video {
 .flex-grow {
   flex-grow: 1;
 }
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
 .gap-0 {
   gap: 0px;
 }
@@ -599,6 +605,10 @@ video {
 }
 .pt-16 {
   padding-top: 4rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 .uppercase {
   text-transform: uppercase;

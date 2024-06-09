@@ -9,73 +9,82 @@
 
 @if (_items is null or []) { return; }
 
-<MudStack Class="gap-2">
-    <MudStack Row=@true Class="gap-5">
-        <MudStack Row=@true Class="w-[200px]">
-            <MudSelect 
-                @ref=@_columnNumberSelect T=@string Label="Column Count" Variant=@Variant.Outlined
-                AnchorOrigin=@Origin.BottomCenter Required=@false Clearable=@true Value=@_columnNumberSelected ValueChanged=@OnColumnNumberChanged ShrinkLabel>
+<div>
+    <MudStack Class="gap-2">
+        <MudStack Row=@true Class="gap-5">
+            <MudStack Row=@true Class="w-[200px]">
+                <MudSelect 
+                    @ref=@_columnNumberSelect T=@string Label="Column Count" Variant=@Variant.Outlined
+                    AnchorOrigin=@Origin.BottomCenter Required=@false Clearable=@true Value=@_columnNumberSelected ValueChanged=@OnColumnNumberChanged ShrinkLabel>
 
-                @for (int i = 0; i < _items[0].Fields.Count; i++)
-                {
-                    <MudSelectItem T=@string Value=@($"{i + 1}") />
-                }
-            </MudSelect>
-        </MudStack>
-        @if (_mudDataGrid is not null && _mudDataGrid.SelectedItems.Count() > 0)
-        {
-            <MudIconButton Icon=@Icons.Material.Filled.Delete Color=Color.Secondary Edge=@Edge.Start OnClick=@OnItemDelete />
-        }
-    </MudStack>
-    <MudDataGrid 
-        @ref=_mudDataGrid T=@Entities.Item Items=@_items Filterable=false Bordered=false Hover=true RowClick=@OnItemClick 
-        Outlined=false RowsPerPage=@Limit Elevation=0 MultiSelection=@true 
-        SelectedItemsChanged=@OnSelectedItemsChanged>
-        <Columns>
-            <SelectColumn T=@Entities.Item />
-            @for (int i = 0; i < (_columnNumber > 0 ? _columnNumber : _items[0].Fields.Count); i++)
+                    @for (int i = 0; i < _items[0].Fields.Count; i++)
+                    {
+                        <MudSelectItem T=@string Value=@($"{i + 1}") />
+                    }
+                </MudSelect>
+            </MudStack>
+            @if (_mudDataGrid is not null && _mudDataGrid.SelectedItems.Count() > 0)
             {
-                int j = i;
-                <PropertyColumn 
-                    Property=@(item => item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value) 
-                    Title=@_items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name Filterable=false />
+                <MudIconButton Icon=@Icons.Material.Filled.Delete Color=Color.Secondary Edge=@Edge.Start OnClick=@OnItemDelete />
             }
-        </Columns>
-        <PagerContent>
-            <MudStack Row=true Style="width: 100%;">
-                <MudStack Row=true Style="width: 100%; display: flex; justify-content: right;">
-                    <div class="mud-table-pagination-caption">
-                        <div class="mud-table-page-number-information">
-                            <span>@_rangeDTO.Start</span>
-                            -
-                            <span>@(Math.Min(_rangeDTO.Limit + _rangeDTO.Start, _rangeDTO.TotalCount))</span>
-                            of
-                            <span>@(_rangeDTO.TotalCount)</span>
+            <MudStack Row=@true Class="gap-4 items-center">
+                <MudText Typo="Typo.h6" Class="text-bold text-sm">Selection</MudText>
+                <MudSwitch T=@bool Color=@Color.Primary ValueChanged=@OnMultiSelectionChanged Class="items-center justify-center" />
+            </MudStack>
+        </MudStack>
+        <MudDataGrid 
+            @ref=_mudDataGrid T=@Entities.Item Items=@_items Filterable=false Bordered=false Hover=true RowClick=@OnItemClick 
+            Outlined=false RowsPerPage=@Limit Elevation=0 MultiSelection=@_multiSelection
+            SelectedItemsChanged=@OnSelectedItemsChanged>
+            <Columns>
+                @if (_multiSelection)
+                {
+                    <SelectColumn T=@Entities.Item />
+                }
+                @for (int i = 0; i < (_columnNumber > 0 ? _columnNumber : _items[0].Fields.Count); i++)
+                {
+                    int j = i;
+                    <PropertyColumn 
+                        Property=@(item => item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value) 
+                        Title=@_items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name Filterable=false />
+                }
+            </Columns>
+            <PagerContent>
+                <MudStack Row=true Style="width: 100%;">
+                    <MudStack Row=true Style="width: 100%; display: flex; justify-content: right;">
+                        <div class="mud-table-pagination-caption">
+                            <div class="mud-table-page-number-information">
+                                <span>@_rangeDTO.Start</span>
+                                -
+                                <span>@(Math.Min(_rangeDTO.Limit + _rangeDTO.Start, _rangeDTO.TotalCount))</span>
+                                of
+                                <span>@(_rangeDTO.TotalCount)</span>
+                            </div>
                         </div>
+                    </MudStack>
+                    <div style="display: flex; justify-content: right;">
+                        @if (_rangeDTO.TotalCount >= _rangeDTO.Limit)
+                        {
+                            <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowLeft @onclick=@OnFirstPage aria-label="First page" />
+                        }
+                        @if (_rangeDTO.Start >= _rangeDTO.Limit)
+                        {
+                            <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardArrowLeft @onclick=@OnPrevPage aria-label="Previous page" />
+                        }
+                        @if (_rangeDTO.TotalCount >= _rangeDTO.Limit && _rangeDTO.Start + _rangeDTO.Limit < _rangeDTO.TotalCount)
+                        {
+                            <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardArrowRight @onclick=@OnNextPage aria-label="Next page" />
+                        }
+                        @if (_rangeDTO.TotalCount >= _rangeDTO.Limit)
+                        {
+                            <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowRight @onclick=@OnLastPage aria-label="Last page" />
+                        }
                     </div>
                 </MudStack>
-                <div style="display: flex; justify-content: right;">
-                    @if (_rangeDTO.TotalCount >= _rangeDTO.Limit)
-                    {
-                        <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowLeft @onclick=@OnFirstPage aria-label="First page" />
-                    }
-                    @if (_rangeDTO.Start >= _rangeDTO.Limit)
-                    {
-                        <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardArrowLeft @onclick=@OnPrevPage aria-label="Previous page" />
-                    }
-                    @if (_rangeDTO.TotalCount >= _rangeDTO.Limit && _rangeDTO.Start + _rangeDTO.Limit < _rangeDTO.TotalCount)
-                    {
-                        <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardArrowRight @onclick=@OnNextPage aria-label="Next page" />
-                    }
-                    @if (_rangeDTO.TotalCount >= _rangeDTO.Limit)
-                    {
-                        <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowRight @onclick=@OnLastPage aria-label="Last page" />
-                    }
-                </div>
-            </MudStack>
-        </PagerContent>
-    </MudDataGrid>
-</MudStack>
+            </PagerContent>
+        </MudDataGrid>
+    </MudStack>
+</div>
 
 @code {
     private const int Limit = 5;
@@ -92,6 +101,8 @@
     private string? _columnNumberSelected;
     private int _columnNumber = 4;
 
+    private bool _multiSelection;
+
     private RangeArg _rangeArg = new(0, Limit);
 
     protected override async Task OnInitializedAsync()
@@ -100,6 +111,12 @@
 
         if (_columnNumber > 0)
             _columnNumberSelected = _columnNumber.ToString();
+    }
+
+    private Task OnMultiSelectionChanged(bool value)
+    {
+        _multiSelection = value;
+        return InvokeAsync(StateHasChanged);
     }
 
     private async Task OnColumnNumberChanged(string columnNumber)

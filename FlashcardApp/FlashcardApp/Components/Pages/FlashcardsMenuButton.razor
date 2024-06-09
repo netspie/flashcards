@@ -10,7 +10,7 @@
         <Dropdown
             Clearable=@false
             Name="Flashcard Templates"
-            Items=@_itemTemplate?.FlashcardTemplates?.Select(it => (it.Id, it.Name))?.ToArray()
+            Items=@_itemTemplate?.FlashcardTemplates?.Where(ft => ft.Sides.Count >= 2 && ft.Sides[0].FieldIds.Count >= 1).Select(it => (it.Id, it.Name))?.ToArray()
             SelectedValueId=@_flashcardTemplateId
             OnValueChanged=@OnFlashcardTemplateChanged />
 
