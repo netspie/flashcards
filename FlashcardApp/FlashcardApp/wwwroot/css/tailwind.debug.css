@@ -548,6 +548,9 @@ video {
 .flex-grow {
   flex-grow: 1;
 }
+.gap-0 {
+  gap: 0px;
+}
 .gap-1 {
   gap: 0.25rem;
 }
@@ -577,6 +580,9 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(243 232 255 / var(--tw-bg-opacity));
 }
+.p-0 {
+  padding: 0px;
+}
 .p-2 {
   padding: 0.5rem;
 }
@@ -593,4 +599,7 @@ video {
 }
 .pt-16 {
   padding-top: 4rem;
+}
+.uppercase {
+  text-transform: uppercase;
 }

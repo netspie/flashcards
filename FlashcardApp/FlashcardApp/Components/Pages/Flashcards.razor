@@ -1,5 +1,133 @@
-﻿@page "/"
+﻿@page "/collections/{collectionId}/flashcards"
+
+@using FlashcardApp.Services
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject ItemCollectionService ItemCollectionService
+@inject ItemService ItemService
+@inject NavigationManager Navigation
+@inject ItemTemplateService ItemTemplateService
+
+@if (_itemsData is null) { return; }
+
+<div class="flashcard-container">
+    <MudStack Class="flashcard">
+        <MudStack Class="flashcard-content">
+            <MudStack Row=true Class="count-text">
+                <span>@(_i + 1)</span>
+                /
+                <span>@(_itemsData.Value.items.Length)</span>
+            </MudStack>
+            <MudStack Row=true Class="info-panel gap-0">
+                @if (_collection is not null)
+                {
+                    <span class="p-0" style="text-transform: uppercase; font-family: Unica;">@_collection.Name</span>
+                }
+                @if (_flashcardTemplateName is not null)
+                {
+                    @if (_collection is not null)
+                    {
+                        <span class="p-0">,&nbsp;</span>
+                    }
+
+                    <span class="p-0" style="text-transform: uppercase; font-family: Unica;">@_flashcardTemplateName</span>
+                }
+                @if (_tags is not null and not [])
+                {
+                    @if (_flashcardTemplateName is not null)
+                    {
+                        <span class="p-0">,&nbsp;</span>
+                    }
+
+                    @for (int i = 0; i < _tags.Length; i++)
+                    {
+                        var tag = _tags[i];
+                        <span class="p-0" style="text-transform: uppercase; font-family: Unica;">@tag</span>
+                        @if (i < _tags.Length - 1)
+                        {
+                            <span class="p-0">,&nbsp;</span>
+                        }
+                    }
+                }
+            </MudStack>
+            <MudStack Style="align-items: center;">
+                @foreach (var fieldId in _flashcardTemplate.Sides[0].FieldIds)
+                {
+                    var item = _itemsData.Value.items[_i];
+                    var field = item.Fields.FirstOrDefault(f => f.Id == fieldId);
+
+                    @if (field.Value.StartsWith("data:audio/mpeg;base64"))
+                    {
+                        @* <audio controls style="padding-bottom: 10px;" @key=@question.Text>
+                            <source src=@($"{AudioStorage.BaseReadPath}/{question.Text}?v={DateTime.Now.Ticks}") type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio> *@
+                    }
+                    else
+                    {
+                        <MudText Style="font-size: 16px; text-align: center;">@field.Value</MudText>
+                    }
+                }
+            </MudStack>
+        </MudStack>
+    </MudStack>
+</div>
 
 @code {
+    [Parameter] public string? CollectionId { get; set; }
 
+    private Entities.ItemCollection? _collection { get; set; }
+
+    private Entities.ItemTemplate? _itemTemplate;
+    private (Entities.Item[] items, RangeDTO range)? _itemsData;
+    private Entities.FlashcardTemplate? _flashcardTemplate;
+
+    private string? _itemTemplateId;
+    private string? _flashcardTemplateName;
+    private string[]? _tags;
+    private int? _offset;
+    private int? _limit;
+
+    private int _i;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("itemTemplateId", out var itemType))
+            _itemTemplateId = Convert.ToString(itemType);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("mode", out var mode))
+            _flashcardTemplateName = Convert.ToString(mode);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("tags", out var tags))
+            _tags = Convert.ToString(tags).Split(",");
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("offset", out var offset))
+            _offset = Convert.ToInt32(offset);
+
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("limit", out var limit))
+            _limit = Convert.ToInt32(limit);
+
+        await RefreshDTO();
+    }
+
+    public async Task RefreshDTO()
+    {
+        _collection = CollectionId is not null ? await ItemCollectionService.Get(CollectionId) : default;
+        _itemTemplate = _itemTemplateId is not null ? await ItemTemplateService.Get(_itemTemplateId) : default;
+
+        _flashcardTemplate = _itemTemplate?.FlashcardTemplates?.FirstOrDefault(ft => ft.Name == _flashcardTemplateName);
+
+        if (CollectionId is not null)
+            _itemsData = await ItemService.GetRange(
+                CollectionId, 
+                range: _offset is not null && _limit is not null ? new RangeArg(_offset.Value, _limit.Value) : new RangeArg(0, 50));
+    }
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
+    }
 }

@@ -2,7 +2,7 @@
 
 @if (_items is null) { return; }
 
-<MudSelect @ref=@_select T=@Item Label=@Name Variant=@Variant.Outlined AnchorOrigin=@Origin.BottomCenter Required=@false Clearable=@true Value=@_selectedItem ValueChanged=@OnValueChangedInternal>
+<MudSelect @ref=@_select T=@Item Label=@Name Variant=@Variant.Outlined AnchorOrigin=@Origin.BottomCenter Required=@(!Clearable) Clearable=@Clearable Value=@_selectedItem ValueChanged=@OnValueChangedInternal>
     @foreach (var item in _items)
     {
         <MudSelectItem T=@Item Value=item />
@@ -14,6 +14,8 @@
     [Parameter] public string? SelectedValueId { get; set; }
     [Parameter] public (string Id, string Name)[]? Items { get; set; }
     [Parameter] public Func<string, Task<bool>>? OnValueChanged { get; set; }
+
+    [Parameter] public bool Clearable { get; set; } = true;
 
     private Item[]? _items;
     private Item? _selectedItem;

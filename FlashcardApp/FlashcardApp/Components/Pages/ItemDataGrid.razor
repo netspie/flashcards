@@ -151,7 +151,7 @@
 
     public async Task RefreshDTO()
     {
-        var itemsData = await ItemService.GetRange(_rangeArg);
+        var itemsData = await ItemService.GetRange(CollectionId, _rangeArg);
 
         _items = itemsData.items;
         _rangeDTO = itemsData.range;

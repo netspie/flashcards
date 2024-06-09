@@ -1,0 +1,63 @@
+﻿@using FlashcardApp.Services
+
+@inject ItemTemplateService ItemTemplateService
+@inject NavigationManager Navigation
+
+<MudMenu Label="Review" Variant="Variant.Filled" Color="Color.Primary" Class="w-fit self-start">
+    <MudStack Class="p-2">
+        <MudText>Review</MudText>
+
+        <Dropdown
+            Clearable=@false
+            Name="Flashcard Templates"
+            Items=@_itemTemplate?.FlashcardTemplates?.Select(it => (it.Id, it.Name))?.ToArray()
+            SelectedValueId=@_flashcardTemplateId
+            OnValueChanged=@OnFlashcardTemplateChanged />
+
+        <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@GoReviewRightNow>
+            Go
+        </MudButton>
+    </MudStack>
+</MudMenu>
+
+@code {
+    [Parameter] public string? CollectionId { get; set; }
+    [Parameter] public string? ItemTemplateId { get; set; }
+
+    private Entities.ItemTemplate? _itemTemplate;
+
+    public string? _flashcardTemplateId;
+    public string? _flashcardTemplateName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshView();
+    }
+
+    private Task<bool> OnFlashcardTemplateChanged(string flashcardTemplateId)
+    {
+        _flashcardTemplateId = flashcardTemplateId;
+        _flashcardTemplateName = _itemTemplate?.FlashcardTemplates.FirstOrDefault(ft => ft.Id == _flashcardTemplateId)?.Name;
+
+        return Task.FromResult(true);
+    }
+
+    private void GoReviewRightNow()
+    {
+        Navigation.NavigateTo($"/collections/{CollectionId}/flashcards?itemTemplateId={_itemTemplate?.Id}&mode={_flashcardTemplateName}");
+    }
+
+    public async Task RefreshDTO()
+    {
+        _itemTemplate = await ItemTemplateService.Get(ItemTemplateId);
+
+        _flashcardTemplateId = _itemTemplate?.FlashcardTemplates?.FirstOrDefault()?.Id;
+        _flashcardTemplateName = _itemTemplate?.FlashcardTemplates.FirstOrDefault(ft => ft.Id == _flashcardTemplateId)?.Name;
+    }
+
+    public async Task RefreshView()
+    {
+        await RefreshDTO();
+        await InvokeAsync(StateHasChanged);
+    }
+}

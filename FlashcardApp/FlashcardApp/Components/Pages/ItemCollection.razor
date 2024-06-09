@@ -29,6 +29,10 @@
         CollectionId=@CollectionId 
         ItemTemplateFieldsOrder=@(_itemTemplates?.FirstOrDefault(it => it.Id == _itemCollection.DefaultItemTemplateId)?.Fields?.Select(f => f.Id)?.ToArray()) />
 
+    <FlashcardsMenuButton 
+        CollectionId=@CollectionId
+        ItemTemplateId=@_itemCollection.DefaultItemTemplateId />
+
 </MudStack>
 
 @code {

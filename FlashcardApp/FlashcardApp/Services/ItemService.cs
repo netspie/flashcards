@@ -12,7 +12,7 @@ internal record ItemService(IRepository<Item> Repository)
     public Task<bool> Delete(string id) => Repository.Delete(id);
     public async Task<bool> Delete(IEnumerable<string> ids) => (await Task.WhenAll(ids.Select(Repository.Delete).ToArray())).FirstOrDefault();
 
-    public async Task<(Item[] items, RangeDTO range)> GetRange(RangeArg range)
+    public async Task<(Item[] items, RangeDTO range)> GetRange(string collectionId, RangeArg range, ModifierArg[]? modifiers = null)
     {
         //var dataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/FlashcardApp/items";
         var items = await Repository.GetAll();
@@ -24,9 +24,12 @@ internal record ItemService(IRepository<Item> Repository)
 
 public record RangeDTO(
     int TotalCount,
-    int Start,
-    int Limit);
+    int Start = 0,
+    int Limit = int.MaxValue);
 
 public record RangeArg(
     int Start,
     int Limit);
+
+public record ModifierArg(
+    string[]? Tags);
