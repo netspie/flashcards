@@ -53,20 +53,15 @@
 
     private Field[]? _fields;
 
-    private bool _closed;
-
-    private void Closed(MudChip chip)
-    {
-        _closed = !_closed;
-    }
-
     protected override async Task OnInitializedAsync() 
     {
         Mode = ItemId is null ? SubmitMode.Add : SubmitMode.Update;
 
+        _item = Mode.Value is SubmitMode.Add ? new() { CollectionId = CollectionId } : null;
+
         await RefreshDTO();
 
-        _fields = _item?.Fields is not null ?
+        _fields = _item?.Fields is not null and not [] ?
             _item.Fields.Select(f => new Field()
             {
                 Id = f.Id,
@@ -93,6 +88,9 @@
         if (!_item.AddTag(tag))
             return false;
 
+        if (Mode is SubmitMode mode && mode is SubmitMode.Add)
+            return true;
+
         return await ItemService
            .Update(_item)
            .Do(RefreshView);
@@ -102,6 +100,9 @@
     {
         if (!_item.RemoveTag(tag))
             return false;
+
+        if (Mode is SubmitMode mode && mode is SubmitMode.Add)
+            return true;
 
         return await ItemService
            .Update(_item)
@@ -117,7 +118,8 @@
                 {
                     CollectionId = _item?.CollectionId ?? CollectionId,
                     ItemTemplateId = _item?.ItemTemplateId ?? _itemTemplate.Id,
-                    Fields = _fields.Select(f => new Entities.Item.Field(f.Id, f.Name, f.Value)).ToList()
+                    Fields = _fields.Select(f => new Entities.Item.Field(f.Id, f.Name, f.Value)).ToList(),
+                    Tags = _item.Tags
                 }),
 
             SubmitMode.Update => ItemService.Update(
@@ -126,7 +128,8 @@
                     Id = _item.Id,
                     CollectionId = _item?.CollectionId ?? CollectionId,
                     ItemTemplateId = _item?.ItemTemplateId ?? _itemTemplate.Id,
-                    Fields = _fields.Select(f => new Entities.Item.Field(f.Id, f.Name, f.Value)).ToList()
+                    Fields = _fields.Select(f => new Entities.Item.Field(f.Id, f.Name, f.Value)).ToList(),
+                    Tags = _item.Tags
                 }),
 
             _ => Task.FromResult(false)
@@ -148,7 +151,6 @@
         {
             _item = await ItemService.Get(ItemId);
             _itemTemplate = await ItemTemplateService.Get(_item.ItemTemplateId);
-            
             return;
         }
 
