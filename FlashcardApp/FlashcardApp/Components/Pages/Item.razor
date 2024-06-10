@@ -12,9 +12,15 @@
 
 <MudText Typo="Typo.h3" Class="mb-2">Item</MudText>
 
-@if (_fields is null) { return; }
+@if (_item is null || _fields is null) { return; }
 
 <MudStack Class="gap-4">
+    <MudStack>
+        <ClosableChipSet 
+            Items=@_item.Tags 
+            OnAdded=@OnTagAdded 
+            OnRemoved=@OnTagRemoved />
+    </MudStack>
     <MudStack Class="gap-2">
         @foreach (var field in _fields)
         {
@@ -47,6 +53,13 @@
 
     private Field[]? _fields;
 
+    private bool _closed;
+
+    private void Closed(MudChip chip)
+    {
+        _closed = !_closed;
+    }
+
     protected override async Task OnInitializedAsync() 
     {
         Mode = ItemId is null ? SubmitMode.Add : SubmitMode.Update;
@@ -73,6 +86,26 @@
             .ToArray();
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<bool> OnTagAdded(string tag)
+    {
+        if (!_item.AddTag(tag))
+            return false;
+
+        return await ItemService
+           .Update(_item)
+           .Do(RefreshView);
+    }
+
+    private async Task<bool> OnTagRemoved(string tag)
+    {
+        if (!_item.RemoveTag(tag))
+            return false;
+
+        return await ItemService
+           .Update(_item)
+           .Do(RefreshView);
     }
 
     private async Task OnItemSubmit()

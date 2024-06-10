@@ -1,0 +1,87 @@
+﻿
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+@if (Items is null) { return; }
+
+<MudStack Row=@true Class="items-center gap-3">
+    
+    <MudText>Tags:</MudText>
+    
+    <div class="flex flex-row">
+
+        @foreach (var item in Items)
+        {
+            <MudChip Color=@Color.Default OnClose=@(() => OnClosedInternal(item))>@item</MudChip>
+        }
+    </div>
+
+    <MudMenu Icon=@Icons.Material.Outlined.Add Variant=@Variant.Outlined Color=@Color.Primary Class="w-fit self-start">
+        <MudStack Class="p-2">
+            <MudText>Add Item</MudText>
+            <MudTextField ShrinkLabel @bind-Value=@_newItemName Label="Name" Variant=Variant.Outlined></MudTextField>
+            <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAddedInternal>
+                Add
+            </MudButton>
+        </MudStack>
+    </MudMenu>
+
+</MudStack>
+
+@code {
+    [Parameter] public List<string>? Items { get; set; }
+    [Parameter] public Func<string, Task<bool>>? OnRemoved { get; set; }
+    [Parameter] public Func<string, Task<bool>>? OnAdded { get; set; }
+
+    private string? _newItemName;
+
+    private async Task OnAddedInternal()
+    {
+        if (_newItemName is null or [])
+        {
+            Snackbar.Add("Name must contain characters");
+            return;
+        }
+
+        if (OnAdded is not null && OnAdded.Invoke(_newItemName) is Task<bool> onResult)
+        {
+            if (!await onResult)
+            {
+                Snackbar.Add("Item cannot be added");
+                return;
+            }
+
+            Snackbar.Add("Item has been added");
+            _newItemName = "";
+            return;
+        }
+
+        Items?.Add(_newItemName);
+
+        _newItemName = "";
+    }
+
+    private async Task OnClosedInternal(string item)
+    {
+        bool? result = await DialogService.ShowMessageBox(
+            "Warning",
+            "Are you 100% sure you want to remove this item?",
+            yesText: "Remove", cancelText: "Cancel");
+
+        if (result is null)
+            return;
+
+        if (OnRemoved is not null && OnRemoved.Invoke(item) is Task<bool> onClosedResult)
+        {
+            if (!await onClosedResult)
+            {
+                Snackbar.Add("Item could not be removed");
+                return;
+            }
+                
+            Snackbar.Add("Item has been removed");
+        }
+
+        Items?.Remove(item);
+    }
+}

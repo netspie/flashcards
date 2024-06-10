@@ -12,5 +12,20 @@ public class Item : Entity
 
     public List<Field>? Fields { get; init; } = [];
 
+    public List<string> Tags { get; init; } = [];
+
+    public bool AddTag(string tag)
+    {
+        if (Tags.Contains(tag.Trim()))
+            return false;
+
+        Tags.Add(tag);
+
+        return true;
+    }
+
+    public bool RemoveTag(string tag) =>
+        Tags.Remove(tag);
+
     public record Field(string Id, string Name, string Value);
 }
