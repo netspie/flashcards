@@ -15,6 +15,7 @@ internal record ItemService(IRepository<Item> Repository)
     public async Task<GetItemsQueryResponse> GetRange(string collectionId, RangeArg range, ModifierArg[]? modifiers = null)
     {
         var itemsAll = await Repository.GetAll();
+        itemsAll = itemsAll.OrderBy(x => x.CreatedTime).ToArray();
         var itemsOfCollection = itemsAll.Where(i => i.CollectionId == collectionId).ToArray();
 
         if (modifiers is not null)
