@@ -41,7 +41,7 @@
 
     private async Task OnEditButton()
     {
-        if (_itemTemplateName is null or [])
+        if (_itemTemplateName is null and not [])
         {
             Snackbar.Add("Provide a name");
             return;

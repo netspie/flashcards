@@ -12,15 +12,33 @@ internal record ItemService(IRepository<Item> Repository)
     public Task<bool> Delete(string id) => Repository.Delete(id);
     public async Task<bool> Delete(IEnumerable<string> ids) => (await Task.WhenAll(ids.Select(Repository.Delete).ToArray())).FirstOrDefault();
 
-    public async Task<(Item[] items, RangeDTO range)> GetRange(string collectionId, RangeArg range, ModifierArg[]? modifiers = null)
+    public async Task<GetItemsQueryResponse> GetRange(string collectionId, RangeArg range, ModifierArg[]? modifiers = null)
     {
-        //var dataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/FlashcardApp/items";
-        var items = await Repository.GetAll();
-        var itemsRanged = items.Skip(range.Start).Take(range.Limit).ToArray();
+        var itemsAll = await Repository.GetAll();
+        var itemsOfCollection = itemsAll.Where(i => i.CollectionId == collectionId).ToArray();
 
-        return (itemsRanged, new(items.Length, range.Start, range.Limit));
+        if (modifiers is not null)
+        {
+            foreach (var modifier in modifiers)
+            {
+                if (modifier.Tags is not null and not [])
+                    itemsOfCollection = itemsOfCollection.Where(i => i.Tags.Any(modifier.Tags.Contains)).ToArray();
+            }
+        }
+
+        var itemsRanged = itemsOfCollection.Skip(range.Start).Take(range.Limit).ToArray();
+
+        return new(
+            itemsRanged, 
+            Range: new(TotalCount: itemsOfCollection.Length, range.Start, range.Limit),
+            Tags: itemsAll.SelectMany(i => i.Tags).Distinct().ToArray());
     }
 }
+
+public record GetItemsQueryResponse(
+    Item[] Items, 
+    RangeDTO Range,
+    string[] Tags);
 
 public record RangeDTO(
     int TotalCount,

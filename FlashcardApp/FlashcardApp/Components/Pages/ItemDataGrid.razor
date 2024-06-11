@@ -7,13 +7,7 @@
 @inject ItemService ItemService
 @inject NavigationManager Navigation
 
-@if (_items is null or []) { return; }
-
-<style>
-    .grid-tag {
-        background: red;
-    }
-</style>
+@if (_items is null and not []) { return; }
 
 <div>
     <MudStack Class="gap-2">
@@ -33,10 +27,16 @@
             {
                 <MudIconButton Icon=@Icons.Material.Filled.Delete Color=Color.Secondary Edge=@Edge.Start OnClick=@OnItemDelete />
             }
-            <MudStack Row=@true Class="gap-4 items-center">
+            <MudStack Row=@true Class="gap-4 items-center" Style="flex-direction: row-reverse;">
                 <MudText Typo="Typo.h6" Class="text-bold text-sm">Selection</MudText>
                 <MudSwitch T=@bool Color=@Color.Primary ValueChanged=@OnMultiSelectionChanged Class="items-center justify-center" />
             </MudStack>
+            <MudSelect T=@string Label="Tags" MultiSelection=@true SelectedValuesChanged=OnTagsSelectedValuesChanged>
+                @foreach (var tag in _tags)
+                {
+                    <MudSelectItem T=@string Value=@tag>@tag</MudSelectItem>
+                }
+            </MudSelect>
         </MudStack>
         <MudDataGrid 
             @ref=_mudDataGrid T=@Entities.Item Items=@_items Filterable=false Bordered=false Hover=true RowClick=@OnItemClick 
@@ -114,6 +114,10 @@
 
     private Entities.Item[]? _items { get; set; }
     private RangeDTO? _rangeDTO { get; set; }
+    private string[]? _tags { get; set; }
+
+    private string _tagValue = "Nothing selected";
+    public List<string> TagsSelected { get; private set; } = [];
 
     private MudDataGrid<Entities.Item>? _mudDataGrid;
 
@@ -131,6 +135,13 @@
 
         if (_columnNumber > 0)
             _columnNumberSelected = _columnNumber.ToString();
+    }
+
+    private async Task OnTagsSelectedValuesChanged(IEnumerable<string> selected)
+    {
+        TagsSelected.Clear();
+        TagsSelected.AddRange(selected);
+        await RefreshView();
     }
 
     private Task OnMultiSelectionChanged(bool value)
@@ -188,10 +199,14 @@
 
     public async Task RefreshDTO()
     {
-        var itemsData = await ItemService.GetRange(CollectionId, _rangeArg);
+        var itemsData = await ItemService.GetRange(
+                CollectionId,
+                _rangeArg,
+                modifiers: [new(TagsSelected.ToArray())]);
 
-        _items = itemsData.items;
-        _rangeDTO = itemsData.range;
+        _items = itemsData.Items;
+        _rangeDTO = itemsData.Range;
+        _tags = itemsData.Tags;
     }
 
     public async Task RefreshView()

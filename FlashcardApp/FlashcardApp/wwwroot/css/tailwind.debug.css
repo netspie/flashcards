@@ -557,9 +557,6 @@ video {
 .justify-center {
   justify-content: center;
 }
-.gap-0 {
-  gap: 0px;
-}
 .gap-1 {
   gap: 0.25rem;
 }

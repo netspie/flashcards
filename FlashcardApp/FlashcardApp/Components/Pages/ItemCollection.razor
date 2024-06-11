@@ -26,12 +26,14 @@
         Add Item
     </MudButton>
     <ItemDataGrid 
+        @ref=@_itemDataGrid
         CollectionId=@CollectionId 
         ItemTemplateFieldsOrder=@(_itemTemplates?.FirstOrDefault(it => it.Id == _itemCollection.DefaultItemTemplateId)?.Fields?.Select(f => f.Id)?.ToArray()) />
 
     <FlashcardsMenuButton 
         CollectionId=@CollectionId
-        ItemTemplateId=@_itemCollection.DefaultItemTemplateId />
+        ItemTemplateId=@_itemCollection.DefaultItemTemplateId 
+        Tags=@_itemDataGrid?.TagsSelected />
 
 </MudStack>
 
@@ -42,6 +44,8 @@
     private Entities.ItemTemplate[]? _itemTemplates;
 
     private Entities.Item[]? _items;
+
+    private ItemDataGrid? _itemDataGrid;
 
     protected override async Task OnInitializedAsync()
     {

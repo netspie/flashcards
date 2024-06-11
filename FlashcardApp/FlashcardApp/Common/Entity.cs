@@ -38,7 +38,7 @@ public abstract class Entity : IEntity
         if (nameProperty != null)
         {
             var name = nameProperty.GetValue(this) as string;
-            if (name is not null or [])
+            if (name is not null and not [])
                 result = $"{name} - {Id.ToString()}";
         }
 

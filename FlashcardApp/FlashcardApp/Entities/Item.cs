@@ -18,7 +18,8 @@ public class Item : Entity
 
     public bool AddTag(string tag)
     {
-        if (Tags.Contains(tag.Trim()))
+        tag = tag.Trim();
+        if (Tags.Contains(tag))
             return false;
 
         Tags.Add(tag);

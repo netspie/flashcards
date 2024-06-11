@@ -45,7 +45,7 @@
 
     private async Task OnAddedInternal()
     {
-        if (_newItemName is null or [])
+        if (_newItemName is null and not [])
         {
             Snackbar.Add("Name must contain characters");
             return;

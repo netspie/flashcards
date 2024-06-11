@@ -23,6 +23,7 @@
 @code {
     [Parameter] public string? CollectionId { get; set; }
     [Parameter] public string? ItemTemplateId { get; set; }
+    [Parameter] public IEnumerable<string>? Tags { get; set; }
 
     private Entities.ItemTemplate? _itemTemplate;
 
@@ -44,7 +45,11 @@
 
     private void GoReviewRightNow()
     {
-        Navigation.NavigateTo($"/collections/{CollectionId}/flashcards?itemTemplateId={_itemTemplate?.Id}&mode={_flashcardTemplateName}");
+        var uri = $"/collections/{CollectionId}/flashcards?itemTemplateId={_itemTemplate?.Id}&mode={_flashcardTemplateName}";
+        if (Tags is not null && Tags.Count() > 0)
+            uri += $"&tags={Tags.Aggregate((x, y) => $"{x},{y}")}";
+
+        Navigation.NavigateTo(uri);
     }
 
     public async Task RefreshDTO()

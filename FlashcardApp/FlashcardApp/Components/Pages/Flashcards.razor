@@ -8,7 +8,7 @@
 @inject NavigationManager Navigation
 @inject ItemTemplateService ItemTemplateService
 
-@if (_itemsData is null) { return; }
+@if (_itemsData is null || _flashcardTemplate is null) { return; }
 
 <div class="flashcard-container">
     <MudStack Class="flashcard">
@@ -16,9 +16,9 @@
             <MudStack Row=true Class="count-text">
                 <span>@(_i + 1)</span>
                 /
-                <span>@(_itemsData.Value.items.Length)</span>
+                <span>@(_itemsData.Items.Length)</span>
             </MudStack>
-            <MudStack Row=true Class="info-panel gap-0">
+            <div class="flex flex-row">
                 @if (_collection is not null)
                 {
                     <span class="p-0" style="text-transform: uppercase; font-family: Unica;">@_collection.Name</span>
@@ -49,11 +49,11 @@
                         }
                     }
                 }
-            </MudStack>
+            </div>
             <MudStack Style="align-items: center;">
                 @foreach (var fieldId in _flashcardTemplate.Sides[0].FieldIds)
                 {
-                    var item = _itemsData.Value.items[_i];
+                    var item = _itemsData.Items[_i];
                     var field = item.Fields.FirstOrDefault(f => f.Id == fieldId);
 
                     @if (field.Value.StartsWith("data:audio/mpeg;base64"))
@@ -74,7 +74,7 @@
                 {
                     @foreach (var fieldId in _flashcardTemplate.Sides[1].FieldIds)
                     {
-                        var item = _itemsData.Value.items[_i];
+                        var item = _itemsData.Items[_i];
                         var field = item.Fields.FirstOrDefault(f => f.Id == fieldId);
 
                         @if (field.Value.StartsWith("data:audio/mpeg;base64"))
@@ -106,12 +106,12 @@
     private Entities.ItemCollection? _collection { get; set; }
 
     private Entities.ItemTemplate? _itemTemplate;
-    private (Entities.Item[] items, RangeDTO range)? _itemsData;
+    private GetItemsQueryResponse? _itemsData;
     private Entities.FlashcardTemplate? _flashcardTemplate;
 
     private string? _itemTemplateId;
     private string? _flashcardTemplateName;
-    private string[]? _tags;
+    private string[]? _tags = [];
     private int? _offset;
     private int? _limit;
 
@@ -148,18 +148,20 @@
 
     private Task OnPrevClick(MouseEventArgs args)
     {
-        _i = int.Clamp(--_i, 0, _itemsData.Value.items.Length - 1);
+        _i = int.Clamp(--_i, 0, _itemsData.Items.Length - 1);
         return RefreshDTO(); 
     }
-     
+
     private Task OnNextClick(MouseEventArgs args)
     {
-        _i = int.Clamp(++_i, 0, _itemsData.Value.items.Length - 1);
+        _i = int.Clamp(++_i, 0, _itemsData.Items.Length - 1);
         return RefreshDTO();
     }
 
     public async Task RefreshDTO()
     {
+        _showAnswer = false;
+
         _collection = CollectionId is not null ? await ItemCollectionService.Get(CollectionId) : default;
         _itemTemplate = _itemTemplateId is not null ? await ItemTemplateService.Get(_itemTemplateId) : default;
 
@@ -168,7 +170,8 @@
         if (CollectionId is not null)
             _itemsData = await ItemService.GetRange(
                 CollectionId, 
-                range: _offset is not null && _limit is not null ? new RangeArg(_offset.Value, _limit.Value) : new RangeArg(0, 50));
+                range: _offset is not null && _limit is not null ? new RangeArg(_offset.Value, _limit.Value) : new RangeArg(0, 50),
+                modifiers: [new(_tags.ToArray())]);
     }
 
     public async Task RefreshView()

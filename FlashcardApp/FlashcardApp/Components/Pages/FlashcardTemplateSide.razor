@@ -67,7 +67,7 @@
     private async Task<bool>? OnFieldAdded()
     {
         var fieldName = _fieldSelect?.SelectedValues?.FirstOrDefault();
-        if (fieldName is null or [])
+        if (fieldName is null and not [])
             return false;
 
         var fieldId = _dto.Fields.First(f => f.Name == fieldName).Id;
