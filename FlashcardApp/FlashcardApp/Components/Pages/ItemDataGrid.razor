@@ -9,6 +9,12 @@
 
 @if (_items is null or []) { return; }
 
+<style>
+    .grid-tag {
+        background: red;
+    }
+</style>
+
 <div>
     <MudStack Class="gap-2">
         <MudStack Row=@true Class="gap-5">
@@ -46,8 +52,22 @@
                     int j = i;
                     <PropertyColumn 
                         Property=@(item => item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value) 
-                        Title=@_items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name Filterable=false />
+                        Title=@_items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name 
+                        Filterable=false />
                 }
+                <PropertyColumn
+                    T=@Entities.Item
+                    TProperty=@(@Entities.Item)
+                    Property=@(item => item)
+                    Title="Tags" 
+                    Filterable=false>
+                    <CellTemplate>
+                        <ClosableChipSet 
+                            Items=@context.Item.Tags 
+                            IsEditable=@false
+                            IsTitleShown=@false />
+                    </CellTemplate>
+                </PropertyColumn>
             </Columns>
             <PagerContent>
                 <MudStack Row=true Style="width: 100%;">
@@ -99,7 +119,7 @@
 
     private MudSelect<string>? _columnNumberSelect;
     private string? _columnNumberSelected;
-    private int _columnNumber = 4;
+    private int _columnNumber = 3;
 
     private bool _multiSelection;
 

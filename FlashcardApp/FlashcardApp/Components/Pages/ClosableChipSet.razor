@@ -6,25 +6,30 @@
 
 <MudStack Row=@true Class="items-center gap-3">
     
-    <MudText>Tags:</MudText>
+    @if (IsTitleShown)
+    {
+        <MudText>Tags:</MudText>
+    }
     
     <div class="flex flex-row">
-
         @foreach (var item in Items)
         {
-            <MudChip Color=@Color.Default OnClose=@(() => OnClosedInternal(item))>@item</MudChip>
+            <MudChip Color=@Color.Default OnClose=@(IsEditable ? () => OnClosedInternal(item) : default) >@item</MudChip>
         }
     </div>
 
-    <MudMenu Icon=@Icons.Material.Outlined.Add Variant=@Variant.Outlined Color=@Color.Primary Class="w-fit self-start">
-        <MudStack Class="p-2">
-            <MudText>Add Item</MudText>
-            <MudTextField ShrinkLabel @bind-Value=@_newItemName Label="Name" Variant=Variant.Outlined></MudTextField>
-            <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAddedInternal>
-                Add
-            </MudButton>
-        </MudStack>
-    </MudMenu>
+    @if (IsEditable)
+    {
+        <MudMenu Icon=@Icons.Material.Outlined.Add Variant=@Variant.Outlined Color=@Color.Primary Class="w-fit self-start">
+            <MudStack Class="p-2">
+                <MudText>Add Item</MudText>
+                <MudTextField ShrinkLabel @bind-Value=@_newItemName Label="Name" Variant=Variant.Outlined></MudTextField>
+                <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnAddedInternal>
+                    Add
+                </MudButton>
+            </MudStack>
+        </MudMenu>
+    }
 
 </MudStack>
 
@@ -32,6 +37,9 @@
     [Parameter] public List<string>? Items { get; set; }
     [Parameter] public Func<string, Task<bool>>? OnRemoved { get; set; }
     [Parameter] public Func<string, Task<bool>>? OnAdded { get; set; }
+
+    [Parameter] public bool IsTitleShown { get; set; } = true;
+    [Parameter] public bool IsEditable { get; set; } = true;
 
     private string? _newItemName;
 
