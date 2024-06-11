@@ -3,8 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
-FlashcardApp/wwwroot/css/tailwind.debug.css
-FlashcardApp/wwwroot/css/tailwind.release.css
+FlashcardApp/FlashcardApp/wwwroot/css/tailwind.debug.css
+FlashcardApp/FlashcardApp/wwwroot/css/tailwind.release.css
 
 # User-specific files
 *.rsuser
