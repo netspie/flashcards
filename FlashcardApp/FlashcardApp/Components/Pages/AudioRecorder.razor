@@ -17,7 +17,7 @@
             <MudIconButton Icon=@Icons.Material.Filled.Stop Variant=Variant.Filled Color=Color.Secondary Size=Size.Small OnClick=StopRecording />
         }
     </div>
-    <audio controls @ref=_audioPlayer src="@_audioSource" class="bg-purple-100 rounded-lg hidden">
+    <audio controls @ref=_audioPlayer src=@_audioSource class="bg-purple-100 rounded-lg hidden">
         Your browser does not support the audio element.
     </audio>
 </MudStack>

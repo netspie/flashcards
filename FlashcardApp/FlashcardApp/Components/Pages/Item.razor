@@ -15,6 +15,10 @@
 @if (_item is null || _fields is null) { return; }
 
 <MudStack Class="gap-4">
+    @if (_focusedField is not null)
+    {
+        <AudioRecorder OnRecorded=@OnAudioRecorded />
+    }
     <MudStack>
         <ClosableChipSet 
             Items=@_item.Tags 
@@ -24,7 +28,20 @@
     <MudStack Class="gap-2">
         @foreach (var field in _fields)
         {
-            <MudTextField ShrinkLabel Label=@field.Name @bind-Value=@field.Value Variant=Variant.Outlined />
+            <MudTextField ShrinkLabel 
+                Label=@field.Name
+                
+                @bind-Value=@field.Value 
+                Variant=Variant.Outlined 
+                @onfocus=@(args => OnFieldTextFieldFocusChanged(args, field)) 
+                @onblur=@(() => OnFieldTextFieldFocusChanged(null, null)) />
+
+            @if (field.Value.StartsWith("data:audio/mpeg;base64"))
+            {
+                <audio controls src=@field.Value class="bg-purple-100 rounded-lg">
+                    Your browser does not support the audio element.
+                </audio>
+            }
         }
         <MudButton Variant=Variant.Filled Color=Color.Primary Class="w-fit" OnClick=@OnItemSubmit>
             @GetSubmitButtonText()
@@ -52,6 +69,7 @@
     private Entities.ItemCollection? _itemCollection;
 
     private Field[]? _fields;
+    private Field? _focusedField;
 
     protected override async Task OnInitializedAsync() 
     {
@@ -80,6 +98,23 @@
             .OrderBy(field => _itemTemplate?.Fields?.IndexWhere(f => f.Id == field.Id) )
             .ToArray();
 
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnAudioRecorded(string audioSource)
+    {
+        if (_focusedField is null)
+        {
+            Snackbar.Add("Cannot save the audio. Select a field.");
+            return;
+        }
+
+        _focusedField.Value = audioSource;
+    }
+
+    private async Task OnFieldTextFieldFocusChanged(FocusEventArgs args, Field field)
+    {
+        _focusedField = field;
         await InvokeAsync(StateHasChanged);
     }
 

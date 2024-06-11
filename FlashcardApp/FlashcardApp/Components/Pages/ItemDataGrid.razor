@@ -50,10 +50,36 @@
                 @for (int i = 0; i < (_columnNumber > 0 ? _columnNumber : _items[0].Fields.Count); i++)
                 {
                     int j = i;
-                    <PropertyColumn 
-                        Property=@(item => item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value) 
-                        Title=@_items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name 
-                        Filterable=false />
+                    var fieldName = _items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name;
+                    if (fieldName.Contains("audio", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <PropertyColumn 
+                            Property=@(item => item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value) 
+                            Title=@fieldName 
+                            Filterable=false>
+                            <CellTemplate>
+                                <div>
+                                @{
+                                    var item = context.Item;
+                                    var fieldValue = item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value;
+                                }
+                                @if (fieldValue.StartsWith("data:audio/mpeg;base64"))
+                                {
+                                    <audio controls src=@fieldValue class="bg-purple-100 rounded-lg">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                }
+                                </div>
+                            </CellTemplate>
+                        </PropertyColumn>
+                    }
+                    else
+                    {
+                        <PropertyColumn 
+                            Property=@(item => item.Fields[item.Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Value) 
+                            Title=@fieldName 
+                            Filterable=false />
+                    }
                 }
                 <PropertyColumn
                     T=@Entities.Item
