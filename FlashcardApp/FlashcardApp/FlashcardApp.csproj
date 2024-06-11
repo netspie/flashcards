@@ -43,7 +43,7 @@
 
 		<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
 
-		<AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 
@@ -56,6 +56,8 @@
 		<AppInstallerUri>D:\Installs</AppInstallerUri>
 
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+
+		<PackageCertificateThumbprint>EEEEB322943BA4E4126B4624EAC6BB240F4A9E31</PackageCertificateThumbprint>
     </PropertyGroup>
 
     <ItemGroup>
