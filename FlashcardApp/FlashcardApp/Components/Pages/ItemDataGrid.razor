@@ -7,7 +7,7 @@
 @inject ItemService ItemService
 @inject NavigationManager Navigation
 
-@if (_items is null and not []) { return; }
+@if (_items is null or []) { return; }
 
 <div>
     <MudStack Class="gap-2">
@@ -40,7 +40,7 @@
         </MudStack>
         <MudDataGrid 
             @ref=_mudDataGrid T=@Entities.Item Items=@_items Filterable=false Bordered=false Hover=true RowClick=@OnItemClick 
-            Outlined=false RowsPerPage=@Limit Elevation=0 MultiSelection=@_multiSelection
+            Outlined=false RowsPerPage=@_rowsPerPageSelected Elevation=0 MultiSelection=@_multiSelection
             SelectedItemsChanged=@OnSelectedItemsChanged>
             <Columns>
                 @if (_multiSelection)
@@ -71,7 +71,26 @@
             </Columns>
             <PagerContent>
                 <MudStack Row=true Style="width: 100%;">
-                    <MudStack Row=true Style="width: 100%; display: flex; justify-content: right;">
+                    <div class="m-2 w-[150px]">
+                        <MudSelect T=@int
+                                   Label="Rows Per Page"
+                                   SelectedValues=@([_rowsPerPageSelected])
+                                   SelectedValuesChanged=@(items => {
+                                   _rowsPerPageSelected = items.First();
+                                   _rangeArg = _rangeArg with 
+                                   {  
+                                       Start = 0,
+                                       Limit = _rowsPerPageSelected 
+                                   };
+                                   return RefreshView();
+                                   })>
+                            @foreach (var rowsPerPage in _rowsPerPage)
+                            {
+                                <MudSelectItem T=@int Value=@rowsPerPage>@rowsPerPage</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </div>
+                    <MudStack Row=true Class="w-full justify-right" Style="width: 100%; display: flex; justify-content: right;">
                         <div class="mud-table-pagination-caption">
                             <div class="mud-table-page-number-information">
                                 <span>@_rangeDTO.Start</span>
@@ -83,7 +102,7 @@
                         </div>
                     </MudStack>
                     <div style="display: flex; justify-content: right;">
-                        @if (_rangeDTO.TotalCount >= _rangeDTO.Limit)
+                        @if (_rangeDTO.Start >= _rangeDTO.Limit && _rangeDTO.TotalCount >= _rangeDTO.Limit)
                         {
                             <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowLeft @onclick=@OnFirstPage aria-label="First page" />
                         }
@@ -95,7 +114,7 @@
                         {
                             <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardArrowRight @onclick=@OnNextPage aria-label="Next page" />
                         }
-                        @if (_rangeDTO.TotalCount >= _rangeDTO.Limit)
+                        @if (_rangeDTO.Start < (_rangeDTO.TotalCount - _rangeDTO.Limit) && _rangeDTO.TotalCount >= _rangeDTO.Limit)
                         {
                             <MudIconButton Class="mud-flip-x-rtl" Icon=@Icons.Material.Outlined.KeyboardDoubleArrowRight @onclick=@OnLastPage aria-label="Last page" />
                         }
@@ -107,7 +126,7 @@
 </div>
 
 @code {
-    private const int Limit = 5;
+    private const int DefaultRowsPageCount = 25;
 
     [Parameter] public string? CollectionId { get; set; }
     [Parameter] public string[]? ItemTemplateFieldsOrder { get; set; }
@@ -115,6 +134,8 @@
     private Entities.Item[]? _items { get; set; }
     private RangeDTO? _rangeDTO { get; set; }
     private string[]? _tags { get; set; }
+    private int[]? _rowsPerPage = [10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100];
+    private int _rowsPerPageSelected = DefaultRowsPageCount;
 
     private string _tagValue = "Nothing selected";
     public List<string> TagsSelected { get; private set; } = [];
@@ -127,10 +148,12 @@
 
     private bool _multiSelection;
 
-    private RangeArg _rangeArg = new(0, Limit);
+    private RangeArg _rangeArg = new(0, DefaultRowsPageCount);
 
     protected override async Task OnInitializedAsync()
     {
+        _rangeArg = new(0, _rowsPerPageSelected);
+
         await RefreshDTO();
 
         if (_columnNumber > 0)
@@ -193,7 +216,10 @@
 
     private async Task OnLastPage()
     {
-        _rangeArg = new RangeArg((_rangeDTO.TotalCount / _rangeArg.Limit) * _rangeArg.Limit, _rangeDTO.Limit);
+        var lastPageItemsCount = _rangeDTO.TotalCount % _rangeArg.Limit;
+        lastPageItemsCount = lastPageItemsCount == 0 ? _rangeArg.Limit :  lastPageItemsCount;
+
+        _rangeArg = new RangeArg((_rangeDTO.TotalCount - lastPageItemsCount), _rangeDTO.Limit);
         await RefreshDTO();
     }
 
