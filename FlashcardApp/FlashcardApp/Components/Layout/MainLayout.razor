@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Diagnostics
+@inherits LayoutComponentBase
 
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
@@ -17,7 +18,14 @@
             <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => OnKey(false, false, "Escape"))" />
         }
         <MudSpacer />
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/MudBlazor/MudBlazor" Target="_blank" />
+        @if (_platform is Platform.Windows)
+        {
+            <MudIconButton 
+                Icon=@Icons.Material.Outlined.FolderOpen 
+                Color=Color.Inherit 
+                OnClick=@(() => Process.Start("explorer.exe", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FlashcardApp"))) Target="_blank" />
+        }
+        <MudIconButton Icon=@Icons.Custom.Brands.GitHub Color=Color.Inherit Link="https://github.com/netspie/flashcards" Target="_blank" />
     </MudAppBar>
     <MudDrawer @bind-Open=@_isOpen Width="200px" ClipMode=DrawerClipMode.Never Elevation="1" Variant="@DrawerVariant.Responsive" Class="w-fit">
         <NavMenu />
@@ -45,12 +53,20 @@
 
 @code {
 
+    enum Platform
+    {
+        Windows,
+        Mobile
+    }
+
 #if WINDOWS
     private bool _isOpen = true;
     private bool _hasBackButton = true;
+    private Platform _platform = Platform.Windows;
 #else
     private bool _isOpen = false;
     private bool _hasBackButton = false;
+    private Platform _platform = Platform.Mobile;
 #endif
 
     void ToggleDrawer() => _isOpen = !_isOpen;

@@ -79,16 +79,26 @@
         if (_item?.Fields is not null and not [] &&
             _itemTemplate?.Fields is not null and not [])
         {
-            var fields = _itemTemplate.Fields.Zip(_item.Fields);
             _fields = _itemTemplate.Fields
-            .Select(templateField => new Field()
-            {
-                Id = templateField.Id,
-                Name = templateField.Name,
-                Value = _item?.Fields?.FirstOrDefault(itemField => itemField.Id == templateField.Id)?.Value ?? ""
-            })
-            .OrderBy(field => _itemTemplate?.Fields?.IndexWhere(f => f.Id == field.Id))
-            .ToArray();
+                .Select(templateField => new Field()
+                {
+                    Id = templateField.Id,
+                    Name = templateField.Name,
+                    Value = _item?.Fields?.FirstOrDefault(itemField => itemField.Id == templateField.Id)?.Value ?? ""
+                })
+                .OrderBy(field => _itemTemplate?.Fields?.IndexWhere(f => f.Id == field.Id))
+                .ToArray();
+        }
+        else if (_itemTemplate?.Fields is not null and not [])
+        {
+            _fields = _itemTemplate.Fields
+                .Select(templateField => new Field()
+                {
+                    Id = templateField.Id,
+                    Name = templateField.Name,
+                    Value = ""
+                })
+                .ToArray();
         }
 
         await InvokeAsync(StateHasChanged);

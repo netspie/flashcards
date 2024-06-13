@@ -47,10 +47,11 @@
                 {
                     <SelectColumn T=@Entities.Item />
                 }
-                @for (int i = 0; i < (_columnNumber > 0 ? _columnNumber : _items[0].Fields.Count); i++)
+                @for (int i = 0; i < (_columnNumber > 0 && _columnNumber < _items[0].Fields.Count ? _columnNumber : _items[0].Fields.Count); i++)
                 {
                     int j = i;
-                    var fieldName = _items[0].Fields[_items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j])].Name;
+                    var k = _items[0].Fields.IndexWhere(f => f.Id == ItemTemplateFieldsOrder[j]);
+                    var fieldName = _items[0].Fields[k].Name;
                     if (fieldName.Contains("audio", StringComparison.OrdinalIgnoreCase))
                     {
                         <PropertyColumn 
