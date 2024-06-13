@@ -7,6 +7,7 @@
 @inject ItemService ItemService
 @inject NavigationManager Navigation
 @inject ItemTemplateService ItemTemplateService
+@inject IJSRuntime JS
 
 @if (_itemsData is null || _flashcardTemplate is null) { return; }
 
@@ -58,7 +59,7 @@
 
                     @if (field.Value.StartsWith("data:audio/mpeg;base64"))
                     {
-                        <audio controls src=@field.Value class="bg-purple-100 rounded-lg">
+                        <audio controls @ref=@_frontAudioPlayer src=@field.Value class="bg-purple-100 rounded-lg">
                             Your browser does not support the audio element.
                         </audio>
                     }
@@ -98,6 +99,12 @@
     </MudStack>
 </div>
 
+<script>
+    window.playAudio = (audioElement) => {
+        audioElement.play();
+    };
+</script>
+
 @code {
     [Parameter] public string? CollectionId { get; set; }
 
@@ -116,6 +123,8 @@
     private int _i;
 
     private bool _showAnswer;
+
+    private ElementReference? _frontAudioPlayer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -139,21 +148,37 @@
         await RefreshDTO();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await TryPlayFrontAudio();
+    }
+
     private void OnAnswerClick(MouseEventArgs args)
     {
         _showAnswer = !_showAnswer;
     }
 
-    private Task OnPrevClick(MouseEventArgs args)
+    private async Task OnPrevClick(MouseEventArgs args)
     {
         _i = int.Clamp(--_i, 0, _itemsData.Items.Length - 1);
-        return RefreshDTO(); 
+        await RefreshDTO();
+        await TryPlayFrontAudio();
     }
 
-    private Task OnNextClick(MouseEventArgs args)
+    private async Task OnNextClick(MouseEventArgs args)
     {
         _i = int.Clamp(++_i, 0, _itemsData.Items.Length - 1);
-        return RefreshDTO();
+        await RefreshDTO();
+        await TryPlayFrontAudio();
+    }
+
+    private async Task TryPlayFrontAudio()
+    {
+        if (_frontAudioPlayer is null)
+            return;
+
+        await JS.InvokeVoidAsync("playAudio", _frontAudioPlayer);
     }
 
     public async Task RefreshDTO()

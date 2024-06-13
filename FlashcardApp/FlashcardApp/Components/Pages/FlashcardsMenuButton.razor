@@ -24,6 +24,7 @@
     [Parameter] public string? CollectionId { get; set; }
     [Parameter] public string? ItemTemplateId { get; set; }
     [Parameter] public IEnumerable<string>? Tags { get; set; }
+    [Parameter] public Func<RangeDTO>? GetRangeDTO { get; set; }
 
     private Entities.ItemTemplate? _itemTemplate;
 
@@ -48,6 +49,9 @@
         var uri = $"/collections/{CollectionId}/flashcards?itemTemplateId={_itemTemplate?.Id}&mode={_flashcardTemplateName}";
         if (Tags is not null && Tags.Count() > 0)
             uri += $"&tags={Tags.Aggregate((x, y) => $"{x},{y}")}";
+
+        if (GetRangeDTO is not null && GetRangeDTO() is RangeDTO range)
+            uri += $"&offset={range.Start}&limit={range.Limit}";
 
         Navigation.NavigateTo(uri);
     }

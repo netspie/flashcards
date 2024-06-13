@@ -15,10 +15,7 @@
 @if (_item is null || _fields is null) { return; }
 
 <MudStack Class="gap-4">
-    @if (_focusedField is not null)
-    {
-        <AudioRecorder OnRecorded=@OnAudioRecorded />
-    }
+    <AudioRecorder OnRecorded=@OnAudioRecorded />
     <MudStack>
         <ClosableChipSet 
             Items=@_item.Tags 
@@ -79,24 +76,20 @@
 
         await RefreshDTO();
 
-        _fields = _item?.Fields is not null and not [] ?
-            _item.Fields.Select(f => new Field()
+        if (_item?.Fields is not null and not [] &&
+            _itemTemplate?.Fields is not null and not [])
+        {
+            var fields = _itemTemplate.Fields.Zip(_item.Fields);
+            _fields = _itemTemplate.Fields
+            .Select(templateField => new Field()
             {
-                Id = f.Id,
-                Name = _itemTemplate?.Fields.FirstOrDefault(itf => itf.Id == f.Id)?.Name ?? f.Name,
-                Value = f.Value
+                Id = templateField.Id,
+                Name = templateField.Name,
+                Value = _item?.Fields?.FirstOrDefault(itemField => itemField.Id == templateField.Id)?.Value ?? ""
             })
             .OrderBy(field => _itemTemplate?.Fields?.IndexWhere(f => f.Id == field.Id))
-            .ToArray() 
-            :
-            _itemTemplate.Fields.Select(f => new Field()
-            {
-                Id = f.Id,
-                Name = f.Name,
-                Value = ""
-            })
-            .OrderBy(field => _itemTemplate?.Fields?.IndexWhere(f => f.Id == field.Id) )
             .ToArray();
+        }
 
         await InvokeAsync(StateHasChanged);
     }
@@ -114,6 +107,9 @@
 
     private async Task OnFieldTextFieldFocusChanged(FocusEventArgs args, Field field)
     {
+        if (field is null)
+            return;
+
         _focusedField = field;
         await InvokeAsync(StateHasChanged);
     }

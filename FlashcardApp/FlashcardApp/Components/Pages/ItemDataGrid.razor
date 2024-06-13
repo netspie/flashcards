@@ -157,6 +157,8 @@
     [Parameter] public string? CollectionId { get; set; }
     [Parameter] public string[]? ItemTemplateFieldsOrder { get; set; }
 
+    public Func<RangeDTO> GetRangeDTO => () => _rangeDTO;
+
     private Entities.Item[]? _items { get; set; }
     private RangeDTO? _rangeDTO { get; set; }
     private string[]? _tags { get; set; }
