@@ -162,14 +162,14 @@
     private async Task OnPrevClick(MouseEventArgs args)
     {
         _i = int.Clamp(--_i, 0, _itemsData.Items.Length - 1);
-        await RefreshDTO();
+        await RefreshView();
         await TryPlayFrontAudio();
     }
 
     private async Task OnNextClick(MouseEventArgs args)
     {
         _i = int.Clamp(++_i, 0, _itemsData.Items.Length - 1);
-        await RefreshDTO();
+        await RefreshView();
         await TryPlayFrontAudio();
     }
 

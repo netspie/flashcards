@@ -21,6 +21,17 @@
         @if (_platform is Platform.Windows)
         {
             <MudIconButton 
+                Icon=@Icons.Material.Outlined.Terminal 
+                Color=Color.Inherit 
+                OnClick=@(() => Process.Start(
+                    new ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        WorkingDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FlashcardApp")
+                    })) 
+                Target="_blank" />
+
+            <MudIconButton 
                 Icon=@Icons.Material.Outlined.FolderOpen 
                 Color=Color.Inherit 
                 OnClick=@(() => Process.Start("explorer.exe", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FlashcardApp"))) Target="_blank" />
