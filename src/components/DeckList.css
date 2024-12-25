@@ -1,0 +1,8 @@
+ion-item {
+    --padding: 0;
+    --padding-start: 0;
+    --padding-end: 0;
+    --inner-padding: 0;
+    --inner-padding-start: 0;
+    --inner-padding-end: 0;
+}
