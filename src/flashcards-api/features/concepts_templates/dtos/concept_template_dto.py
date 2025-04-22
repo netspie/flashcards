@@ -6,3 +6,8 @@ class ConceptTemplateDTO:
     id: UUID
     name: str
     properties: list[str]
+
+    @dataclass(frozen=True)
+    class Property:
+        name: str
+        value: str

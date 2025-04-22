@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 from uuid import UUID
 
-from basic.app.repository import Repository
+from core.repository import Repository
 from .concept_template import ConceptTemplate
 
 @dataclass

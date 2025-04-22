@@ -35,4 +35,3 @@ class InMemoryRepository(Repository[T, TID], Generic[T, TID]):
 
     async def delete(self, id: TID) -> bool:
         return self._data.pop(id, None) is not None
-    

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from uuid import UUID
 import uuid
 
-from basic.app.repository import Repository
+from core.repository import Repository
 
 from fastapi import APIRouter, Depends, HTTPException
 
