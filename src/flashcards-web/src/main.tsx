@@ -2,12 +2,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material";
-import MainAppBar from "./MainAppBar.tsx";
-import About from "./About.tsx";
-import Home from "./Home.tsx";
-import './main.css'
+import About from "./pages/About.tsx";
+import Home from "./pages/Home.tsx";
+import "./main.css";
 
 import { StyledEngineProvider } from "@mui/material/styles";
+import Layout from "./Layout.tsx";
 
 const theme = createTheme({
   typography: {
@@ -43,15 +43,20 @@ const theme = createTheme({
 
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
+  { path: "/create", element: <About /> },
+  { path: "/explore", element: <About /> },
   { path: "/about", element: <About /> },
+  { path: "/contact", element: <About /> },
+  { path: "/sign-in", element: <About /> },
 ]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
-        <MainAppBar />
-        <RouterProvider router={router} />
+        <Layout>
+          <RouterProvider router={router} />
+        </Layout>
       </ThemeProvider>
     </StyledEngineProvider>
   </StrictMode>
