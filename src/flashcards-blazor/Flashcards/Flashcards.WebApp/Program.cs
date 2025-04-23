@@ -1,4 +1,4 @@
-using Flashcards.WebApp.Components;
+using Flashcards.WebApp.Features;
 using Flashcards.WebApp.Features.ConceptTemplates;
 using MudBlazor.Services;
 

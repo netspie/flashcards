@@ -4,18 +4,59 @@
 
 @if (_response is null) { return; }
 
-<MudDataGrid Items=@_response.Values>
-    <Columns>
-        <PropertyColumn Title="Id" Property=@(x => x.Id) />
-        <PropertyColumn Title="Name" Property=@(x => x.Name) />
-        <PropertyColumn Title="Properties" Property=@(x => x.Properties) />
-    </Columns>
-</MudDataGrid>
+<PageTitle>Concept Templates</PageTitle>
+
+<SpyPageContent>
+    <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+        <MudMenu @ref="@_menu" ListClass="p-2 flex" Icon="@Icons.Material.Filled.Add">
+            <MudForm @ref="_form">
+                <MudTextField Label="Name"
+                @bind-Value=@_newItemName
+                Required 
+                OnKeyDown="@(() => Add(_newItemName))"/>
+            </MudForm>
+            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => Add(_newItemName)" />
+        </MudMenu>
+    </MudButtonGroup>
+
+    <MudDataGrid Items="@_response.Values" HeaderClass="hidden">
+        <Columns>
+            @* <PropertyColumn Title="Id" Property="x => x.Id" /> *@
+            <PropertyColumn Property="x => x.Name" />
+        </Columns>
+    </MudDataGrid>
+</SpyPageContent>
 
 @code {
     private GetManyConceptTemplatesResponse? _response;
 
+    private string _newItemName = "";
+
+    private MudForm? _form;
+    private MudMenu? _menu;
+
     protected override async Task OnInitializedAsync()
+    {
+        await FetchItems();
+    }
+
+    private async Task Add(string name)
+    {
+        if (_form is null || _menu is null)
+            return;
+
+        await _form.Validate();
+        if (!_form.IsValid)
+            return;
+
+        await _menu.CloseAllMenusAsync();
+
+        await Mediator.Send(new AddConceptTemplateCommand(name, []));
+
+        await FetchItems();
+    }
+
+    private async Task FetchItems()
     {
         _response = await Mediator.Send(new GetManyConceptTemplatesQuery(LifeState.Alive));
     }
