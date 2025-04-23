@@ -1,4 +1,5 @@
 using Flashcards.WebApp.Components;
+using Flashcards.WebApp.Features.ConceptTemplates;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+builder.Services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
+builder.Services.AddScoped<IConceptTemplateRepository, ConceptTemplateInMemoryRepository>();
 
 var app = builder.Build();
 
@@ -19,7 +22,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 
 app.UseAntiforgery();
 

@@ -1,0 +1,22 @@
+﻿@page "/concept-templates"
+
+@inject IMediator Mediator
+
+@if (_response is null) { return; }
+
+<MudDataGrid Items=@_response.Values>
+    <Columns>
+        <PropertyColumn Title="Id" Property=@(x => x.Id) />
+        <PropertyColumn Title="Name" Property=@(x => x.Name) />
+        <PropertyColumn Title="Properties" Property=@(x => x.Properties) />
+    </Columns>
+</MudDataGrid>
+
+@code {
+    private GetManyConceptTemplatesResponse? _response;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _response = await Mediator.Send(new GetManyConceptTemplatesQuery(LifeState.Alive));
+    }
+}
