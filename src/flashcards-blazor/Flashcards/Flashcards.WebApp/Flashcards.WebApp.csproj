@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	  <NpmLastInstall>node_modules/./last-install</NpmLastInstall>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="8.5.1" />
+  </ItemGroup>
 	
 	<Target Name="CheckNPMIsInstalled" BeforeTargets="InstallNPM">
 		<Exec Command="npm -v" ContinueOnError="true">
