@@ -12,13 +12,15 @@ public class DbContextRepository<T, TId>(DbContext _context) : IRepository<T, TI
     {
         if (await _dbSet.FindAsync(id) is not T entity)
             throw new NotFoundException($"Could not find entity of given id {id}");
-        
+
+        _context.Entry(entity).State = EntityState.Detached;
+
         return entity;
     }
 
     public Task<ImmutableArray<T>> GetMany(LifeState? lifeState = LifeState.Alive)
     {
-        return _dbSet.ToImmutableArrayAsync();
+        return _dbSet.AsNoTracking().ToImmutableArrayAsync();
     }
 
     public async Task Add(T entity)
@@ -66,7 +68,7 @@ public class NotFoundException(string message) : Exception(message) {}
 
 public static class DbSetExtensions
 {
-    public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this DbSet<T> set)
+    public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> set)
         where T : class
     {
         var list = await set.ToListAsync();

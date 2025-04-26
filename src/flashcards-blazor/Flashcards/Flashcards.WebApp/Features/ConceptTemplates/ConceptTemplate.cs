@@ -6,7 +6,7 @@ namespace Flashcards.WebApp.Features.ConceptTemplates;
 public record ConceptTemplate(
     ConceptTemplateId Id,
     string Name,
-    ImmutableArray<ConceptTemplate.Property> Properties)
+    IEnumerable<ConceptTemplate.Property> Properties)
 {
     public ConceptTemplate() : this(
         new ConceptTemplateId(Guid.NewGuid()), 

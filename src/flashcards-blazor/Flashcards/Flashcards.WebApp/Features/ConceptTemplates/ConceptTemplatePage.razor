@@ -19,12 +19,26 @@
             <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => Add(_newItemName)" />
         </MudMenu>
     </MudButtonGroup>
-
-    <MudDataGrid Items="@_response.Values" HeaderClass="hidden">
+    <MudDataGrid T="ConceptTemplateDTO"
+                 Items="@_response.Values"
+                 ReadOnly="false"
+                 EditMode="@DataGridEditMode.Form"
+                 CommittedItemChanges="@CommittedItemChanges"
+                 HeaderClass="!hidden"
+                 Class="w-full"
+                 RowClass="!flex !justify-between">
         <Columns>
             @* <PropertyColumn Title="Id" Property="x => x.Id" /> *@
-            <PropertyColumn Property="x => x.Name" />
+            <PropertyColumn Property="@(x => x.Name)" HeaderClass="!hidden" CellClass="[&::before]:!content-none border-none" />
+            <TemplateColumn CellClass="d-flex justify-end border-none">
+                <CellTemplate>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                </CellTemplate>
+            </TemplateColumn>
         </Columns>
+        <PagerContent>
+            <MudDataGridPager T="ConceptTemplateDTO" />
+        </PagerContent>
     </MudDataGrid>
 </SpyPageContent>
 
@@ -60,5 +74,18 @@
     private async Task FetchItems()
     {
         _response = await Mediator.Send(new GetManyConceptTemplatesQuery(LifeState.Alive));
+    }
+
+    void StartedEditingItem(ConceptTemplateDTO item)
+    {
+    }
+
+    void CanceledEditingItem(ConceptTemplateDTO item)
+    {
+    }
+
+    async Task CommittedItemChanges(ConceptTemplateDTO item)
+    {
+        await Mediator.Send(new UpdateConceptTemplateCommand(item.Id, item.Name, []));
     }
 }
