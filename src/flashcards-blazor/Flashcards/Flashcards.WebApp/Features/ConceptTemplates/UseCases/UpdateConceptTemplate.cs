@@ -19,7 +19,7 @@ public class UpdateConceptTemplateCommandHandler(
         entity = entity with 
         {
             Name = cmd.Name,
-            Properties = cmd.Properties,
+            Properties = cmd.Properties.ToPropertyArray(),
         };
 
         await _repository.Update(entity);

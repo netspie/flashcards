@@ -8,12 +8,12 @@
 
 <SpyPageContent>
     <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-        <MudMenu @ref="@_menu" ListClass="p-2 flex" Icon="@Icons.Material.Filled.Add">
+        <MudMenu @ref="@_menu" ListClass="flex p-2" Icon="@Icons.Material.Filled.Add">
             <MudForm @ref="_form">
                 <MudTextField Label="Name"
-                @bind-Value=@_newItemName
-                Required 
-                OnKeyDown="@(() => Add(_newItemName))"/>
+                              @bind-Value=@_newItemName
+                              Required
+                              OnKeyDown="@(() => Add(_newItemName))" />
             </MudForm>
             <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => Add(_newItemName)" />
         </MudMenu>

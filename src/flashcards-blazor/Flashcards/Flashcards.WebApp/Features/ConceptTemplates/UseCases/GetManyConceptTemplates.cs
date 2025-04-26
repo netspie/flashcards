@@ -23,7 +23,7 @@ public class GetManyConceptTemplatesQueryHandler(
 
         return new GetManyConceptTemplatesResponse(
             entities
-                .Select(x => new ConceptTemplateDTO(x.Id.Value.ToString(), x.Name, x.Properties))
+                .Select(x => new ConceptTemplateDTO(x.Id.Value.ToString(), x.Name, x.Properties.ToStringArray()))
                 .ToImmutableArray());
     }
 }

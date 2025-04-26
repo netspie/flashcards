@@ -14,7 +14,7 @@ public class AddConceptTemplateCommandHandler(
         AddConceptTemplateCommand cmd, CancellationToken ct)
     {
         var entity = new ConceptTemplate(
-            new ConceptTemplateId(Guid.NewGuid()), cmd.Name, cmd.Properties);
+            new ConceptTemplateId(Guid.NewGuid()), cmd.Name, cmd.Properties.ToPropertyArray());
 
         await _repository.Add(entity);
 
