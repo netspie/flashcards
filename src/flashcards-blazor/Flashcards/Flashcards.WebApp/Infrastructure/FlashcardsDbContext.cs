@@ -10,7 +10,10 @@ public class FlashcardsDbContext(
         DbContextOptionsBuilder optionsBuilder)
     {
         var connectionString = _configuration.GetConnectionString("FlashcardsDb");
-        optionsBuilder.UseNpgsql(connectionString);
+
+        optionsBuilder
+            .UseNpgsql(connectionString)
+            .UseSnakeCaseNamingConvention();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
