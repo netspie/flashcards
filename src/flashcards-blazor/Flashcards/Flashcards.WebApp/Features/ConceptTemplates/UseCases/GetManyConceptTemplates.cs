@@ -1,4 +1,5 @@
-﻿using Mediator;
+﻿using Flashcards.WebApp.Shared.EFCore;
+using Mediator;
 using System.Collections.Immutable;
 
 namespace Flashcards.WebApp.Features.ConceptTemplates;
@@ -14,7 +15,7 @@ public record ConceptTemplateDTO(
     ImmutableArray<string> Properties);
 
 public class GetManyConceptTemplatesQueryHandler(
-    IConceptTemplateRepository _repository) : IQueryHandler<GetManyConceptTemplatesQuery, GetManyConceptTemplatesResponse>
+    IRepository<ConceptTemplate, ConceptTemplateId> _repository) : IQueryHandler<GetManyConceptTemplatesQuery, GetManyConceptTemplatesResponse>
 {
     public async ValueTask<GetManyConceptTemplatesResponse> Handle(
         GetManyConceptTemplatesQuery cmd, CancellationToken ct)

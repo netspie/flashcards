@@ -1,6 +1,7 @@
 using Flashcards.WebApp.Features;
 using Flashcards.WebApp.Features.ConceptTemplates;
 using Flashcards.WebApp.Infrastructure;
+using Flashcards.WebApp.Shared.EFCore;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddMudServices();
 builder.Services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
-builder.Services.AddScoped<IConceptTemplateRepository, ConceptTemplateInMemoryRepository>();
+builder.Services.AddScoped<IRepository<ConceptTemplate, ConceptTemplateId>, DbContextRepository<ConceptTemplate, ConceptTemplateId>>();
 
 builder.Services.AddEntityFrameworkNpgsql().AddDbContext<FlashcardsDbContext>();
 

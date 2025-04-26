@@ -1,4 +1,5 @@
-﻿using Mediator;
+﻿using Flashcards.WebApp.Shared.EFCore;
+using Mediator;
 using System.Collections.Immutable;
 
 namespace Flashcards.WebApp.Features.ConceptTemplates;
@@ -8,7 +9,7 @@ public record AddConceptTemplateCommand(
     ImmutableArray<string> Properties) : ICommand;
 
 public class AddConceptTemplateCommandHandler(
-    IConceptTemplateRepository _repository) : ICommandHandler<AddConceptTemplateCommand>
+    IRepository<ConceptTemplate, ConceptTemplateId> _repository) : ICommandHandler<AddConceptTemplateCommand>
 {
     public async ValueTask<Unit> Handle(
         AddConceptTemplateCommand cmd, CancellationToken ct)

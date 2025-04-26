@@ -29,5 +29,7 @@ public class ConceptTemplateConfiguration : IEntityTypeConfiguration<ConceptTemp
 
                 navBuilder.HasKey("ConceptTemplateId", "Value");
             });
+
+        // add datetime fields
     }
 }
