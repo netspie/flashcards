@@ -20,14 +20,16 @@ public class ConceptTemplateConfiguration : IEntityTypeConfiguration<ConceptTemp
             x => x.Properties,
             navBuilder =>
             {
-                navBuilder.ToTable("ConceptTemplateProperties");
-                navBuilder.WithOwner().HasForeignKey(nameof(ConceptTemplateId));
+                navBuilder.ToTable("concept_template_properties");
+                navBuilder.WithOwner()
+                    .HasForeignKey("concept_template_id")
+                    .HasConstraintName("fk_concept_template_property_concept_template_id");
 
                 navBuilder.Property(p => p.Value)
-                    .HasColumnName("Value")
+                    .HasColumnName("value")
                     .IsRequired();
 
-                navBuilder.HasKey("ConceptTemplateId", "Value");
+                navBuilder.HasKey("concept_template_id", nameof(ConceptTemplate.Property.Value) );
             });
 
         // add datetime fields

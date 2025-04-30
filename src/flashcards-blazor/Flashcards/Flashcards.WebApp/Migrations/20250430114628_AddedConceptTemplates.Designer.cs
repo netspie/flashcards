@@ -8,11 +8,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Flashcards.WebApp.Infrastructure.Migrations
+namespace Flashcards.WebApp.Migrations
 {
     [DbContext(typeof(FlashcardsDbContext))]
-    [Migration("20250426151114_AddConceptTemplates")]
-    partial class AddConceptTemplates
+    [Migration("20250430114628_AddedConceptTemplates")]
+    partial class AddedConceptTemplates
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,22 +45,22 @@ namespace Flashcards.WebApp.Infrastructure.Migrations
                 {
                     b.OwnsMany("Flashcards.WebApp.Features.ConceptTemplates.ConceptTemplate+Property", "Properties", b1 =>
                         {
-                            b1.Property<string>("ConceptTemplateId")
+                            b1.Property<string>("concept_template_id")
                                 .HasColumnType("text")
                                 .HasColumnName("concept_template_id");
 
                             b1.Property<string>("Value")
                                 .HasColumnType("text")
-                                .HasColumnName("Value");
+                                .HasColumnName("value");
 
-                            b1.HasKey("ConceptTemplateId", "Value")
+                            b1.HasKey("concept_template_id", "Value")
                                 .HasName("pk_concept_template_properties");
 
-                            b1.ToTable("ConceptTemplateProperties", (string)null);
+                            b1.ToTable("concept_template_properties", (string)null);
 
                             b1.WithOwner()
-                                .HasForeignKey("ConceptTemplateId")
-                                .HasConstraintName("fk_concept_template_properties_concept_templates_concept_templat");
+                                .HasForeignKey("concept_template_id")
+                                .HasConstraintName("fk_concept_template_property_concept_template_id");
                         });
 
                     b.Navigation("Properties");
