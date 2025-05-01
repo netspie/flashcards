@@ -1,7 +1,7 @@
-using Flashcards.WebApp.Data;
+using MyAppName.WebApp.Data;
 using Microsoft.AspNetCore.Identity;
 
-namespace Flashcards.WebApp.Components.Account
+namespace MyAppName.WebApp.Components.Account
 {
     internal sealed class IdentityUserAccessor(UserManager<ApplicationUser> userManager, IdentityRedirectManager redirectManager)
     {

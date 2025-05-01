@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using System.Text.Json;
-using Flashcards.WebApp.Components.Account.Pages;
-using Flashcards.WebApp.Components.Account.Pages.Manage;
-using Flashcards.WebApp.Data;
+using MyAppName.WebApp.Components.Account.Pages;
+using MyAppName.WebApp.Components.Account.Pages.Manage;
+using MyAppName.WebApp.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;

@@ -1,8 +1,8 @@
-using Flashcards.WebApp.Data;
+using MyAppName.WebApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
-namespace Flashcards.WebApp.Components.Account
+namespace MyAppName.WebApp.Components.Account
 {
     // Remove the "else if (EmailSender is IdentityNoOpEmailSender)" block from RegisterConfirmation.razor after updating with a real implementation.
     internal sealed class IdentityNoOpEmailSender : IEmailSender<ApplicationUser>

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Flashcards.WebApp.Data.Migrations
+namespace MyAppName.WebApp.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddIdentity : Migration

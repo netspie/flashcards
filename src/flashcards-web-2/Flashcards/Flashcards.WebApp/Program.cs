@@ -1,6 +1,6 @@
-using Flashcards.WebApp.Components;
-using Flashcards.WebApp.Components.Account;
-using Flashcards.WebApp.Data;
+using MyAppName.WebApp.Components;
+using MyAppName.WebApp.Components.Account;
+using MyAppName.WebApp.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

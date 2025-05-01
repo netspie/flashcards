@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 
-namespace Flashcards.WebApp.Components.Account
+namespace MyAppName.WebApp.Components.Account
 {
     internal sealed class IdentityRedirectManager(NavigationManager navigationManager)
     {

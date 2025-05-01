@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Flashcards.WebApp.Data;
+namespace MyAppName.WebApp.Data;
 
 public class ApplicationDbContext(
                 DbContextOptions<ApplicationDbContext> options,
