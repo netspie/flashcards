@@ -1,0 +1,107 @@
+﻿@page "/Account/Login"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using MudBlazor.StaticInput
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Log in</PageTitle>
+
+<SpyPageContent class="gap-8">
+    <MudText Typo="@Typo.h3" Class="!font-bold">Sign In</MudText>
+    <div class="text-red-500 text-sm">
+        <StatusMessage Message="@errorMessage" />
+    </div>
+    <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login" Class="gap-4 flex w-full max-w-[400px] flex-col sm:w-[400px]">
+        <DataAnnotationsValidator />
+        <MudStack>
+            <MudStaticTextField Label="Email" InputType="@InputType.Email" @bind-Value="Input.Email" ShrinkLabel Required />
+            <ValidationMessage For="() => Input.Email" class="text-sm text-red-500" />
+
+            <MudStaticTextField Label="Password" InputType="@InputType.Password" @bind-Value="Input.Password" ShrinkLabel Required />
+            <ValidationMessage For="() => Input.Password" class="text-sm text-red-500" />
+
+            <MudStaticSwitch Label="Remember me" @bind-Value="Input.RememberMe" Color="Color.Primary" />
+
+            <MudStaticButton FormAction="FormAction.Submit" Variant="Variant.Filled" Color="Color.Primary">Sign In</MudStaticButton>
+        </MudStack>
+        <MudStack>
+            <MudLink Class="text-center" Href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</MudLink>
+            @* <MudLink Class="text-center" Href="Account/ForgotPassword">Forgot your password?</MudLink>
+            <MudLink Class="text-center" Href="Account/ResendEmailConfirmation">Resend email confirmation</MudLink> *@
+        </MudStack>
+    </EditForm>
+    @* <MudStack class="col-lg-4 col-lg-offset-2">
+        <h3>Use another service to log in.</h3>
+        <MudDivider />
+        <ExternalLoginPicker />
+    </MudStack> *@
+</SpyPageContent>
+
+@code {
+    private string? errorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    public async Task LoginUser()
+    {
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        if (result.Succeeded)
+        {
+            Logger.LogInformation("User logged in.");
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            RedirectManager.RedirectTo(
+                "Account/LoginWith2fa",
+                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+        }
+        else if (result.IsLockedOut)
+        {
+            Logger.LogWarning("User account locked out.");
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            errorMessage = "Error: Invalid login attempt.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
+    }
+}

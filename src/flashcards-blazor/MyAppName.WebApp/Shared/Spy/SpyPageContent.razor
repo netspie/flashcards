@@ -1,0 +1,10 @@
+﻿
+<div class=@($"!p-4 !pt-32 flex flex-col align-center gap-2 {@class}") style="@style">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public RenderFragment ChildContent { get; set; } = _ => { };
+    [Parameter] public string? @class { get; set; }
+    [Parameter] public string? @style { get; set; }
+}

@@ -1,0 +1,29 @@
+﻿
+<MudAppBar Color="Color.Primary" Fixed="false" ToolBarClass="!px-2">
+    <MudIconButton Icon="@Icons.Material.Filled.Home" Color="Color.Inherit" Href="/" />
+    <MudStack Row AlignItems=AlignItems.Center Class="!m-0 !p-0 w-full">
+        <MudStack Row AlignItems=AlignItems.Center Class="!m-0 !p-0 w-full flex-grow">
+            @* <MudButton Class="!text-white whitespace-nowrap">
+                Projects
+            </MudButton> *@
+        </MudStack>
+        <MudStack Row AlignItems=AlignItems.Center>
+            <AuthorizeView>
+                <Authorized>
+                    <MudButton Class="!text-white !whitespace-nowrap" Href="/Account/Logout">
+                        Sign Out
+                    </MudButton>
+                </Authorized>
+                <NotAuthorized>
+                    <MudButton Class="!text-white !whitespace-nowrap" Href="/Account/Login">
+                        Sign In
+                    </MudButton>
+                </NotAuthorized>
+            </AuthorizeView>
+        </MudStack>
+    </MudStack>
+</MudAppBar>
+
+@code {
+
+}

@@ -1,0 +1,3 @@
+﻿/* No need to link it int index.html or App.razor */
+
+@import "tailwindcss";
