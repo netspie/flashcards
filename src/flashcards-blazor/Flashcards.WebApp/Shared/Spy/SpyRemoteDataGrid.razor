@@ -1,32 +1,41 @@
 ﻿@typeparam T
 
 <MudStack Class="@Class" Style="@Style">
-   <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-        <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
-            <MudForm @ref="_form">
-                <MudTextField Label="Name"
-                                @bind-Value=@_newItemName
-                                Required
-                                OnKeyDown="@(() => Add(_newItemName))" />
-            </MudForm>
-            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => Add(_newItemName))" Class="!h-fit" />
-        </MudMenu>
-    </MudButtonGroup>
+    @if (ShowToolbar)
+    {
+        <MudStack Row Class="!w-full">
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" FullWidth>
+                <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
+                    <MudForm @ref="_form">
+                        <MudTextField Label="Name"
+                        @bind-Value=@_newItemName
+                        Required
+                        OnKeyDown="@(() => Add(_newItemName))" />
+                    </MudForm>
+                    <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => Add(_newItemName))" Class="!h-fit" />
+                </MudMenu>
+            </MudButtonGroup>
+            @Toolbar
+        </MudStack>
+    }
     <MudDataGrid T="@T"
-                    Items="@Items"
-                    ReadOnly="false"
-                    EditMode="@DataGridEditMode.Form"
-                    CommittedItemChanges="@CommittedItemChanges"
-                    HeaderClass="!hidden"
-                    Class="!w-full"
-                    RowClass="!flex !flex-row-reverse !justify-between">
+                 Items="@Items"
+                 ReadOnly="false"
+                 EditMode="@DataGridEditMode.Form"
+                 CommittedItemChanges="@CommittedItemChanges"
+                 HeaderClass="!hidden"
+                 Class="!w-full"
+                 RowClass="!flex align-center">
         <Columns>
             @Columns
-            <TemplateColumn CellClass="!d-flex !justify-end !border-none">
-                <CellTemplate>
-                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
-                </CellTemplate>
-            </TemplateColumn>
+            @if (Editable)
+            {
+                <TemplateColumn CellClass="!border-none !bg-transparent -translate-y-[3px] !absolute !top-0 !right-0" StickyRight>
+                    <CellTemplate>
+                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" Class="!h-fit" />
+                    </CellTemplate>
+                </TemplateColumn>
+            }
         </Columns>
         <PagerContent>
             <MudDataGridPager T="T" />
@@ -43,6 +52,11 @@
 
     [Parameter] public EventCallback<string> AddedItem { get; set; }
     [Parameter] public EventCallback<T> CommittedItemChanges { get; set; }
+
+    [Parameter] public RenderFragment Toolbar { get; set; } = _ => { };
+
+    [Parameter] public bool ShowToolbar { get; set; } = true;
+    [Parameter] public bool Editable { get; set; } = true;
 
     private string _newItemName = "";
 

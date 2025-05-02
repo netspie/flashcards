@@ -1,0 +1,67 @@
+﻿@using Flashcards.WebApp.Shared.DDD
+
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
+    @if (AliveState is AliveState.Alive)
+    {
+        <MudText Typo="@Typo.h3">
+            <span>Projects</span>
+        </MudText>
+    }
+    <SpyRemoteDataGrid T="ProjectDTO"
+                       Items="@_projects"
+                       AddedItem="@Add"
+                       CommittedItemChanges="@Update"
+                       ShowToolbar="@(AliveState is AliveState.Alive)"
+                       Editable="@(AliveState is AliveState.Alive)">
+        <Toolbar>
+            @if (AliveState is AliveState.Alive)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.Archive" OnClick="@OpenArchivedDialog" />
+            }
+        </Toolbar>
+        <Columns>
+            <SpyPropertyColumn Property="@(x => x.Name)" CellClass="!font-bold" />
+        </Columns>
+    </SpyRemoteDataGrid>
+</MudContainer>
+
+@code {
+    [Parameter] public AliveState AliveState { get; init; } = AliveState.Alive;
+
+    private ProjectDTO[] _projects = [];
+
+    protected override Task OnInitializedAsync() =>
+        FetchItems();
+
+    private async Task Add(string name)
+    {
+        await Snackbar.Run(Mediator.Send(new AddProjectCommand(name)));
+        await FetchItems();
+    }
+
+    async Task Update(ProjectDTO item)
+    {
+        await Snackbar.Run(Mediator.Send(new UpdateProjectCommand(item.Id, item.Name)));
+    }
+
+    async Task Archive(string itemId)
+    {
+        // await Snackbar.Run(Mediator.Send(new ArchiveProjectCommand(itemId)));
+    }
+
+    async Task OpenArchivedDialog()
+    {
+        await DialogService.ShowAsync<ProjectsArchivedDialog>("Archived Projects");
+    }
+
+    private async Task FetchItems()
+    {
+        var response = await Mediator.Send(new GetProjectsQuery(AliveState));
+        _projects = response.Values;
+    }
+}

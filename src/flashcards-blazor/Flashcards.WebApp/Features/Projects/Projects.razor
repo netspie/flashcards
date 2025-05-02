@@ -1,41 +1,7 @@
 ﻿@page "/projects"
 
-@inject IMediator Mediator
-@inject ISnackbar Snackbar
-
 <PageTitle>Projects</PageTitle>
 
 <MudMainContent>
-    <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
-        <MudText Typo="@Typo.h2">Projects</MudText>
-        <SpyRemoteDataGrid T="ProjectDTO" Items="@_projects" AddedItem="@Add" CommittedItemChanges="@Update">
-            <Columns>
-                <SpyPropertyColumn Property="@(x => x.Name)" />
-            </Columns>
-        </SpyRemoteDataGrid>
-    </MudContainer>
+    <ProjectList />
 </MudMainContent>
-
-@code {
-    private ProjectDTO[] _projects = [];
-
-    protected override Task OnInitializedAsync() =>
-        FetchItems();
-
-    private async Task Add(string name)
-    {
-        await Snackbar.Run(Mediator.Send(new AddProjectCommand(name)));
-        await FetchItems();
-    }
-
-    async Task Update(ProjectDTO item)
-    {
-        await Snackbar.Run(Mediator.Send(new UpdateProjectCommand(item.Id, item.Name)));
-    }
-
-    private async Task FetchItems()
-    {
-        var response = await Mediator.Send(new GetProjectsQuery());
-        _projects = response.Values;
-    }
-}

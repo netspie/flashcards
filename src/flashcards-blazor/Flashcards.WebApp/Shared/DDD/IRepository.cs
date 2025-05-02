@@ -3,7 +3,7 @@
 public interface IRepository<T, TId>
 {
     Task<T> GetById(TId id, bool includeArchived = false);
-    Task<T[]> GetMany(LifeState? lifeState = LifeState.Alive, string? UserId = null);
+    Task<T[]> GetMany(AliveState? state = AliveState.Alive, string? UserId = null);
 
     Task Add(T entity);
     Task Update(T entity);
@@ -12,7 +12,7 @@ public interface IRepository<T, TId>
     Task Restore(TId id);
 }
 
-public enum LifeState
+public enum AliveState
 {
     Alive,
     Archived,

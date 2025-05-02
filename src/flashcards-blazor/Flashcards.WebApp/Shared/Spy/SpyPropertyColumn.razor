@@ -3,8 +3,11 @@
 @typeparam T
 @typeparam TProperty
 
-<PropertyColumn Property="@Property" HeaderClass="!hidden" CellClass="[&::before]:!content-none border-none" />
+<PropertyColumn Property="@Property" HeaderClass="!hidden" CellClass=@($"[&::before]:!content-none border-none {CellClass}") CellStyle="@CellStyle" />
 
 @code {
+    [Parameter] public string? CellClass { get; set; }
+    [Parameter] public string? CellStyle { get; set; }
+
     [Parameter] public Expression<Func<T, TProperty>> Property { get; set; } = default!;
 }

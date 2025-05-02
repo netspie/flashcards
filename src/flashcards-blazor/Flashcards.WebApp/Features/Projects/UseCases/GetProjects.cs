@@ -5,7 +5,7 @@ using Mediator;
 namespace Flashcards.WebApp.Features.Projects;
 
 public record GetProjectsQuery(
-    LifeState? LifeState = LifeState.Alive,
+    AliveState? LifeState = AliveState.Alive,
     string UserId = "") : IQuery<GetProjectsQueryResponse>;
 
 public record GetProjectsQueryResponse(ProjectDTO[] Values);

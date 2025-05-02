@@ -20,7 +20,7 @@ public class DbContextRepository<T, TId>(
         return entity;
     }
 
-    public Task<T[]> GetMany(LifeState? lifeState = LifeState.Alive, string? UserId = null)
+    public Task<T[]> GetMany(AliveState? lifeState = AliveState.Alive, string? UserId = null)
     {
         var sql = UserId is null ?
             FormattableStringFactory.Create($"SELECT * FROM {_tableName}") :
