@@ -1,5 +1,5 @@
 ﻿using Flashcards.WebApp.Shared.Collections;
-using Flashcards.WebApp.Shared.DDD;
+using Flashcards.WebApp.Shared.Entities;
 using Mediator;
 
 namespace Flashcards.WebApp.Features.Projects;

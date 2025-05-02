@@ -1,12 +1,12 @@
-﻿using Flashcards.WebApp.Shared.DDD;
+﻿using Flashcards.WebApp.Shared.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace Flashcards.WebApp.Shared.EntityFrameworkCore;
 
 public class DbContextRepository<T, TId>(
-    DbContext _context, string _tableName) : IRepository<T, TId>
-    where T : class
+    DbContext _context) : IRepository<T, TId>
+    where T : class, IEntity<TId>, IUserOwned, IArchived
 {
     private readonly DbSet<T> _dbSet = _context.Set<T>();
 
@@ -20,22 +20,24 @@ public class DbContextRepository<T, TId>(
         return entity;
     }
 
-    public Task<T[]> GetMany(AliveState? lifeState = AliveState.Alive, string? UserId = null)
+    public Task<T[]> GetMany(AliveState? lifeState = AliveState.Alive, string? userId = null)
     {
-        var sql = UserId is null ?
-            FormattableStringFactory.Create($"SELECT * FROM {_tableName}") :
-            FormattableStringFactory.Create($"SELECT * FROM {_tableName} WHERE user_id = '{UserId}'");
+        var query = _dbSet.AsNoTracking().AsQueryable();
 
-        return _dbSet
-            .FromSql(sql)
-            .AsNoTracking()
-            .ToArrayAsync();
-    }
+        query = lifeState switch
+        {
+            AliveState.Alive => query.Where(x => !x.IsArchived),
+            AliveState.Archived => query.Where(x => x.IsArchived),
+            _ => query,
+        };
 
-    public string? GetTableName<TEntity>()
-    {
-        var entityType = _context.Model.FindEntityType(typeof(TEntity));
-        return entityType?.GetTableName();
+        query = userId switch
+        {
+            null => query,
+            _ => query.Where(x => x.UserId == userId),
+        };
+
+        return query.ToArrayAsync();
     }
 
     public async Task Add(T entity)
@@ -50,13 +52,41 @@ public class DbContextRepository<T, TId>(
         await _context.SaveChangesAsync();
     }
 
-    public Task Archive(TId id)
+    public async Task Archive(TId id)
     {
-        throw new NotImplementedException();
+        if (await _dbSet.FindAsync(id) is not T entity)
+            throw new NotFoundException($"Could not find entity of given id {id}");
+
+        if (entity.IsArchived)
+            throw new InvalidOperationException($"Entity of {id} id is already archived");
+
+        if (entity.GetType().GetProperty("IsArchived") is not PropertyInfo property ||
+            property.PropertyType != typeof(bool))
+        {
+            throw new InvalidOperationException($"Entity of {id} id cannot be archived");
+        }
+
+        property.SetValue(entity, true);
+
+        await _context.SaveChangesAsync();
     }
 
-    public Task Restore(TId id)
+    public async Task Restore(TId id)
     {
-        throw new NotImplementedException();
+        if (await _dbSet.FindAsync(id) is not T entity)
+            throw new NotFoundException($"Could not find entity of given id {id}");
+
+        if (!entity.IsArchived)
+            throw new InvalidOperationException($"Entity of {id} id has not been archived");
+
+        if (entity.GetType().GetProperty("IsArchived") is not PropertyInfo property ||
+                   property.PropertyType != typeof(bool))
+        {
+            throw new InvalidOperationException($"Entity of {id} id cannot be restored");
+        }
+
+        property.SetValue(entity, false);
+
+        await _context.SaveChangesAsync();
     }
 }

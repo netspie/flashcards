@@ -1,4 +1,4 @@
-﻿@using Flashcards.WebApp.Shared.DDD
+﻿@using Flashcards.WebApp.Shared.Entities
 
 @inject IMediator Mediator
 @inject ISnackbar Snackbar
@@ -16,7 +16,6 @@
                        Items="@_projects"
                        AddedItem="@Add"
                        CommittedItemChanges="@Update"
-                       ShowToolbar="@(AliveState is AliveState.Alive)"
                        Editable="@(AliveState is AliveState.Alive)">
         <Toolbar>
             @if (AliveState is AliveState.Alive)
@@ -25,8 +24,12 @@
             }
         </Toolbar>
         <Columns>
-            <SpyPropertyColumn Property="@(x => x.Name)" CellClass="!font-bold" />
+            <SpyPropertyColumn Property="@(x => x.Name)" Bold />
         </Columns>
+        <RowMenuItems>
+            <MudMenuItem Label="Archive" OnClick="@(x => Archive(context.Id))" Disabled="@(AliveState is AliveState.Archived)" />
+            <MudMenuItem Label="Restore" OnClick="@(x => Restore(context.Id))" Disabled="@(AliveState is AliveState.Alive)" />
+        </RowMenuItems>
     </SpyRemoteDataGrid>
 </MudContainer>
 
@@ -35,33 +38,29 @@
 
     private ProjectDTO[] _projects = [];
 
-    protected override Task OnInitializedAsync() =>
-        FetchItems();
+    protected override Task OnInitializedAsync() => FetchItems();
 
-    private async Task Add(string name)
+    private Task Add(string name) => SendCommandAndFetchItems(new AddProjectCommand(name));
+    private Task Update(ProjectDTO item) => SendCommandAndFetchItems(new UpdateProjectCommand(item.Id, item.Name));
+    private Task Archive(string itemId) => SendCommandAndFetchItems(new ArchiveProjectCommand(itemId));
+    private Task Restore(string itemId) => SendCommandAndFetchItems(new RestoreProjectCommand(itemId));
+
+    private async Task OpenArchivedDialog()
     {
-        await Snackbar.Run(Mediator.Send(new AddProjectCommand(name)));
+        var dialog = await DialogService.ShowAsync<ProjectsArchivedDialog>("Archived Projects");
+        await dialog.Result;
         await FetchItems();
-    }
-
-    async Task Update(ProjectDTO item)
-    {
-        await Snackbar.Run(Mediator.Send(new UpdateProjectCommand(item.Id, item.Name)));
-    }
-
-    async Task Archive(string itemId)
-    {
-        // await Snackbar.Run(Mediator.Send(new ArchiveProjectCommand(itemId)));
-    }
-
-    async Task OpenArchivedDialog()
-    {
-        await DialogService.ShowAsync<ProjectsArchivedDialog>("Archived Projects");
     }
 
     private async Task FetchItems()
     {
         var response = await Mediator.Send(new GetProjectsQuery(AliveState));
         _projects = response.Values;
+    }
+
+    private async Task SendCommandAndFetchItems(ICommand command)
+    {
+        await Snackbar.Run(Mediator.Send(command));
+        await FetchItems();
     }
 }

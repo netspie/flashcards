@@ -1,7 +1,7 @@
 ﻿@typeparam T
 
 <MudStack Class="@Class" Style="@Style">
-    @if (ShowToolbar)
+    @if (Editable)
     {
         <MudStack Row Class="!w-full">
             <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" FullWidth>
@@ -25,17 +25,20 @@
                  CommittedItemChanges="@CommittedItemChanges"
                  HeaderClass="!hidden"
                  Class="!w-full"
-                 RowClass="!flex align-center">
+                 RowClass="!flex align-center !w-full">
         <Columns>
             @Columns
-            @if (Editable)
-            {
-                <TemplateColumn CellClass="!border-none !bg-transparent -translate-y-[3px] !absolute !top-0 !right-0" StickyRight>
-                    <CellTemplate>
-                        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" Class="!h-fit" />
-                    </CellTemplate>
-                </TemplateColumn>
-            }
+            <TemplateColumn CellClass="!border-none !bg-transparent !absolute !right-0 -translate-y-[3px]" StickyRight>
+                <CellTemplate>
+                    <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                        @if (Editable)
+                        {
+                            <MudMenuItem Label="Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                        }
+                        @RowMenuItems(context.Item)
+                    </MudMenu>
+                </CellTemplate>
+            </TemplateColumn>
         </Columns>
         <PagerContent>
             <MudDataGridPager T="T" />
@@ -54,8 +57,8 @@
     [Parameter] public EventCallback<T> CommittedItemChanges { get; set; }
 
     [Parameter] public RenderFragment Toolbar { get; set; } = _ => { };
-
-    [Parameter] public bool ShowToolbar { get; set; } = true;
+    [Parameter] public RenderFragment<T> RowMenuItems { get; set; } = _ => builder => { };
+    
     [Parameter] public bool Editable { get; set; } = true;
 
     private string _newItemName = "";

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using Flashcards.WebApp.Infrastructure.Data;
-using Flashcards.WebApp.Shared.DDD;
+using Flashcards.WebApp.Shared.Entities;
 using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Shared.EntityFrameworkCore;
 using Mediator;
@@ -21,7 +21,7 @@ builder.Services.AddMudServices();
 
 // Flashcards App
 builder.Services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
-builder.Services.AddScoped<IRepository<Project, ProjectId>>(sp => new DbContextRepository<Project, ProjectId>(sp.GetRequiredService<DbContext>(), "projects"));
+builder.Services.AddScoped<IRepository<Project, ProjectId>, DbContextRepository<Project, ProjectId>>();
 builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BlazorServerUserIdInjectionBehavior<,>));
 
 builder.Services.AddCascadingAuthenticationState();
