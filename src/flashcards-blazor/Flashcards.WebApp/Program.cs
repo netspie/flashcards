@@ -7,7 +7,7 @@ using MudBlazor.Services;
 using Flashcards.WebApp.Infrastructure.Data;
 using Flashcards.WebApp.Shared.DDD;
 using Flashcards.WebApp.Features.Projects;
-using Flashcards.WebApp.Shared.EFCore;
+using Flashcards.WebApp.Shared.EntityFrameworkCore;
 using Mediator;
 using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours;
 

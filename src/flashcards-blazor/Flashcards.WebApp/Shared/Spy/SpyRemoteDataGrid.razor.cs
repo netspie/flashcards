@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace Flashcards.WebApp.Features.Projects;
+namespace Flashcards.WebApp.Shared.Spy;
 
 [CascadingTypeParameter(nameof(T))]
 public partial class SpyRemoteDataGrid<T>;

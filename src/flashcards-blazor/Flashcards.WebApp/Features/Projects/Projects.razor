@@ -1,68 +1,36 @@
 ﻿@page "/projects"
 
 @inject IMediator Mediator
+@inject ISnackbar Snackbar
 
 <PageTitle>Projects</PageTitle>
 
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
         <MudText Typo="@Typo.h2" Class="!font-bold">Projects</MudText>
-        <MudStack Class="mt-2">
-            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
-                <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
-                    <MudForm @ref="_form">
-                        <MudTextField Label="Name"
-                                      @bind-Value=@_newItemName
-                                      Required
-                                      OnKeyDown="@(() => Add(_newItemName))" />
-                    </MudForm>
-                    <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => Add(_newItemName)" Class="!h-fit" />
-                </MudMenu>
-            </MudButtonGroup>
-            <SpyRemoteDataGrid T="ProjectDTO" Items="@_projects" CommittedItemChanges="@CommittedItemChanges">
-                <Columns>
-                    <PropertyColumn Property="@(x => x.Name)" HeaderClass="!hidden" CellClass="[&::before]:!content-none border-none" />
-                    <TemplateColumn CellClass="d-flex justify-end border-none">
-                        <CellTemplate>
-                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
-                        </CellTemplate>
-                    </TemplateColumn>
-                </Columns>
-            </SpyRemoteDataGrid>
-        </MudStack>
+        <SpyRemoteDataGrid T="ProjectDTO" Items="@_projects" AddedItem="@Add" CommittedItemChanges="@Update">
+            <Columns>
+                <SpyPropertyColumn Property="@(x => x.Name)" />
+            </Columns>
+        </SpyRemoteDataGrid>
     </MudContainer>
 </MudMainContent>
 
 @code {
     private ProjectDTO[] _projects = [];
 
-    private string _newItemName = "";
-
-    private MudForm? _form;
-    private MudMenu? _menu;
-
     protected override Task OnInitializedAsync() =>
         FetchItems();
 
     private async Task Add(string name)
     {
-        if (_form is null || _menu is null)
-            return;
-
-        await _form.Validate();
-        if (!_form.IsValid)
-            return;
-
-        await _menu.CloseAllMenusAsync();
-
-        await Mediator.Send(new AddProjectCommand(name));
-
+        await Snackbar.Run(Mediator.Send(new AddProjectCommand(name)));
         await FetchItems();
     }
 
-    async Task CommittedItemChanges(ProjectDTO item)
+    async Task Update(ProjectDTO item)
     {
-        await Mediator.Send(new UpdateProjectCommand(item.Id, item.Name));
+        await Snackbar.Run(Mediator.Send(new UpdateProjectCommand(item.Id, item.Name)));
     }
 
     private async Task FetchItems()
@@ -70,12 +38,4 @@
         var response = await Mediator.Send(new GetProjectsQuery());
         _projects = response.Values;
     }
-
-    // record AddProjectCommand(string Name) : ICommand;
-    // record UpdateProjectCommand(string Id, string Name) : ICommand;
-    // record ArchiveProjectCommand(string Id) : ICommand;
-    
-    // record GetProjectsQuery : IQuery<GetProjectsQueryResponse>;
-    // record GetProjectsQueryResponse(ProjectDTO[] Projects);
-    // record ProjectDTO(string Id, string Name);
 }

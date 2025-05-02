@@ -1,0 +1,65 @@
+﻿@typeparam T
+
+<MudStack Class="@Class" Style="@Style">
+   <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+        <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
+            <MudForm @ref="_form">
+                <MudTextField Label="Name"
+                                @bind-Value=@_newItemName
+                                Required
+                                OnKeyDown="@(() => Add(_newItemName))" />
+            </MudForm>
+            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => Add(_newItemName))" Class="!h-fit" />
+        </MudMenu>
+    </MudButtonGroup>
+    <MudDataGrid T="@T"
+                    Items="@Items"
+                    ReadOnly="false"
+                    EditMode="@DataGridEditMode.Form"
+                    CommittedItemChanges="@CommittedItemChanges"
+                    HeaderClass="!hidden"
+                    Class="!w-full"
+                    RowClass="!flex !flex-row-reverse !justify-between">
+        <Columns>
+            @Columns
+            <TemplateColumn CellClass="!d-flex !justify-end !border-none">
+                <CellTemplate>
+                    <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="T" />
+        </PagerContent>
+    </MudDataGrid>
+</MudStack>
+
+@code {
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    [Parameter] public IEnumerable<T> Items { get; set; } = [];
+    [Parameter] public RenderFragment Columns { get; set; } = _ => { };
+
+    [Parameter] public EventCallback<string> AddedItem { get; set; }
+    [Parameter] public EventCallback<T> CommittedItemChanges { get; set; }
+
+    private string _newItemName = "";
+
+    private MudForm? _form;
+    private MudMenu? _menu;
+
+    private async Task Add(string name)
+    {
+        if (_form is null || _menu is null)
+            return;
+
+        await _form.Validate();
+        if (!_form.IsValid)
+            return;
+
+        await _menu.CloseAllMenusAsync();
+
+        await AddedItem.InvokeAsync(name);
+    }
+}

@@ -1,0 +1,10 @@
+﻿@using System.Linq.Expressions
+
+@typeparam T
+@typeparam TProperty
+
+<PropertyColumn Property="@Property" HeaderClass="!hidden" CellClass="[&::before]:!content-none border-none" />
+
+@code {
+    [Parameter] public Expression<Func<T, TProperty>> Property { get; set; } = default!;
+}

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
-namespace Flashcards.WebApp.Shared.EFCore;
+namespace Flashcards.WebApp.Shared.EntityFrameworkCore;
 
 public class DbContextRepository<T, TId>(
     DbContext _context, string _tableName) : IRepository<T, TId>
