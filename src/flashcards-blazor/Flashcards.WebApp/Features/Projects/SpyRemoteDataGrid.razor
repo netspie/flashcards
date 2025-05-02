@@ -1,0 +1,24 @@
+﻿@typeparam T
+
+<MudDataGrid T="@T"
+             Items="@Items"
+             ReadOnly="false"
+             EditMode="@DataGridEditMode.Form"
+             CommittedItemChanges="@CommittedItemChanges"
+             HeaderClass="!hidden"
+             Class="w-full"
+             RowClass="!flex !justify-between">
+    <Columns>
+        @Columns
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="T" />
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    [Parameter] public IEnumerable<T> Items { get; set; } = [];
+    [Parameter] public RenderFragment Columns { get; set; } = _ => { };
+
+    [Parameter] public EventCallback<T> CommittedItemChanges { get; set; }
+}

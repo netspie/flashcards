@@ -8,6 +8,8 @@ using Flashcards.WebApp.Infrastructure.Data;
 using Flashcards.WebApp.Shared.DDD;
 using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Shared.EFCore;
+using Mediator;
+using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +18,11 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+
+// Flashcards App
 builder.Services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
-builder.Services.AddScoped<IRepository<Project, ProjectId>, DbContextRepository<Project, ProjectId>>();
+builder.Services.AddScoped<IRepository<Project, ProjectId>>(sp => new DbContextRepository<Project, ProjectId>(sp.GetRequiredService<DbContext>(), "projects"));
+builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BlazorServerUserIdInjectionBehavior<,>));
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

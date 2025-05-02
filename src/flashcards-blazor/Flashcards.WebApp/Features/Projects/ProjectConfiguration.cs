@@ -13,14 +13,14 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
             .HasConversion(
-                ConversionExtensions.GuidIdToStringConverter<ProjectId>(),
-                ConversionExtensions.StringToGuidIdConverter<ProjectId>())
+                id => id.Value.ToString(),
+                value => new ProjectId(Guid.Parse(value)))
             .ValueGeneratedNever();
 
-        builder.Property(x => x.UserId)
-            .HasConversion(
-                ConversionExtensions.GuidIdToStringConverter<UserId>(),
-                ConversionExtensions.StringToGuidIdConverter<UserId>());
+        //ConversionExtensions.GuidIdToStringConverter<ProjectId>();
+        //ConversionExtensions.StringToGuidIdConverter<ProjectId>());
+
+        builder.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 

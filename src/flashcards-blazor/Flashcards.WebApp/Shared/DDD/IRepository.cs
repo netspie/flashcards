@@ -1,12 +1,9 @@
-﻿using Flashcards.WebApp.Shared.EFCore;
-using System.Collections.Immutable;
-
-namespace Flashcards.WebApp.Shared.DDD;
+﻿namespace Flashcards.WebApp.Shared.DDD;
 
 public interface IRepository<T, TId>
 {
     Task<T> GetById(TId id, bool includeArchived = false);
-    Task<ImmutableArray<T>> GetMany(LifeState? lifeState = LifeState.Alive);
+    Task<T[]> GetMany(LifeState? lifeState = LifeState.Alive, string? UserId = null);
 
     Task Add(T entity);
     Task Update(T entity);

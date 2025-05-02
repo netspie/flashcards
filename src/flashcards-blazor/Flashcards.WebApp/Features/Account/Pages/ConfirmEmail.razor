@@ -11,7 +11,9 @@
 
 <SpyPageContent class="gap-8">
     <MudText Typo="@Typo.h3" Class="!font-bold">Registered Successfully</MudText>
-    <StatusMessage Message="@statusMessage" />
+    <StatusMessage Message="@statusMessage">
+        <MudLink Href="/account/login">Please sign in now</MudLink>
+    </StatusMessage>
 </SpyPageContent>
 
 @code {
@@ -43,7 +45,7 @@
         {
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
             var result = await UserManager.ConfirmEmailAsync(user, code);
-            statusMessage = result.Succeeded ? "Thank you for registering. Please sign in now." : "Error confirming your email.";
+            statusMessage = result.Succeeded ? "Thank you for registering" : "Error confirming your email.";
         }
     }
 }

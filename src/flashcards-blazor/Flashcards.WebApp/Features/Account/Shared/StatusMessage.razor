@@ -1,8 +1,9 @@
 ﻿@if (!string.IsNullOrEmpty(DisplayMessage))
 {
     var statusMessageClass = DisplayMessage.StartsWith("Error") ? "danger" : "success";
-    <div class="alert alert-@statusMessageClass" role="alert">
-        @DisplayMessage
+    <div class="alert alert-@statusMessageClass align-center text-center" role="alert">
+        <p>@DisplayMessage</p>
+        @ChildContent
     </div>
 }
 
@@ -11,6 +12,9 @@
 
     [Parameter]
     public string? Message { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = _ => { };
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;

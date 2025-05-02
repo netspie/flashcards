@@ -1,10 +1,11 @@
 ﻿using Flashcards.WebApp.Shared.DDD;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 namespace Flashcards.WebApp.Shared.EFCore;
 
-public class DbContextRepository<T, TId>(DbContext _context) : IRepository<T, TId>
+public class DbContextRepository<T, TId>(
+    DbContext _context, string _tableName) : IRepository<T, TId>
     where T : class
 {
     private readonly DbSet<T> _dbSet = _context.Set<T>();
@@ -19,9 +20,22 @@ public class DbContextRepository<T, TId>(DbContext _context) : IRepository<T, TI
         return entity;
     }
 
-    public Task<ImmutableArray<T>> GetMany(LifeState? lifeState = LifeState.Alive)
+    public Task<T[]> GetMany(LifeState? lifeState = LifeState.Alive, string? UserId = null)
     {
-        return _dbSet.AsNoTracking().ToImmutableArrayAsync();
+        var sql = UserId is null ?
+            FormattableStringFactory.Create($"SELECT * FROM {_tableName}") :
+            FormattableStringFactory.Create($"SELECT * FROM {_tableName} WHERE user_id = '{UserId}'");
+
+        return _dbSet
+            .FromSql(sql)
+            .AsNoTracking()
+            .ToArrayAsync();
+    }
+
+    public string? GetTableName<TEntity>()
+    {
+        var entityType = _context.Model.FindEntityType(typeof(TEntity));
+        return entityType?.GetTableName();
     }
 
     public async Task Add(T entity)
@@ -44,15 +58,5 @@ public class DbContextRepository<T, TId>(DbContext _context) : IRepository<T, TI
     public Task Restore(TId id)
     {
         throw new NotImplementedException();
-    }
-}
-
-public static class DbSetExtensions
-{
-    public static async Task<ImmutableArray<T>> ToImmutableArrayAsync<T>(this IQueryable<T> set)
-        where T : class
-    {
-        var list = await set.ToListAsync();
-        return list.ToImmutableArray();
     }
 }
