@@ -2,6 +2,5 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Flashcards.WebApp.Features.Account;
 
-public class ApplicationUser : IdentityUser
-{
-}
+public record struct UserId(string Value);
+public class ApplicationUser : IdentityUser;

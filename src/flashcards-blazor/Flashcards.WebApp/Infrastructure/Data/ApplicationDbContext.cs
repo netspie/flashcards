@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Flashcards.WebApp.Features.Account;
+using Flashcards.WebApp.Features.Projects;
 
 namespace Flashcards.WebApp.Infrastructure.Data;
 
@@ -55,4 +56,6 @@ public class ApplicationDbContext(
     public DbSet<IdentityRole> Roles { get; set; }
     public DbSet<IdentityUserRole<string>> UserRoles { get; set; }
     public DbSet<IdentityRoleClaim<string>> RoleClaims { get; set; }
+
+    public DbSet<Project> Projects { get; set; }
 }

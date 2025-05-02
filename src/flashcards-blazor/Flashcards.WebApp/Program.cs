@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using Flashcards.WebApp.Infrastructure.Data;
+using Flashcards.WebApp.Shared.DDD;
+using Flashcards.WebApp.Features.Projects;
+using Flashcards.WebApp.Shared.EFCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,12 +16,13 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+builder.Services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
+builder.Services.AddScoped<IRepository<Project, ProjectId>, DbContextRepository<Project, ProjectId>>();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
