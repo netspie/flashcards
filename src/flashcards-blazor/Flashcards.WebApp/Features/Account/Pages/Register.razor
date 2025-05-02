@@ -37,6 +37,12 @@
 
             <MudStaticButton FormAction="FormAction.Submit" Variant="Variant.Filled" Color="Color.Primary">Register</MudStaticButton>
         </MudStack>
+        <MudStack>
+            <MudLink Class="text-center" 
+                     Href="@(NavigationManager.GetUriWithQueryParameters("Account/Login", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">
+                Have an account already? Sign In!
+            </MudLink>
+        </MudStack>
     </EditForm>
 </SpyPageContent>
 

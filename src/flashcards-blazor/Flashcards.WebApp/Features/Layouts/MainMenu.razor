@@ -6,6 +6,13 @@
             @* <MudButton Class="!text-white whitespace-nowrap">
                 Projects
             </MudButton> *@
+            <AuthorizeView>
+                <Authorized>
+                    <MudButton Class="!text-white !whitespace-nowrap" Href="/projects">
+                        Projects
+                    </MudButton>
+                </Authorized>
+            </AuthorizeView>
         </MudStack>
         <MudStack Row AlignItems=AlignItems.Center>
             <AuthorizeView>

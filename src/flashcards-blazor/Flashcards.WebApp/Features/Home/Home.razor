@@ -2,7 +2,42 @@
 
 <PageTitle>Home</PageTitle>
 
-<SpyPageContent>
-    <MudText Typo="@Typo.h2" Class="!font-bold">Flashcards</MudText>
-    <MudText>Welcome to your flashcards.</MudText>
-</SpyPageContent>
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
+        <MudStack AlignItems=AlignItems.Center>
+            <MudText Typo="@Typo.h2" Class="!font-bold">Flashcards</MudText>
+            <MudText Typo="@Typo.h6" Class="text-gray-400 !uppercase">
+                Only thing you need to study
+            </MudText>
+            <MudText Align="Align.Center">
+                The only thing you need to effectively study your material. Organized pages, 
+                customizable flashcards, and automatic generation, grouping, 
+                and ordering to fit your study preferences.
+            </MudText>
+            <MudStack Row Class="mt-2">
+                <AuthorizeView>
+                    <Authorized>
+                        <MudButton Href="/projects"
+                                   Class="!px-4 !bg-[var(--mud-palette-primary)] !text-white">
+                            Go to Projects
+                        </MudButton>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudButton Href="/account/register"
+                                   Class="!px-4 !bg-[var(--mud-palette-primary)] !text-white">
+                            Get Started
+                        </MudButton>
+                    </NotAuthorized>
+                </AuthorizeView>
+                <MudButton Class="!px-4 !bg-[var(--mud-palette-secondary)] !text-white">
+                    Donate
+                </MudButton>
+            </MudStack>
+        </MudStack>
+        @* <MudButton Class="h-32 !bg-[var(--mud-palette-primary)] !text-white"
+                   Size="Size.Large"
+                   FullWidth>
+            Projects
+        </MudButton> *@
+    </MudContainer>
+</MudMainContent>
