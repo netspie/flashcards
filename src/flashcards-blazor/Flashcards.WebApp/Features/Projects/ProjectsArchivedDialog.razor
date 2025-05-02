@@ -1,5 +1,37 @@
 ﻿@using Flashcards.WebApp.Shared.Entities
 
+@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
 <SpyDialog>
-    <ProjectList AliveState="@AliveState.Archived" />
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <SpyRemoteDataGrid Items="@_projects" Editable=false>
+            <Columns>
+                <SpyPropertyColumn Property="@(x => x.Name)" Bold />
+            </Columns>
+            <RowMenuItems>
+                <MudMenuItem Label="Restore" OnClick="@(x => Restore(context.Id))" />
+            </RowMenuItems>
+        </SpyRemoteDataGrid>
+    </MudContainer>
 </SpyDialog>
+
+@code {
+    private ProjectDTO[] _projects = [];
+
+    protected override Task OnInitializedAsync() => FetchItems();
+
+    private Task Restore(string itemId) => SendCommandAndFetchItems(new RestoreProjectCommand(itemId));
+
+    private async Task FetchItems()
+    {
+        var response = await Mediator.Send(new GetProjectsQuery(AliveState.Archived));
+        _projects = response.Values;
+    }
+
+    private async Task SendCommandAndFetchItems(ICommand command)
+    {
+        await Snackbar.Run(Mediator.Send(command));
+        await FetchItems();
+    }
+}

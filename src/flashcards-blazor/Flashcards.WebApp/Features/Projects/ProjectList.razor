@@ -6,36 +6,24 @@
 @inject NavigationManager Navigation
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
-    @if (AliveState is AliveState.Alive)
-    {
-        <MudText Typo="@Typo.h3">
-            <span>Projects</span>
-        </MudText>
-    }
+    <MudText Typo="@Typo.h3">Projects</MudText>
     <SpyRemoteDataGrid T="ProjectDTO"
                        Items="@_projects"
                        AddedItem="@Add"
-                       CommittedItemChanges="@Update"
-                       Editable="@(AliveState is AliveState.Alive)">
+                       CommittedItemChanges="@Update">
         <Toolbar>
-            @if (AliveState is AliveState.Alive)
-            {
-                <MudIconButton Icon="@Icons.Material.Filled.Archive" OnClick="@OpenArchivedDialog" />
-            }
+            <MudIconButton Icon="@Icons.Material.Filled.Archive" OnClick="@OpenArchivedDialog" />
         </Toolbar>
         <Columns>
             <SpyPropertyColumn Property="@(x => x.Name)" Bold />
         </Columns>
         <RowMenuItems>
-            <MudMenuItem Label="Archive" OnClick="@(x => Archive(context.Id))" Disabled="@(AliveState is AliveState.Archived)" />
-            <MudMenuItem Label="Restore" OnClick="@(x => Restore(context.Id))" Disabled="@(AliveState is AliveState.Alive)" />
+            <MudMenuItem Label="Archive" OnClick="@(x => Archive(context.Id))"/>
         </RowMenuItems>
     </SpyRemoteDataGrid>
 </MudContainer>
 
 @code {
-    [Parameter] public AliveState AliveState { get; init; } = AliveState.Alive;
-
     private ProjectDTO[] _projects = [];
 
     protected override Task OnInitializedAsync() => FetchItems();
@@ -43,7 +31,6 @@
     private Task Add(string name) => SendCommandAndFetchItems(new AddProjectCommand(name));
     private Task Update(ProjectDTO item) => SendCommandAndFetchItems(new UpdateProjectCommand(item.Id, item.Name));
     private Task Archive(string itemId) => SendCommandAndFetchItems(new ArchiveProjectCommand(itemId));
-    private Task Restore(string itemId) => SendCommandAndFetchItems(new RestoreProjectCommand(itemId));
 
     private async Task OpenArchivedDialog()
     {
@@ -54,7 +41,7 @@
 
     private async Task FetchItems()
     {
-        var response = await Mediator.Send(new GetProjectsQuery(AliveState));
+        var response = await Mediator.Send(new GetProjectsQuery());
         _projects = response.Values;
     }
 
