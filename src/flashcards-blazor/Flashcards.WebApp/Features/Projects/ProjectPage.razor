@@ -24,19 +24,27 @@
                 <MudMenuItem Label="Archive" OnClick="@(x => Archive(context.Id))" />
             </RowMenuItems>
         </SpyRemoteDataGrid> *@
-        <MudTreeView Items="@TreeItems" Hover="true" Dense>
-            <ItemTemplate Context="item">
-                <MudTreeViewItem Items="@item.Children">
-                    <BodyContent>
-                        <MudStack Row Class="!w-full gap-2">
-                            <MudIcon Icon="@item.Icon" Style=@($"color: {(item as TagTreeItemData).IconColor.ToTailwindHex()} !important") />
-                            <MudText Style="justify-self: start;">@item.Text</MudText>
-                        </MudStack>
-                        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Medium" />
-                    </BodyContent>
-                </MudTreeViewItem>
-            </ItemTemplate>
-        </MudTreeView>
+        <MudExpansionPanels>
+            <MudExpansionPanel Text="Tags">
+                <MudTreeView Items="@TreeItems" Hover="true" Dense>
+                    <ItemTemplate Context="item">
+                        <MudTreeViewItem Items="@item.Children">
+                            <BodyContent>
+                                <MudStack Row Class="!w-full gap-2">
+                                    <MudIcon Icon="@item.Icon" Style=@($"color: {(item as TagTreeItemData)?.IconColor.ToTailwindHex()} !important") />
+                                    <MudText>@item.Text</MudText>
+                                </MudStack>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                                    <MudMenuItem Label="Add" />
+                                    <MudMenuItem Label="Edit" />
+                                </MudMenu>
+                            </BodyContent>
+                        </MudTreeViewItem>
+                    </ItemTemplate>
+                </MudTreeView>
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+        
     </MudContainer>
 </MudMainContent>
 
