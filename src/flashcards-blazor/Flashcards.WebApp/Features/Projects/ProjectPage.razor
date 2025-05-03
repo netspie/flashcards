@@ -9,6 +9,34 @@
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
         <MudText Typo="@Typo.h3">@_dto.Name</MudText>
+        @* <SpyRemoteDataGrid T="GetProjectsQueryResponse.ProjectDTO"
+                           Items="@_projects"
+                           OnAddedItem="@Add"
+                           OnCommittedItemChanges="@Update"
+                           OnRowClick="@(x => Navigation.NavigateTo($"/projects/{x.Item.Id}"))">
+            <Toolbar>
+                <MudIconButton Icon="@Icons.Material.Filled.Archive" OnClick="@OpenArchivedDialog" />
+            </Toolbar>
+            <Columns>
+                <SpyPropertyColumn Property="@(x => x.Name)" Bold />
+            </Columns>
+            <RowMenuItems>
+                <MudMenuItem Label="Archive" OnClick="@(x => Archive(context.Id))" />
+            </RowMenuItems>
+        </SpyRemoteDataGrid> *@
+        <MudTreeView Items="@TreeItems" Hover="true" Dense>
+            <ItemTemplate Context="item">
+                <MudTreeViewItem Items="@item.Children">
+                    <BodyContent>
+                        <MudStack Row Class="!w-full gap-2">
+                            <MudIcon Icon="@item.Icon" Style=@($"color: {(item as TagTreeItemData).IconColor.ToTailwindHex()} !important") />
+                            <MudText Style="justify-self: start;">@item.Text</MudText>
+                        </MudStack>
+                        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Size="Size.Medium" />
+                    </BodyContent>
+                </MudTreeViewItem>
+            </ItemTemplate>
+        </MudTreeView>
     </MudContainer>
 </MudMainContent>
 
@@ -17,7 +45,49 @@
 
     private GetProjectQueryResponse.ProjectDTO? _dto;
 
+    private List<TagTreeItemData> TreeItems { get; set; } = [];
+
     protected override Task OnInitializedAsync() => FetchItems();
+
+    protected override void OnInitialized()
+    {
+        TreeItems.Add(new TagTreeItemData("Part Of Speech", TagTreeItemData.Color.Blue)
+        {
+            Children = [
+                new TagTreeItemData("Verb", TagTreeItemData.Color.Blue),
+                new TagTreeItemData("Adjective", TagTreeItemData.Color.Blue),
+                new TagTreeItemData("Adverb", TagTreeItemData.Color.Blue),
+                new TagTreeItemData("Noun", TagTreeItemData.Color.Blue),
+            ]
+        });
+        TreeItems.Add(new TagTreeItemData("JLPT", TagTreeItemData.Color.Green)
+        {
+            Children = [
+                new TagTreeItemData("N5", TagTreeItemData.Color.Green),
+                new TagTreeItemData("N4", TagTreeItemData.Color.Green),
+                new TagTreeItemData("N3", TagTreeItemData.Color.Green),
+                new TagTreeItemData("N2", TagTreeItemData.Color.Green),
+                new TagTreeItemData("N1", TagTreeItemData.Color.Green),
+            ]
+        });
+        TreeItems.Add(new TagTreeItemData("Theme", TagTreeItemData.Color.Purple)
+        {
+            Children = [
+                new TagTreeItemData("Color", TagTreeItemData.Color.Purple),
+                new TagTreeItemData("Year Season", TagTreeItemData.Color.Purple),
+                new TagTreeItemData("Furniture", TagTreeItemData.Color.Purple),
+                new TagTreeItemData("Shopping", TagTreeItemData.Color.Purple),
+                new TagTreeItemData("Sport", TagTreeItemData.Color.Purple),
+                new TagTreeItemData("Counting", TagTreeItemData.Color.Purple)
+                {
+                    Children = [
+                        new TagTreeItemData("Number", TagTreeItemData.Color.Purple),
+                        new TagTreeItemData("Counter", TagTreeItemData.Color.Purple),
+                    ]
+                },
+            ]
+        });
+    }
 
     private async Task FetchItems()
     {
