@@ -13,8 +13,7 @@ public class AddProjectCommandHandler(
     public async ValueTask<Unit> Handle(
             AddProjectCommand cmd, CancellationToken ct)
     {
-        var entity = new Project(
-            new ProjectId(Guid.NewGuid()), cmd.Name, cmd.UserId);
+        var entity = new Project(ProjectId.New(), cmd.Name, cmd.UserId);
 
         await _repository.Add(entity);
 

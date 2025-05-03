@@ -1,0 +1,27 @@
+﻿@page "/projects/{projectId}"
+
+@inject IMediator Mediator
+
+<PageTitle>Project - @_dto?.Name</PageTitle>
+
+@if (_dto is null) { return; }
+
+<MudMainContent>
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
+        <MudText Typo="@Typo.h3">@_dto.Name</MudText>
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    [Parameter] public string ProjectId { get; set; } = "";
+
+    private GetProjectQueryResponse.ProjectDTO? _dto;
+
+    protected override Task OnInitializedAsync() => FetchItems();
+
+    private async Task FetchItems()
+    {
+        var response = await Mediator.Send(new GetProjectQuery(ProjectId));
+        _dto = response.Value;
+    }
+}

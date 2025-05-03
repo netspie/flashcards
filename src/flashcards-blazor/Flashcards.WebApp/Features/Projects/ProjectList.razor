@@ -7,10 +7,11 @@
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
     <MudText Typo="@Typo.h3">Projects</MudText>
-    <SpyRemoteDataGrid T="ProjectDTO"
+    <SpyRemoteDataGrid T="GetProjectsQueryResponse.ProjectDTO"
                        Items="@_projects"
-                       AddedItem="@Add"
-                       CommittedItemChanges="@Update">
+                       OnAddedItem="@Add"
+                       OnCommittedItemChanges="@Update"
+                       OnRowClick="@(x => Navigation.NavigateTo($"/projects/{x.Item.Id}"))">
         <Toolbar>
             <MudIconButton Icon="@Icons.Material.Filled.Archive" OnClick="@OpenArchivedDialog" />
         </Toolbar>
@@ -24,12 +25,12 @@
 </MudContainer>
 
 @code {
-    private ProjectDTO[] _projects = [];
+    private GetProjectsQueryResponse.ProjectDTO[] _projects = [];
 
     protected override Task OnInitializedAsync() => FetchItems();
 
     private Task Add(string name) => SendCommandAndFetchItems(new AddProjectCommand(name));
-    private Task Update(ProjectDTO item) => SendCommandAndFetchItems(new UpdateProjectCommand(item.Id, item.Name));
+    private Task Update(GetProjectsQueryResponse.ProjectDTO item) => SendCommandAndFetchItems(new UpdateProjectCommand(item.Id, item.Name));
     private Task Archive(string itemId) => SendCommandAndFetchItems(new ArchiveProjectCommand(itemId));
 
     private async Task OpenArchivedDialog()

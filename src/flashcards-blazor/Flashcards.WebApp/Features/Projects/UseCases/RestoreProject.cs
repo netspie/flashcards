@@ -12,7 +12,7 @@ public class RestoreProjectCommandHandler(
     public async ValueTask<Unit> Handle(
         RestoreProjectCommand cmd, CancellationToken ct)
     {
-        await _repository.Restore(new ProjectId(Guid.Parse(cmd.Id)));
+        await _repository.Restore(ProjectId.FromGuidString(cmd.Id));
         return new();
     }
 }

@@ -13,7 +13,7 @@ public class UpdateProjectCommandHandler(
     public async ValueTask<Unit> Handle(
         UpdateProjectCommand cmd, CancellationToken ct)
     {
-        var entity = await _repository.GetById(new ProjectId(Guid.Parse(cmd.Id)));
+        var entity = await _repository.GetById(ProjectId.FromGuidString(cmd.Id));
 
         entity = entity with { Name = cmd.Name };
 

@@ -8,13 +8,12 @@ public record GetProjectsQuery(
     AliveState? LifeState = AliveState.Alive,
     string UserId = "") : IQuery<GetProjectsQueryResponse>;
 
-public record GetProjectsQueryResponse(ProjectDTO[] Values);
+public record GetProjectsQueryResponse(GetProjectsQueryResponse.ProjectDTO[] Values)
+{
+    public record ProjectDTO(string Id, string Name);
+}
 
-public record ProjectDTO(
-    string Id,
-    string Name);
-
-public class GetManyProjectsQueryHandler(
+public class GetProjectsQueryHandler(
     IRepository<Project, ProjectId> _repository) : IQueryHandler<GetProjectsQuery, GetProjectsQueryResponse>
 {
     public async ValueTask<GetProjectsQueryResponse> Handle(
@@ -23,6 +22,6 @@ public class GetManyProjectsQueryHandler(
         var entities = await _repository.GetMany(cmd.LifeState, cmd.UserId);
 
         return new GetProjectsQueryResponse(
-            entities.SelectToArray(x => new ProjectDTO(x.Id.Value.ToString(), x.Name)));
+            entities.SelectToArray(x => new GetProjectsQueryResponse.ProjectDTO(x.Id.Value.ToString(), x.Name)));
     }
 }

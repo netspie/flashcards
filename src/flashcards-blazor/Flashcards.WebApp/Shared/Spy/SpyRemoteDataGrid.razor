@@ -8,9 +8,9 @@
                 <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
                     <MudForm @ref="_form">
                         <MudTextField Label="Name"
-                        @bind-Value=@_newItemName
-                        Required
-                        OnKeyDown="@(() => Add(_newItemName))" />
+                                      @bind-Value=@_newItemName
+                                      Required
+                                      OnKeyDown="@(() => Add(_newItemName))" />
                     </MudForm>
                     <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => Add(_newItemName))" Class="!h-fit" />
                 </MudMenu>
@@ -22,10 +22,11 @@
                  Items="@Items"
                  ReadOnly="false"
                  EditMode="@DataGridEditMode.Form"
-                 CommittedItemChanges="@CommittedItemChanges"
+                 CommittedItemChanges="@OnCommittedItemChanges"
                  HeaderClass="!hidden"
                  Class="!w-full"
-                 RowClass="!flex align-center !w-full">
+                 RowClass="!flex align-center !w-full hover:!bg-gray-100 active:!bg-gray-200"
+                 RowClick="@OnRowClick">
         <Columns>
             @Columns
             <TemplateColumn CellClass="!border-none !bg-transparent !absolute !right-0 -translate-y-[3px]" StickyRight>
@@ -53,8 +54,9 @@
     [Parameter] public IEnumerable<T> Items { get; set; } = [];
     [Parameter] public RenderFragment Columns { get; set; } = _ => { };
 
-    [Parameter] public EventCallback<string> AddedItem { get; set; }
-    [Parameter] public EventCallback<T> CommittedItemChanges { get; set; }
+    [Parameter] public EventCallback<string> OnAddedItem { get; set; }
+    [Parameter] public EventCallback<T> OnCommittedItemChanges { get; set; }
+    [Parameter] public EventCallback<DataGridRowClickEventArgs<T>> OnRowClick { get; set; }
 
     [Parameter] public RenderFragment Toolbar { get; set; } = _ => { };
     [Parameter] public RenderFragment<T> RowMenuItems { get; set; } = _ => builder => { };
@@ -77,6 +79,6 @@
 
         await _menu.CloseAllMenusAsync();
 
-        await AddedItem.InvokeAsync(name);
+        await OnAddedItem.InvokeAsync(name);
     }
 }

@@ -12,7 +12,7 @@ public class ArchiveProjectCommandHandler(
     public async ValueTask<Unit> Handle(
         ArchiveProjectCommand cmd, CancellationToken ct)
     {
-        await _repository.Archive(new ProjectId(Guid.Parse(cmd.Id)));
+        await _repository.Archive(ProjectId.FromGuidString(cmd.Id));
         return new();
     }
 }
