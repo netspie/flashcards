@@ -1,6 +1,6 @@
 ﻿namespace Flashcards.WebApp.Shared.Entities;
 
-public record GuidEntityId<TId>
+public record GuidEntityId<TId>(Guid Value)
 {
     public static TId New()
     {
@@ -17,4 +17,6 @@ public record GuidEntityId<TId>
 
         throw new InvalidOperationException($"Cannot create instance of {typeof(TId)}");
     }
+
+    public override string ToString() => Value.ToString();
 }

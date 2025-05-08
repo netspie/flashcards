@@ -8,4 +8,4 @@ public record Project(
     string UserId,
     bool IsArchived = false) : IEntity<ProjectId>, IUserOwned, IArchived;
 
-public record ProjectId(Guid Value) : GuidEntityId<ProjectId>;
+public record ProjectId(Guid Value) : GuidEntityId<ProjectId>(Value);

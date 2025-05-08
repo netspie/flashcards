@@ -11,7 +11,7 @@ public record GetProjectQueryResponse(GetProjectQueryResponse.ProjectDTO Value)
 }
 
 public class GetProjectQueryHandler(
-    IRepository<Project, ProjectId> _repository) : IQueryHandler<GetProjectQuery, GetProjectQueryResponse>
+    IReadOnlyRepository<Project, ProjectId> _repository) : IQueryHandler<GetProjectQuery, GetProjectQueryResponse>
 {
     public async ValueTask<GetProjectQueryResponse> Handle(
         GetProjectQuery cmd, CancellationToken ct)
@@ -19,6 +19,6 @@ public class GetProjectQueryHandler(
         var entity = await _repository.GetById(ProjectId.FromGuidString(cmd.Id));
 
         return new GetProjectQueryResponse(
-            new GetProjectQueryResponse.ProjectDTO(entity.Id.Value.ToString(), entity.Name));
+            new GetProjectQueryResponse.ProjectDTO(entity.Id.ToString(), entity.Name));
     }
 }

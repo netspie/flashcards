@@ -7,7 +7,7 @@ public record ArchiveProjectCommand(
     string Id) : ICommand;
 
 public class ArchiveProjectCommandHandler(
-    IRepository<Project, ProjectId> _repository) : ICommandHandler<ArchiveProjectCommand>
+    IArchiveRepository<Project, ProjectId> _repository) : ICommandHandler<ArchiveProjectCommand>
 {
     public async ValueTask<Unit> Handle(
         ArchiveProjectCommand cmd, CancellationToken ct)

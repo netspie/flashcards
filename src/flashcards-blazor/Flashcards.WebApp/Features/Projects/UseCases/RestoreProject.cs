@@ -7,7 +7,7 @@ public record RestoreProjectCommand(
     string Id) : ICommand;
 
 public class RestoreProjectCommandHandler(
-    IRepository<Project, ProjectId> _repository) : ICommandHandler<RestoreProjectCommand>
+    IArchiveRepository<Project, ProjectId> _repository) : ICommandHandler<RestoreProjectCommand>
 {
     public async ValueTask<Unit> Handle(
         RestoreProjectCommand cmd, CancellationToken ct)

@@ -8,10 +8,10 @@ public record AddProjectCommand(
     string UserId = "") : ICommand;
 
 public class AddProjectCommandHandler(
-    IRepository<Project, ProjectId> _repository) : ICommandHandler<AddProjectCommand>
+    IWriteOnlyRepository<Project, ProjectId> _repository) : ICommandHandler<AddProjectCommand>
 {
     public async ValueTask<Unit> Handle(
-            AddProjectCommand cmd, CancellationToken ct)
+        AddProjectCommand cmd, CancellationToken ct)
     {
         var entity = new Project(ProjectId.New(), cmd.Name, cmd.UserId);
 

@@ -1,6 +1,9 @@
 ﻿using Flashcards.WebApp.Shared.Collections;
 using Flashcards.WebApp.Shared.Entities;
+using Flashcards.WebApp.Shared.Expressions;
 using Mediator;
+using MudBlazor.Charts;
+using System.Linq.Expressions;
 
 namespace Flashcards.WebApp.Features.Projects;
 
@@ -14,14 +17,17 @@ public record GetProjectsQueryResponse(GetProjectsQueryResponse.ProjectDTO[] Val
 }
 
 public class GetProjectsQueryHandler(
-    IRepository<Project, ProjectId> _repository) : IQueryHandler<GetProjectsQuery, GetProjectsQueryResponse>
+    IReadOnlyRepository<Project, ProjectId> _repository) : IQueryHandler<GetProjectsQuery, GetProjectsQueryResponse>
 {
     public async ValueTask<GetProjectsQueryResponse> Handle(
         GetProjectsQuery cmd, CancellationToken ct)
     {
-        var entities = await _repository.GetMany(cmd.LifeState, cmd.UserId);
+        var entities = await _repository.GetMany(
+            Filter<Project>.New
+                .FilterBy(cmd.UserId)
+                .FilterBy(cmd.LifeState));
 
         return new GetProjectsQueryResponse(
-            entities.SelectToArray(x => new GetProjectsQueryResponse.ProjectDTO(x.Id.Value.ToString(), x.Name)));
+            entities.SelectToArray(x => new GetProjectsQueryResponse.ProjectDTO(x.Id.ToString(), x.Name)));
     }
 }

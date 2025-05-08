@@ -5,15 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using Flashcards.WebApp.Infrastructure.Data;
-using Flashcards.WebApp.Shared.Entities;
-using Flashcards.WebApp.Features.Projects;
-using Flashcards.WebApp.Shared.EntityFrameworkCore;
-using Mediator;
-using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -21,8 +15,7 @@ builder.Services.AddMudServices();
 
 // Flashcards App
 builder.Services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
-builder.Services.AddScoped<IRepository<Project, ProjectId>, DbContextRepository<Project, ProjectId>>();
-builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BlazorServerUserIdInjectionBehavior<,>));
+
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
@@ -38,7 +31,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services
     .AddEntityFrameworkNpgsql()
     .AddDbContext<ApplicationDbContext>()
-    .AddScoped<DbContext, ApplicationDbContext>(); // optional (I use it to inject into generic repo)
+    .AddScoped<DbContext, ApplicationDbContext>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -72,7 +65,6 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();

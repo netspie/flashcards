@@ -8,16 +8,17 @@ public record UpdateProjectCommand(
     string Name) : ICommand;
 
 public class UpdateProjectCommandHandler(
-    IRepository<Project, ProjectId> _repository) : ICommandHandler<UpdateProjectCommand>
+    IReadOnlyRepository<Project, ProjectId> _readRepository,
+    IWriteOnlyRepository<Project, ProjectId> _writeRepository) : ICommandHandler<UpdateProjectCommand>
 {
     public async ValueTask<Unit> Handle(
         UpdateProjectCommand cmd, CancellationToken ct)
     {
-        var entity = await _repository.GetById(ProjectId.FromGuidString(cmd.Id));
+        var entity = await _readRepository.GetById(ProjectId.FromGuidString(cmd.Id));
 
         entity = entity with { Name = cmd.Name };
 
-        await _repository.Update(entity);
+        await _writeRepository.Update(entity);
 
         return new();
     }
