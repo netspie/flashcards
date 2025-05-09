@@ -8,7 +8,7 @@ public record Tag(
     string Name,
     ProjectId ProjectId,
     TagId? ParentTagId,
-    int Order) : IOrderedItem
+    int Order) : IEntity<TagId>, IOrderedItem
 {
     IOrderedItem IOrderedItem.ChangeOrder(int order) => this with { Order = order };
 }

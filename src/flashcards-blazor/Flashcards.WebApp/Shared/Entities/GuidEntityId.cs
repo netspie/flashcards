@@ -1,4 +1,6 @@
-﻿namespace Flashcards.WebApp.Shared.Entities;
+﻿using Flashcards.WebApp.Shared.Collections;
+
+namespace Flashcards.WebApp.Shared.Entities;
 
 public record GuidEntityId<TId>(Guid Value)
 {
@@ -17,6 +19,9 @@ public record GuidEntityId<TId>(Guid Value)
 
         throw new InvalidOperationException($"Cannot create instance of {typeof(TId)}");
     }
+
+    public static TId[] FromGuidStrings(IEnumerable<string> guidStrs) =>
+        guidStrs.SelectToArray(FromGuidString);
 
     public override string ToString() => Value.ToString();
 }

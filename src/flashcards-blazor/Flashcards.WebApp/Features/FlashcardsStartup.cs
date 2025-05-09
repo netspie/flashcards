@@ -19,6 +19,7 @@ public static class FlashcardsStartup
 
         services.AddScoped<IReadOnlyRepository<Tag, TagId>, DbContextReadOnlyRepository<Tag, TagId>>();
         services.AddScoped<IWriteOnlyRepository<Tag, TagId>, DbContextWriteOnlyRepository<Tag, TagId>>();
+        services.AddScoped<IDeleteOnlyRepository<Tag, TagId>, DbContextDeleteOnlyRepository<Tag, TagId>>();
 
         return services;
     }

@@ -113,7 +113,6 @@ public static class FunctionalExtensions
         return (source.Item1, source.Item2);
     }
 
-
     public static T ThrowIf<T>(this T source, Func<T, bool> throwIf, Func<Exception> exception) =>
         throwIf(source) ? source : throw exception();
 
@@ -121,6 +120,18 @@ public static class FunctionalExtensions
         throwIf(source.Item1, source.Item2) ? 
             (source.Item1, source.Item2) : 
             throw exception();
+
+    public static async Task<(T1, T2)> ThrowIfAsync<T1, T2>(this (T1, ValueTask<T2?>) source, Func<T1, T2?, bool> throwIf, Func<Exception> exception)
+    {
+        var item2 = await source.Item2;
+        if (item2 is null)
+            throw new ArgumentNullException();
+
+        if (throwIf(source.Item1, item2))
+            throw exception();
+
+        return (source.Item1, item2);
+    }
 
     public static TOut MapOrThrowIf<TIn, TOut>(this TIn source, Func<TIn, TOut> mapper, Func<TIn, bool> throwIf, Func<Exception> exception)
     {

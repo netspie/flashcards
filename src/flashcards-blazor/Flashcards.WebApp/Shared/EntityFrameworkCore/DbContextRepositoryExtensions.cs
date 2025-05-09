@@ -12,6 +12,7 @@ public static class DbContextRepositoryExtensions
         where T : class
     {
         var set = context.Set<T>();
+
         if (await set.FindAsync(id) is not T entity)
             throw new NotFoundException($"Could not find entity of given id {id}");
 
