@@ -1,6 +1,7 @@
 ﻿using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Shared.Entities;
 using Flashcards.WebApp.Shared.Expressions;
+using Flashcards.WebApp.Shared.UseCases;
 using Mediator;
 
 namespace Flashcards.WebApp.Features.Tags;
@@ -13,9 +14,9 @@ public record AddTagCommand(
 
 public class AddTagCommandHandler(
     IReadOnlyRepository<Tag, TagId> _readRepository,
-    IWriteOnlyRepository<Tag, TagId> _writeRepository) : ICommandHandler<AddTagCommand>
+    IWriteOnlyRepository<Tag, TagId> _writeRepository) : CommandHandler<AddTagCommand>
 {
-    public async ValueTask<Unit> Handle(
+    public override async Task Handle(
         AddTagCommand cmd, CancellationToken ct)
     {
         var entity = new Tag(
@@ -26,7 +27,5 @@ public class AddTagCommandHandler(
             cmd.Order);
 
         await _writeRepository.AddOrderedItem(entity, _readRepository, x => x.ProjectId == entity.ProjectId);
-
-        return new();
     }
 }

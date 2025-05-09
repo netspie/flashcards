@@ -1,4 +1,5 @@
 ﻿using Flashcards.WebApp.Shared.Entities;
+using Flashcards.WebApp.Shared.UseCases;
 using Mediator;
 
 namespace Flashcards.WebApp.Features.Projects;
@@ -9,17 +10,13 @@ public record UpdateProjectCommand(
 
 public class UpdateProjectCommandHandler(
     IReadOnlyRepository<Project, ProjectId> _readRepository,
-    IWriteOnlyRepository<Project, ProjectId> _writeRepository) : ICommandHandler<UpdateProjectCommand>
+    IWriteOnlyRepository<Project, ProjectId> _writeRepository) : CommandHandler<UpdateProjectCommand>
 {
-    public async ValueTask<Unit> Handle(
+    public override async Task Handle(
         UpdateProjectCommand cmd, CancellationToken ct)
     {
         var entity = await _readRepository.GetById(ProjectId.FromGuidString(cmd.Id));
-
         entity = entity with { Name = cmd.Name };
-
         await _writeRepository.Update(entity);
-
-        return new();
     }
 }
