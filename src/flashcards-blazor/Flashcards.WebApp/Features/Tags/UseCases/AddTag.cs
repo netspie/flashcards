@@ -21,9 +21,9 @@ public class AddTagCommandHandler(
     {
         var entity = new Tag(
             TagId.New(), 
-            cmd.Name, 
-            ProjectId.FromGuidString(cmd.ProjectId),
-            cmd.ParentTagId is not null ? TagId.FromGuidString(cmd.ParentTagId) : null,
+            cmd.Name,
+            new ProjectId(cmd.ProjectId),
+            cmd.ParentTagId is not null ? new TagId(cmd.ParentTagId) : null,
             cmd.Order);
 
         await _writeRepository.AddOrderedItem(entity, _readRepository, x => x.ProjectId == entity.ProjectId);

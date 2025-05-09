@@ -13,6 +13,6 @@ public class RestoreProjectCommandHandler(
     public override async Task Handle(
         RestoreProjectCommand cmd, CancellationToken ct)
     {
-        await _repository.Restore(ProjectId.FromGuidString(cmd.Id));
+        await _repository.Restore(new ProjectId(cmd.Id));
     }
 }

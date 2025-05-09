@@ -15,7 +15,7 @@ public class UpdateProjectCommandHandler(
     public override async Task Handle(
         UpdateProjectCommand cmd, CancellationToken ct)
     {
-        var entity = await _readRepository.GetById(ProjectId.FromGuidString(cmd.Id));
+        var entity = await _readRepository.GetById(new ProjectId(cmd.Id));
         entity = entity with { Name = cmd.Name };
         await _writeRepository.Update(entity);
     }

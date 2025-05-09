@@ -5,10 +5,8 @@ namespace Flashcards.WebApp.Shared.EntityFrameworkCore;
 
 public static class PropertyBuilderExtensions
 {
-    public static ValueConverter<TId, string> GuidIdToStringConverter<TId>() =>
-        new(id => id.GetType().GetProperty("Value").GetValue(id).ToString(),
-            str => (TId)Activator.CreateInstance(typeof(TId), Guid.Parse(str)));
-
-    public static PropertyBuilder<T> HasEntityIdGuidConversion<T>(this PropertyBuilder<T> builder) =>
-        builder.HasConversion(GuidIdToStringConverter<T>());
+    public static PropertyBuilder<T> HasStringValueObjectConversion<T>(this PropertyBuilder<T> builder) =>
+        builder.HasConversion(
+            id => (string) typeof(T).GetProperty("Value")!.GetValue(id)!,
+            str => (T) Activator.CreateInstance(typeof(T), str)!);
 }

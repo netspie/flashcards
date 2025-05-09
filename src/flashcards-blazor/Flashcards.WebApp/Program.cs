@@ -12,10 +12,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
-
-// Flashcards App
-builder.Services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
-
+builder.Services.AddFlashcards();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

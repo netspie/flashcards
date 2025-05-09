@@ -13,4 +13,4 @@ public record Tag(
     IOrderedItem IOrderedItem.ChangeOrder(int order) => this with { Order = order };
 }
 
-public record TagId(Guid Value) : GuidEntityId<TagId>(Value);
+public record TagId(string Value) : EntityId<TagId>(Value);

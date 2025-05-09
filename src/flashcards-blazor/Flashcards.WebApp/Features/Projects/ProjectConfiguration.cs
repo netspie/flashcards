@@ -10,7 +10,7 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
     public void Configure(EntityTypeBuilder<Project> builder)
     {
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).HasEntityIdGuidConversion();
+        builder.Property(x => x.Id).HasStringValueObjectConversion();
         builder.HasOne<ApplicationUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasIndex(x => new { x.UserId, x.IsArchived });
     }

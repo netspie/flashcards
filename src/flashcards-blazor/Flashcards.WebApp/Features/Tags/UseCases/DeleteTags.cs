@@ -12,6 +12,6 @@ public class DeleteTagsCommandHandler(
     public override async Task Handle(
         DeleteTagsCommand cmd, CancellationToken ct)
     {
-        await _deleteRepository.DeleteMany(TagId.FromGuidStrings(cmd.Ids));
+        await _deleteRepository.DeleteMany(TagId.FromStrings(cmd.Ids));
     }
 }

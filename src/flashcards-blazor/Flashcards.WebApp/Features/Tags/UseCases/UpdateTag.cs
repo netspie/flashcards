@@ -16,7 +16,7 @@ public class UpdateTagCommandHandler(
     public override async Task Handle(
         UpdateTagCommand cmd, CancellationToken ct)
     {
-        var entity = await _readRepository.GetById(TagId.FromGuidString(cmd.Id));
+        var entity = await _readRepository.GetById(new TagId(cmd.Id));
         entity = entity with { Name = cmd.Name, Order = cmd.Order };
         await _writeRepository.UpdateOrderedItem(entity, _readRepository, x => x.ProjectId == entity.ProjectId);
     }

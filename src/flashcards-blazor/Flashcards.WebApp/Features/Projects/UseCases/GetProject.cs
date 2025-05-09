@@ -16,7 +16,7 @@ public class GetProjectQueryHandler(
     public async ValueTask<GetProjectQueryResponse> Handle(
         GetProjectQuery cmd, CancellationToken ct)
     {
-        var entity = await _repository.GetById(ProjectId.FromGuidString(cmd.Id));
+        var entity = await _repository.GetById(new ProjectId(cmd.Id));
 
         return new GetProjectQueryResponse(
             new GetProjectQueryResponse.ProjectDTO(entity.Id.ToString(), entity.Name));

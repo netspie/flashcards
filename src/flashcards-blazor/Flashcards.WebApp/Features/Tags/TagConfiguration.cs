@@ -15,8 +15,8 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
 
         builder.HasIndex(x => x.ProjectId);
 
-        builder.Property(x => x.Id).HasEntityIdGuidConversion();
-        builder.Property(x => x.ProjectId).HasEntityIdGuidConversion();
-        builder.Property(x => x.ParentTagId).HasEntityIdGuidConversion();
+        builder.Property(x => x.Id).HasStringValueObjectConversion();
+        builder.Property(x => x.ProjectId).HasStringValueObjectConversion();
+        builder.Property(x => x.ParentTagId).HasStringValueObjectConversion();
     }
 }

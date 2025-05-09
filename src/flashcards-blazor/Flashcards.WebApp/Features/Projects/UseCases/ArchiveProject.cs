@@ -13,6 +13,6 @@ public class ArchiveProjectCommandHandler(
     public override async Task Handle(
         ArchiveProjectCommand cmd, CancellationToken ct)
     {
-        await _repository.Archive(ProjectId.FromGuidString(cmd.Id));
+        await _repository.Archive(new ProjectId(cmd.Id));
     }
 }

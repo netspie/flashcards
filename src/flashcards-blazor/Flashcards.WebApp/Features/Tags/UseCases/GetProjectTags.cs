@@ -19,7 +19,7 @@ public class GetProjectTagsQueryHandler(
     public async ValueTask<GetProjectTagsQueryResponse> Handle(
         GetProjectTagsQuery cmd, CancellationToken ct)
     {
-        var projectId = ProjectId.FromGuidString(cmd.ProjectId);
+        var projectId = new ProjectId(cmd.ProjectId);
         var projectTags = await context.Set<Tag>()
             .AsNoTracking()
             .Where(x => x.ProjectId == projectId)
