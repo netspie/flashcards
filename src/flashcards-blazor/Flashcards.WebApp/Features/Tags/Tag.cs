@@ -8,9 +8,9 @@ public record Tag(
     string Name,
     ProjectId ProjectId,
     TagId? ParentTagId,
-    int Order) : IOrdered
+    int Order) : IOrderedItem
 {
-    IOrdered IOrdered.ChangeOrder(int order) => this with { Order = order };
+    IOrderedItem IOrderedItem.ChangeOrder(int order) => this with { Order = order };
 }
 
 public record TagId(Guid Value) : GuidEntityId<TagId>(Value);

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Flashcards.WebApp.Shared;
+﻿namespace Flashcards.WebApp.Shared;
 
 public static class FunctionalExtensions
 {
@@ -14,17 +12,11 @@ public static class FunctionalExtensions
         (source, joiner(source));
 
     public static (T1, T2, T3) Join<T1, T2, T3>(this (T1, T2) source, Func<T1, T2, T3> joiner) =>
-        (source.Item1, source.Item2, joiner(source));
+        (source.Item1, source.Item2, joiner(source.Item1, source.Item2));
 
     public static (TIn, TOut) Map<TIn, TOut>(this TIn source, Func<TIn, (TIn, TOut)> extender)
     {
         return extender(source);
-    }
-
-    public static (T1, TOut) MapLast<T1, T2, TOut>(this (T1, T2) source, Func<T1, T2, TOut> mapper)
-    {
-        var result = mapper(source.Item1, source.Item2);
-        return (source.Item1, result);
     }
 
     public static (T1, TOut) MapLast<T1, T2, TOut>(this (T1, T2) source, Func<T1, T2, TOut> mapper)

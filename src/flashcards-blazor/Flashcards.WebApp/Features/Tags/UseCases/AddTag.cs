@@ -1,7 +1,7 @@
 ﻿using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Shared.Entities;
+using Flashcards.WebApp.Shared.Expressions;
 using Mediator;
-using Microsoft.EntityFrameworkCore;
 
 namespace Flashcards.WebApp.Features.Tags;
 
@@ -12,8 +12,8 @@ public record AddTagCommand(
     int Order = int.MaxValue) : ICommand;
 
 public class AddTagCommandHandler(
-    IWriteOnlyRepository<Tag, TagId> _repository,
-    DbContext _context) : ICommandHandler<AddTagCommand>
+    IReadOnlyRepository<Tag, TagId> _readRepository,
+    IWriteOnlyRepository<Tag, TagId> _writeRepository) : ICommandHandler<AddTagCommand>
 {
     public async ValueTask<Unit> Handle(
         AddTagCommand cmd, CancellationToken ct)
@@ -25,10 +25,7 @@ public class AddTagCommandHandler(
             cmd.ParentTagId is not null ? TagId.FromGuidString(cmd.ParentTagId) : null,
             cmd.Order);
 
-        if (cmd.Order != int.MaxValue)
-            _context.Set<Tag>().Where(x => x.Order >= cmd.Order);
-
-        await _repository.Add(entity);
+        await _writeRepository.AddOrderedItem(entity, _readRepository, x => x.ProjectId == entity.ProjectId);
 
         return new();
     }

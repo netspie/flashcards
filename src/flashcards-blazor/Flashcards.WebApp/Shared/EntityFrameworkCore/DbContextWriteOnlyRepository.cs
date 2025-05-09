@@ -18,4 +18,10 @@ public class DbContextWriteOnlyRepository<T, TId>(
         _context.Set<T>().Update(entity);
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdateMany(IEnumerable<T> entities)
+    {
+        _context.Set<T>().UpdateRange(entities);
+        await _context.SaveChangesAsync();
+    }
 }

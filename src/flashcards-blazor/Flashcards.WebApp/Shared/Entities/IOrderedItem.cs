@@ -1,7 +1,7 @@
 ﻿namespace Flashcards.WebApp.Shared.Entities;
 
-public interface IOrdered
+public interface IOrderedItem
 {
     int Order { get; }
-    IOrdered ChangeOrder(int order);
+    IOrderedItem ChangeOrder(int order);
 }
