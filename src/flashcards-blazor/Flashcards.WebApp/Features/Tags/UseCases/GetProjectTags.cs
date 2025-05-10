@@ -8,14 +8,6 @@ namespace Flashcards.WebApp.Features.Tags;
 public record GetProjectTagsQuery(
     string ProjectId) : IQuery<GetProjectTagsQueryResponse>;
 
-public record GetProjectTagsQueryResponse(GetProjectTagsQueryResponse.ProjectTagDTO[] Values)
-{
-    public record ProjectTagDTO(string Id, string Name, string? ParentTagId, string Color, int Order)
-    {
-        public static ProjectTagDTO Default = new("", "", null, "", 0);
-    }
-}
-
 public class GetProjectTagsQueryHandler(
     DbContext context) : IQueryHandler<GetProjectTagsQuery, GetProjectTagsQueryResponse>
 {
@@ -35,5 +27,30 @@ public class GetProjectTagsQueryHandler(
                 x.ParentTagId?.ToString(),
                 x.Color,
                 x.Order)));
+    }
+}
+
+public record GetProjectTagsQueryResponse(GetProjectTagsQueryResponse.ProjectTagDTO[] Values)
+{
+
+    public record ProjectTagDTO
+    {
+        public ProjectTagDTO() {}
+        public ProjectTagDTO(string id, string name, string? parentTagId, string color, int order)
+        {
+            Id = id;
+            Name = name;
+            ParentTagId = parentTagId;
+            Color = color;
+            Order = order;
+        }
+
+        public ProjectTagDTO DeepCopy() => new(Id, Name, ParentTagId, Color, Order);
+
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string? ParentTagId { get; set; }
+        public string Color { get; set; } = "";
+        public int Order { get; set; }
     }
 }

@@ -20,9 +20,9 @@
                 @ChildContent
             }
         </MudCardContent>
-        @* <MudCardActions Class="d-flex justify-content-center mb-2">
+        <MudCardActions Class="d-flex justify-content-center mb-2">
             @Buttons
-        </MudCardActions> *@
+        </MudCardActions>
     </MudCard>
 </CascadingValue>
 
@@ -37,6 +37,7 @@
 
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public RenderFragment? LoadingContent { get; set; }
+    [Parameter] public RenderFragment? Buttons { get; set; }
 
     public bool Loading { get; private set; } = true;
 
@@ -50,4 +51,5 @@
     }
 
     public void Submit<T>(T arg) => MudDialog.Close(DialogResult.Ok(arg));
+    public void Cancel() => MudDialog.Close(DialogResult.Cancel());
 }

@@ -1,0 +1,24 @@
+﻿
+@if (_dto is null) { return; }
+
+<SpyDialog @ref=@_dialog>
+    <ChildContent>
+        <MudTextField Label="Name" @bind-Value="@_dto.Name"></MudTextField>
+    </ChildContent>
+    <Buttons>
+        <MudButton Color="Color.Primary" OnClick="x => _dialog?.Submit(_dto)">Save</MudButton>
+        <MudButton Color="Color.Error" OnClick="x => _dialog?.Cancel()">Cancel</MudButton>
+    </Buttons>
+</SpyDialog>
+
+@code {
+    [Parameter] public GetProjectTagsQueryResponse.ProjectTagDTO? DTO { get; set; }
+    private GetProjectTagsQueryResponse.ProjectTagDTO? _dto;
+
+    private SpyDialog? _dialog;
+
+    protected override void OnInitialized()
+    {
+        _dto = DTO?.DeepCopy() ?? new();
+    }
+}

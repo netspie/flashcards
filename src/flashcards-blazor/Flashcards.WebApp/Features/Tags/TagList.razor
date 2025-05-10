@@ -1,5 +1,6 @@
 ﻿@inject IMediator Mediator
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 @using TagDTO = GetProjectTagsQueryResponse.ProjectTagDTO
 
@@ -20,7 +21,7 @@
                             </MudStack>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
                                 <MudMenuItem Label="Add" OnClick="@(() => Add(parentTagId: (item as TagTreeItemData)!.DTO.Id))" />
-                                <MudMenuItem Label="Edit" />
+                                <MudMenuItem Label="Edit" OnClick="@(() => OnEdit((item as TagTreeItemData)!.DTO))" />
                             </MudMenu>
                         </BodyContent>
                     </MudTreeViewItem>
@@ -39,6 +40,15 @@
 
     private Task Add(string? parentTagId = null, string color = "black", int order = int.MaxValue) =>
         SendCommandAndFetchItems(new AddTagCommand("New Tag", color, ProjectId, parentTagId, order));
+
+    private async Task OnEdit(TagDTO dto)
+    {
+        var dialog = await DialogService.ShowAsync<TagDialog>("Edit Tag", new DialogParameters { { nameof(TagDialog.DTO), dto } });
+
+        var result = await dialog.GetReturnValueAsync<TagDTO>();
+        if (result is not null)
+            await Update(result);
+    }
 
     private Task Update(GetProjectTagsQueryResponse.ProjectTagDTO item) => 
         SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color));
@@ -88,7 +98,7 @@
 
     public class TagTreeItemData : TreeItemData<string>
     {
-        public TagDTO DTO = TagDTO.Default;
+        public TagDTO DTO = new();
 
         public TagTreeItemData()
         {
