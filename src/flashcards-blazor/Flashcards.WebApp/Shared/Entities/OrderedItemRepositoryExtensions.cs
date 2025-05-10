@@ -14,11 +14,13 @@ public static class OrderedItemRepositoryExtensions
         filterNeighbours ??= Filter<T>.New;
 
         var neighourItems = await readRepository.GetMany(filterNeighbours.And(x => x.Order > item.Order));
+        if (item.Order == int.MaxValue && neighourItems.Length == 0)
+            item = (T) item.ChangeOrder(0);
 
         var reorderedEntities = neighourItems.Select((x, i) => (T) x.ChangeOrder(item.Order + i + 1));
 
         await writeRepository.UpdateMany(reorderedEntities);
-        await writeRepository.Update(item);
+        await writeRepository.Add(item);
     }
 
     public static async Task UpdateOrderedItem<T, TId>(
@@ -30,6 +32,8 @@ public static class OrderedItemRepositoryExtensions
         filterNeighbours ??= Filter<T>.New;
 
         var neighourItems = await readRepository.GetMany(filterNeighbours.And(x => x.Order > item.Order));
+        if (item.Order == int.MaxValue && neighourItems.Length == 0)
+            item = (T) item.ChangeOrder(0);
 
         var reorderedEntities = neighourItems
             .Select((x, i) => (T) x.ChangeOrder(item.Order + i + 1))

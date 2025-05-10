@@ -5,32 +5,21 @@
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
     <MudText Typo="@Typo.h6">Tags</MudText>
-
     <MudStack Row Class="!w-full">
-        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" FullWidth>
-            <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
-                <MudForm @ref="_form">
-                    <MudTextField Label="Name"
-                                  @bind-Value=@_newItemName
-                                  Required
-                                  OnKeyDown="@(() => Add(_newItemName, parentTagId: null, "black"))" />
-                </MudForm>
-                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => Add(_newItemName, parentTagId: null, "black"))" Class="!h-fit" />
-            </MudMenu>
-        </MudButtonGroup>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => Add()" Class="!h-fit" />
     </MudStack>
-    <MudExpansionPanels>
-        <MudExpansionPanel Text="Tags">
+    <MudExpansionPanels MultiExpansion>
+        <MudExpansionPanel Text="Tags" Expanded>
             <MudTreeView Items="@_treeItems" Hover="true" Dense>
                 <ItemTemplate Context="item">
                     <MudTreeViewItem Items="@item.Children">
                         <BodyContent>
                             <MudStack Row Class="!w-full gap-2">
-                                <MudIcon Icon="@item.Icon" Style=@($"color: {(item as TagTreeItemData)?.DTO.Color} !important") />
+                                <MudIcon Icon="@item.Icon" Style=@($"color: {(item as TagTreeItemData)!.DTO.Color} !important") />
                                 <MudText>@item.Text</MudText>
                             </MudStack>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                                <MudMenuItem Label="Add" />
+                                <MudMenuItem Label="Add" OnClick="@(() => Add(parentTagId: (item as TagTreeItemData)!.DTO.Id))" />
                                 <MudMenuItem Label="Edit" />
                             </MudMenu>
                         </BodyContent>
@@ -48,14 +37,16 @@
 
     protected override Task OnInitializedAsync() => FetchItems();
 
-    private Task Add(string name, string? parentTagId, string color) => SendCommandAndFetchItems(new AddTagCommand(name, ProjectId, color, parentTagId));
-    private Task Update(GetProjectTagsQueryResponse.ProjectTagDTO item) => SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color));
-    private Task Delete(string itemId) => SendCommandAndFetchItems(new DeleteTagsCommand([itemId]));
+    private Task Add(string? parentTagId = null, string color = "black", int order = int.MaxValue) =>
+        SendCommandAndFetchItems(new AddTagCommand("New Tag", color, ProjectId, parentTagId, order));
+
+    private Task Update(GetProjectTagsQueryResponse.ProjectTagDTO item) => 
+        SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color));
+
+    private Task Delete(string itemId) => 
+        SendCommandAndFetchItems(new DeleteTagsCommand([itemId]));
 
     private List<TagTreeItemData> _treeItems = new();
-
-    private MudMenu? _menu;
-    private MudForm? _form;
 
     private string _newItemName = "";
 
@@ -64,7 +55,8 @@
         var response = await Mediator.Send(new GetProjectTagsQuery(ProjectId));
         _tags = response.Values;
 
-        var treeDataItems = new List<TagTreeItemData>();
+        _treeItems.Clear();
+
         var map = new Dictionary<string, TagTreeItemData>();
 
         foreach (var tag in _tags)
@@ -73,6 +65,7 @@
                 map.Add(tag.Id, treeItem = new());
 
             treeItem.DTO = tag;
+            treeItem.Text = tag.Name;
 
             if (tag.ParentTagId is not null)
             {
@@ -80,24 +73,15 @@
                     map.Add(tag.ParentTagId, parent = new());
 
                 parent.Children ??= new();
-                parent.Children.Insert(tag.Order, treeItem);
+                parent.Children.Insert(Math.Min(tag.Order, parent.Children.Count), treeItem);
             }
             else
-                _treeItems.Insert(tag.Order, treeItem);
+                _treeItems.Insert(Math.Min(tag.Order, _treeItems.Count), treeItem);
         }
     }
 
     private async Task SendCommandAndFetchItems(ICommand command)
     {
-        if (_form is null || _menu is null)
-            return;
-
-        await _form.Validate();
-        if (!_form.IsValid)
-            return;
-
-        await _menu.CloseAllMenusAsync();
-
         await Snackbar.Run(Mediator.Send(command));
         await FetchItems();
     }
