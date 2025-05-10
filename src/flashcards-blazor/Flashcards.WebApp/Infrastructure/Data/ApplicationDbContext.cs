@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Flashcards.WebApp.Features.Account;
 using Flashcards.WebApp.Features.Projects;
+using Flashcards.WebApp.Features.Tags;
 
 namespace Flashcards.WebApp.Infrastructure.Data;
 
@@ -58,4 +59,5 @@ public class ApplicationDbContext(
     public DbSet<IdentityRoleClaim<string>> RoleClaims { get; set; }
 
     public DbSet<Project> Projects { get; set; }
+    public DbSet<Tag> Tags { get; set; }
 }
