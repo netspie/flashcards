@@ -4,8 +4,21 @@
 @using TagDTO = GetProjectTagsQueryResponse.ProjectTagDTO
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
-    <MudText Typo="@Typo.h3">Tags</MudText>
+    <MudText Typo="@Typo.h6">Tags</MudText>
 
+    <MudStack Row Class="!w-full">
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" FullWidth>
+            <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
+                <MudForm @ref="_form">
+                    <MudTextField Label="Name"
+                                  @bind-Value=@_newItemName
+                                  Required
+                                  OnKeyDown="@(() => Add(_newItemName, parentTagId: null, "black"))" />
+                </MudForm>
+                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => Add(_newItemName, parentTagId: null, "black"))" Class="!h-fit" />
+            </MudMenu>
+        </MudButtonGroup>
+    </MudStack>
     <MudExpansionPanels>
         <MudExpansionPanel Text="Tags">
             <MudTreeView Items="@_treeItems" Hover="true" Dense>
@@ -41,6 +54,11 @@
 
     private List<TagTreeItemData> _treeItems = new();
 
+    private MudMenu? _menu;
+    private MudForm? _form;
+
+    private string _newItemName = "";
+
     private async Task FetchItems()
     {
         var response = await Mediator.Send(new GetProjectTagsQuery(ProjectId));
@@ -62,17 +80,24 @@
                     map.Add(tag.ParentTagId, parent = new());
 
                 parent.Children ??= new();
-                parent.Children.Add(treeItem);
+                parent.Children.Insert(tag.Order, treeItem);
             }
             else
-                _treeItems.Add(treeItem);
+                _treeItems.Insert(tag.Order, treeItem);
         }
-
-        _treeItems = _treeItems.OrderBy(x => x.DTO.Order).ToList();
     }
 
     private async Task SendCommandAndFetchItems(ICommand command)
     {
+        if (_form is null || _menu is null)
+            return;
+
+        await _form.Validate();
+        if (!_form.IsValid)
+            return;
+
+        await _menu.CloseAllMenusAsync();
+
         await Snackbar.Run(Mediator.Send(command));
         await FetchItems();
     }

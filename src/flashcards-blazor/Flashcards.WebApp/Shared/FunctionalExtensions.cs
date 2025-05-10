@@ -46,6 +46,9 @@ public static class FunctionalExtensions
         return mapper(source);
     }
 
+    public static async Task<TOut> MapAsync<TIn, TOut>(this Task<TIn> source, Func<TIn, TOut> mapper) =>
+        mapper(await source);
+
     public static async Task<TOut> MapAsync<T1, T2, TOut>(this (T1, Task<T2>) source, Func<T1, T2, TOut> mapper)
     {
         var item2 = await source.Item2;

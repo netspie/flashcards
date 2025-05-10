@@ -27,6 +27,9 @@ public class AddTagCommandHandler(
             cmd.ParentTagId is not null ? new TagId(cmd.ParentTagId) : null,
             cmd.Order);
 
-        await _writeRepository.AddOrderedItem(entity, _readRepository, x => x.ProjectId == entity.ProjectId);
+        await _writeRepository.AddOrderedItem(
+            entity, 
+            _readRepository,
+            filterNeighbours: x => x.ProjectId == entity.ProjectId && x.ParentTagId == entity.ParentTagId);
     }
 }
