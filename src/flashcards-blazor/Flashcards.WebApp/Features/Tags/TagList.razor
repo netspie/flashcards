@@ -1,0 +1,89 @@
+﻿@inject IMediator Mediator
+@inject ISnackbar Snackbar
+
+@using TagDTO = GetProjectTagsQueryResponse.ProjectTagDTO
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
+    <MudText Typo="@Typo.h3">Tags</MudText>
+
+    <MudExpansionPanels>
+        <MudExpansionPanel Text="Tags">
+            <MudTreeView Items="@_treeItems" Hover="true" Dense>
+                <ItemTemplate Context="item">
+                    <MudTreeViewItem Items="@item.Children">
+                        <BodyContent>
+                            <MudStack Row Class="!w-full gap-2">
+                                <MudIcon Icon="@item.Icon" Style=@($"color: {(item as TagTreeItemData)?.DTO.Color} !important") />
+                                <MudText>@item.Text</MudText>
+                            </MudStack>
+                            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                                <MudMenuItem Label="Add" />
+                                <MudMenuItem Label="Edit" />
+                            </MudMenu>
+                        </BodyContent>
+                    </MudTreeViewItem>
+                </ItemTemplate>
+            </MudTreeView>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</MudContainer>
+
+@code {
+    [Parameter, EditorRequired] public string ProjectId { get; set; } = "";
+
+    private TagDTO[] _tags = [];
+
+    protected override Task OnInitializedAsync() => FetchItems();
+
+    private Task Add(string name, string? parentTagId, string color) => SendCommandAndFetchItems(new AddTagCommand(name, ProjectId, color, parentTagId));
+    private Task Update(GetProjectTagsQueryResponse.ProjectTagDTO item) => SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color));
+    private Task Delete(string itemId) => SendCommandAndFetchItems(new DeleteTagsCommand([itemId]));
+
+    private List<TagTreeItemData> _treeItems = new();
+
+    private async Task FetchItems()
+    {
+        var response = await Mediator.Send(new GetProjectTagsQuery(ProjectId));
+        _tags = response.Values;
+
+        var treeDataItems = new List<TagTreeItemData>();
+        var map = new Dictionary<string, TagTreeItemData>();
+
+        foreach (var tag in _tags)
+        {
+            if (!map.TryGetValue(tag.Id, out var treeItem))
+                map.Add(tag.Id, treeItem = new());
+
+            treeItem.DTO = tag;
+
+            if (tag.ParentTagId is not null)
+            {
+                if (!map.TryGetValue(tag.ParentTagId, out var parent))
+                    map.Add(tag.ParentTagId, parent = new());
+
+                parent.Children ??= new();
+                parent.Children.Add(treeItem);
+            }
+            else
+                _treeItems.Add(treeItem);
+        }
+
+        _treeItems = _treeItems.OrderBy(x => x.DTO.Order).ToList();
+    }
+
+    private async Task SendCommandAndFetchItems(ICommand command)
+    {
+        await Snackbar.Run(Mediator.Send(command));
+        await FetchItems();
+    }
+
+    public class TagTreeItemData : TreeItemData<string>
+    {
+        public TagDTO DTO = TagDTO.Default;
+
+        public TagTreeItemData()
+        {
+            Icon = Icons.Material.Filled.Bookmark;
+        }
+    }
+}

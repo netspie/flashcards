@@ -10,7 +10,10 @@ public record GetProjectTagsQuery(
 
 public record GetProjectTagsQueryResponse(GetProjectTagsQueryResponse.ProjectTagDTO[] Values)
 {
-    public record ProjectTagDTO(string Id, string Name, string? ParentTagId);
+    public record ProjectTagDTO(string Id, string Name, string? ParentTagId, string Color, int Order)
+    {
+        public static ProjectTagDTO Default = new("", "", null, "", 0);
+    }
 }
 
 public class GetProjectTagsQueryHandler(
@@ -27,6 +30,10 @@ public class GetProjectTagsQueryHandler(
 
         return new GetProjectTagsQueryResponse(
             projectTags.SelectToArray(x => new GetProjectTagsQueryResponse.ProjectTagDTO(
-                x.Id.ToString(), x.Name, x.ParentTagId?.ToString())));
+                x.Id.ToString(), 
+                x.Name, 
+                x.ParentTagId?.ToString(),
+                x.Color,
+                x.Order)));
     }
-}   
+}

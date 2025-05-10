@@ -7,6 +7,7 @@ namespace Flashcards.WebApp.Features.Tags;
 public record UpdateTagCommand(
     string Id,
     string Name,
+    string Color,
     int Order = int.MaxValue) : ICommand;
 
 public class UpdateTagCommandHandler(
@@ -17,7 +18,7 @@ public class UpdateTagCommandHandler(
         UpdateTagCommand cmd, CancellationToken ct)
     {
         var entity = await _readRepository.GetById(new TagId(cmd.Id));
-        entity = entity with { Name = cmd.Name, Order = cmd.Order };
+        entity = entity with { Name = cmd.Name, Order = cmd.Order, Color = cmd.Color };
         await _writeRepository.UpdateOrderedItem(entity, _readRepository, x => x.ProjectId == entity.ProjectId);
     }
 }

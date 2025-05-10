@@ -6,6 +6,7 @@ namespace Flashcards.WebApp.Features.Tags;
 public record Tag(
     TagId Id,
     string Name,
+    string Color,
     ProjectId ProjectId,
     TagId? ParentTagId,
     int Order) : IEntity<TagId>, IOrderedItem
