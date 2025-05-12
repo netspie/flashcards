@@ -4,6 +4,7 @@
 <SpyDialog @ref=@_dialog>
     <ChildContent>
         <MudTextField Label="Name" @bind-Value="@_dto.Name"></MudTextField>
+        <MudNumericField Label="Order" @bind-Value="@_dto.Order"></MudNumericField>
     </ChildContent>
     <Buttons>
         <MudButton Color="Color.Primary" OnClick="x => _dialog?.Submit(_dto)">Save</MudButton>

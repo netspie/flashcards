@@ -6,4 +6,5 @@ public interface IReadOnlyRepository<T, TId>
 {
     Task<T> GetById(TId id);
     Task<T[]> GetMany(Expression<Func<T, bool>>? filter = null);
+    Task<int> Count(Expression<Func<T, bool>>? filter = null);
 }

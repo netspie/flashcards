@@ -5,28 +5,42 @@ namespace Flashcards.WebApp.Shared.Spy.Extensions;
 
 public static class SnackbarExtensions
 {
-    public static async Task Run(this ISnackbar snackbar, Task task)
+    public static async Task Run(this ISnackbar snackbar, Func<ValueTask> task) 
     {
-        await snackbar.Run(Run());
-        async ValueTask Run() => await task;
+        await snackbar.Run(async Task () => await task());
     }
 
-    public static async Task Run(this ISnackbar snackbar, ValueTask<Unit> task) 
+    public static async Task<T?> Run<T>(this ISnackbar snackbar, Func<ValueTask<T>> task)
     {
-        await snackbar.Run(Run());
-        async ValueTask Run() => await task;
+        return await snackbar.Run(async Task<T> () => await task());
     }
 
-    public static async Task Run(this ISnackbar snackbar, ValueTask task)
+    public static async Task Run(this ISnackbar snackbar, Func<Task> task)
     {
         try
         {
-            await task;
+            await task();
             snackbar.Add("Operation successful.", Severity.Success, key: Guid.NewGuid().ToString());
         }
         catch (Exception ex)
         {
-            snackbar.Add("Operation failed.", Severity.Error, key: Guid.NewGuid().ToString());
+            snackbar.Add(ex.ToString(), Severity.Error, key: Guid.NewGuid().ToString());
         }
+    }
+
+    public static async Task<T?> Run<T>(this ISnackbar snackbar, Func<Task<T>> task)
+    {
+        try
+        {
+            var result = await task();
+            snackbar.Add("Operation successful.", Severity.Success, key: Guid.NewGuid().ToString());
+            return result;
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add(ex.ToString(), Severity.Error, key: Guid.NewGuid().ToString());
+        }
+
+        return default;
     }
 }

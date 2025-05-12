@@ -32,7 +32,6 @@ public class GetProjectTagsQueryHandler(
 
 public record GetProjectTagsQueryResponse(GetProjectTagsQueryResponse.ProjectTagDTO[] Values)
 {
-
     public record ProjectTagDTO
     {
         public ProjectTagDTO() {}

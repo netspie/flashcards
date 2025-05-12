@@ -51,7 +51,7 @@
     }
 
     private Task Update(GetProjectTagsQueryResponse.ProjectTagDTO item) => 
-        SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color));
+        SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color, item.Order));
 
     private Task Delete(string itemId) => 
         SendCommandAndFetchItems(new DeleteTagsCommand([itemId]));
@@ -92,7 +92,7 @@
 
     private async Task SendCommandAndFetchItems(ICommand command)
     {
-        await Snackbar.Run(Mediator.Send(command));
+        await Snackbar.Run(() => Mediator.Send(command));
         await FetchItems();
     }
 

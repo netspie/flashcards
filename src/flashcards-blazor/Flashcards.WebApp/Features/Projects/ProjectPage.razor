@@ -2,13 +2,13 @@
 
 @inject IMediator Mediator
 
-<PageTitle>Project - @_dto?.Name</PageTitle>
+@* <PageTitle>Project - @_dto?.Name</PageTitle> *@
 
-@if (_dto is null) { return; }
+@* @if (_dto is null) { return; } *@
 
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
-        <MudText Typo="@Typo.h3">@_dto.Name</MudText>
+        @* <MudText Typo="@Typo.h3">@_dto.Name</MudText> *@
         @* <SpyRemoteDataGrid T="GetProjectsQueryResponse.ProjectDTO"
                            Items="@_projects"
                            OnAddedItem="@Add"
@@ -37,7 +37,7 @@
 
     private async Task FetchItems()
     {
-        var response = await Mediator.Send(new GetProjectQuery(ProjectId));
-        _dto = response.Value;
+        //var response = await Mediator.Send(new GetProjectQuery(ProjectId));
+        //_dto = response.Value;
     }
 }

@@ -31,7 +31,7 @@
 
     private async Task SendCommandAndFetchItems(ICommand command)
     {
-        await Snackbar.Run(Mediator.Send(command));
+        await Snackbar.Run(() => Mediator.Send(command));
         await FetchItems();
     }
 }

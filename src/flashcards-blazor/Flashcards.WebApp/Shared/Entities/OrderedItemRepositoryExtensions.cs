@@ -13,9 +13,11 @@ public static class OrderedItemRepositoryExtensions
     {
         filterNeighbours ??= Filter<T>.New;
 
+        var neighboursCount = await readRepository.Count(filterNeighbours);
+        var itemOrder = Math.Clamp(item.Order, 0, neighboursCount);
+        item = (T) item.ChangeOrder(itemOrder);
+
         var neighourItems = await readRepository.GetMany(filterNeighbours.And(x => x.Order > item.Order));
-        if (item.Order == int.MaxValue && neighourItems.Length == 0)
-            item = (T) item.ChangeOrder(0);
 
         var reorderedEntities = neighourItems.Select((x, i) => (T) x.ChangeOrder(item.Order + i + 1));
 
@@ -27,17 +29,20 @@ public static class OrderedItemRepositoryExtensions
         this IWriteOnlyRepository<T, TId> writeRepository,
         T item,
         IReadOnlyRepository<T, TId> readRepository,
-        Expression<Func<T, bool>>? filterNeighbours = null) where T : IOrderedItem
+        Expression<Func<T, bool>>? filterNeighbours = null) where T : IOrderedItem, IEntity<TId>
     {
         filterNeighbours ??= Filter<T>.New;
 
-        var neighourItems = await readRepository.GetMany(filterNeighbours.And(x => x.Order > item.Order));
-        if (item.Order == int.MaxValue && neighourItems.Length == 0)
-            item = (T) item.ChangeOrder(0);
+        var neighboursCount = await readRepository.Count(filterNeighbours);
+        var itemOrder = Math.Clamp(item.Order, 0, neighboursCount);
+        item = (T) item.ChangeOrder(itemOrder);
 
+        var neighourItems = await readRepository.GetMany(filterNeighbours.And(x => x.Order >= item.Order).And(x => !x.Id.Equals(item.Id)));
+        
         var reorderedEntities = neighourItems
             .Select((x, i) => (T) x.ChangeOrder(item.Order + i + 1))
-            .Append(item);
+            .Append(item)
+            .ToArray();
 
         await writeRepository.UpdateMany(reorderedEntities);
     }

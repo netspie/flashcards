@@ -8,6 +8,15 @@ public class DbContextReadOnlyRepository<T, TId>(
     DbContext _context) : IReadOnlyRepository<T, TId>
     where T : class
 {
+    public Task<int> Count(Expression<Func<T, bool>>? filter = null)
+    {
+        var query = _context.Set<T>().AsNoTracking().AsQueryable();
+        if (filter is not null)
+            query = query.Where(filter);
+
+        return query.CountAsync();
+    }
+
     public Task<T> GetById(TId id) =>
         _context.GetById<T, TId>(id);
 
