@@ -1,9 +1,10 @@
-﻿@inject IScopedMediator Mediator
-@inject ISnackbar Snackbar
-@inject IDialogService DialogService
-
+﻿@using Flashcards.WebApp.Shared.UseCases
 @using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours
 @using TagDTO = GetProjectTagsQueryResponse.ProjectTagDTO
+
+@inject IScopedMediator Mediator
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
     <MudText Typo="@Typo.h6">Tags</MudText>
@@ -103,7 +104,7 @@
 
     public class TagTreeItemData : TreeItemData<string>
     {
-        public TagDTO DTO = new();
+        public TagDTO? DTO;
 
         public TagTreeItemData()
         {

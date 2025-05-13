@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.Linq.Expressions
 
 <PageTitle>Home</PageTitle>
 
@@ -18,13 +19,13 @@
                 <AuthorizeView>
                     <Authorized>
                         <MudButton Href="/projects"
-                                   Class="!px-4 !bg-[var(--mud-palette-primary)] !text-white">
+                        Class="!px-4 !bg-[var(--mud-palette-primary)] !text-white">
                             Go to Projects
                         </MudButton>
                     </Authorized>
                     <NotAuthorized>
                         <MudButton Href="/account/register"
-                                   Class="!px-4 !bg-[var(--mud-palette-primary)] !text-white">
+                        Class="!px-4 !bg-[var(--mud-palette-primary)] !text-white">
                             Get Started
                         </MudButton>
                     </NotAuthorized>
@@ -34,10 +35,12 @@
                 </MudButton>
             </MudStack>
         </MudStack>
-        @* <MudButton Class="h-32 !bg-[var(--mud-palette-primary)] !text-white"
+        @*
+        <MudButton Class="h-32 !bg-[var(--mud-palette-primary)] !text-white"
                    Size="Size.Large"
                    FullWidth>
             Projects
-        </MudButton> *@
+        </MudButton>
+        *@
     </MudContainer>
 </MudMainContent>

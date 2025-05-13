@@ -1,10 +1,6 @@
-﻿namespace Flashcards.WebApp.Shared.EntityFrameworkCore;
+﻿using Flashcards.WebApp.Shared.UseCases;
 
-public interface IUnitOfWork
-{
-    void Start();
-    Task Save();
-}
+namespace Flashcards.WebApp.Shared.EntityFrameworkCore;
 
 public class DbContextUnitOfWork : IUnitOfWork
 {

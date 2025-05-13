@@ -32,24 +32,9 @@ public class GetProjectTagsQueryHandler(
 
 public record GetProjectTagsQueryResponse(GetProjectTagsQueryResponse.ProjectTagDTO[] Values)
 {
-    public record ProjectTagDTO
+    public record ProjectTagDTO(string Id, string Name, string? ParentTagId, string Color, int Order)
     {
-        public ProjectTagDTO() {}
-        public ProjectTagDTO(string id, string name, string? parentTagId, string color, int order)
-        {
-            Id = id;
-            Name = name;
-            ParentTagId = parentTagId;
-            Color = color;
-            Order = order;
-        }
-
+        public static readonly ProjectTagDTO Default = new("", "", null, "", 0);
         public ProjectTagDTO DeepCopy() => new(Id, Name, ParentTagId, Color, Order);
-
-        public string Id { get; set; } = "";
-        public string Name { get; set; } = "";
-        public string? ParentTagId { get; set; }
-        public string Color { get; set; } = "";
-        public int Order { get; set; }
     }
 }

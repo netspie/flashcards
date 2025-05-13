@@ -1,6 +1,7 @@
 ﻿@page "/projects/{projectId}"
+@using Flashcards.WebApp.Shared.UseCases
 
-@inject IMediator Mediator
+@inject IScopedMediator Mediator
 
 @* <PageTitle>Project - @_dto?.Name</PageTitle> *@
 

@@ -1,10 +1,11 @@
-﻿
+﻿@using TagDTO = GetProjectTagsQueryResponse.ProjectTagDTO;
+
 @if (_dto is null) { return; }
 
 <SpyDialog @ref=@_dialog>
     <ChildContent>
-        <MudTextField Label="Name" @bind-Value="@_dto.Name"></MudTextField>
-        <MudNumericField Label="Order" @bind-Value="@_dto.Order"></MudNumericField>
+        <MudTextField Label="Name" Value="@_dto.Name" ValueChanged="@_dto.Bind(x => x.Name)"></MudTextField>
+        <MudNumericField Label="Order" Value="@_dto.Order" ValueChanged="@_dto.Bind(x => x.Order)"></MudNumericField>
     </ChildContent>
     <Buttons>
         <MudButton Color="Color.Primary" OnClick="x => _dialog?.Submit(_dto)">Save</MudButton>
@@ -14,12 +15,12 @@
 
 @code {
     [Parameter] public GetProjectTagsQueryResponse.ProjectTagDTO? DTO { get; set; }
-    private GetProjectTagsQueryResponse.ProjectTagDTO? _dto;
+    private TagDTO? _dto;
 
     private SpyDialog? _dialog;
 
     protected override void OnInitialized()
     {
-        _dto = DTO?.DeepCopy() ?? new();
+        _dto = DTO?.DeepCopy() ?? TagDTO.Default;
     }
 }
