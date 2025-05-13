@@ -8,8 +8,8 @@ using Flashcards.WebApp.Features.Tags;
 namespace Flashcards.WebApp.Infrastructure.Data;
 
 public class ApplicationDbContext(
-                DbContextOptions<ApplicationDbContext> options,
-                IConfiguration _configuration) : DbContext(options), IDesignTimeDbContextFactory<ApplicationDbContext>
+    DbContextOptions<ApplicationDbContext> options,
+    IConfiguration _configuration) : DbContext(options), IDesignTimeDbContextFactory<ApplicationDbContext>
 {
     public ApplicationDbContext() : this(new DbContextOptions<ApplicationDbContext>(), null!) { }
 

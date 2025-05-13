@@ -16,7 +16,7 @@ public static class UserOwnedFilterExtensions
     {
         return userId switch
         {
-            null => filter,
+            null or "" => filter,
             _ => filter.And(x => x.UserId == userId)
         };
     }

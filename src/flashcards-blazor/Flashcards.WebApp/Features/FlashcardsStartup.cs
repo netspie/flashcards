@@ -12,8 +12,10 @@ public static class FlashcardsStartup
     public static IServiceCollection AddFlashcards(this IServiceCollection services)
     {
         services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
+        services.AddScoped<IScopedMediator, AsyncScopedMediator>();
 
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(BlazorServerUserIdInjectionBehavior<,>));
+        services.AddScoped(typeof(IPreSendBehavior<>), typeof(BlazorServerUserIdInjectionBehavior<>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>));
 
         services.AddScoped<IReadOnlyRepository<Project, ProjectId>, DbContextReadOnlyRepository<Project, ProjectId>>();
         services.AddScoped<IWriteOnlyRepository<Project, ProjectId>, DbContextWriteOnlyRepository<Project, ProjectId>>();

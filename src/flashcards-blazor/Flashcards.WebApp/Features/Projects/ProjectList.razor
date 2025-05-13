@@ -1,6 +1,7 @@
-﻿@using Flashcards.WebApp.Shared.Entities
+﻿@using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours
+@using Flashcards.WebApp.Shared.Entities
 
-@inject IMediator Mediator
+@inject IScopedMediator Mediator
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation

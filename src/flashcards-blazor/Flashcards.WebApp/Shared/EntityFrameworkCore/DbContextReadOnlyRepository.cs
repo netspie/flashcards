@@ -1,4 +1,5 @@
 ﻿using Flashcards.WebApp.Shared.Entities;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -6,7 +7,7 @@ namespace Flashcards.WebApp.Shared.EntityFrameworkCore;
 
 public class DbContextReadOnlyRepository<T, TId>(
     DbContext _context) : IReadOnlyRepository<T, TId>
-    where T : class
+    where T : class, IEntity<TId>
 {
     public Task<int> Count(Expression<Func<T, bool>>? filter = null)
     {

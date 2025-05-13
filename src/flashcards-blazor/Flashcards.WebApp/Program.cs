@@ -28,7 +28,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services
     .AddEntityFrameworkNpgsql()
     .AddDbContext<ApplicationDbContext>()
-    .AddScoped<DbContext, ApplicationDbContext>();
+    .AddScoped<DbContext, ApplicationDbContext>()
+    .AddScoped<IDbContextFactory<ApplicationDbContext>, ApplicationDbContextFactory>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

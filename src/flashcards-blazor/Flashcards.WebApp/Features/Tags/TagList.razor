@@ -1,7 +1,8 @@
-﻿@inject IMediator Mediator
+﻿@inject IScopedMediator Mediator
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
+@using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours
 @using TagDTO = GetProjectTagsQueryResponse.ProjectTagDTO
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
@@ -83,10 +84,14 @@
                     map.Add(tag.ParentTagId, parent = new());
 
                 parent.Children ??= new();
-                parent.Children.Insert(Math.Min(tag.Order, parent.Children.Count), treeItem);
+                parent.Children.Add(treeItem);
+                parent.Children = parent.Children.OrderBy(x => (x as TagTreeItemData)!.DTO.Order).ToList();
             }
             else
-                _treeItems.Insert(Math.Min(tag.Order, _treeItems.Count), treeItem);
+            {
+                _treeItems.Add(treeItem);
+                _treeItems = _treeItems.OrderBy(x => (x as TagTreeItemData)!.DTO.Order).ToList();
+            }
         }
     }
 
