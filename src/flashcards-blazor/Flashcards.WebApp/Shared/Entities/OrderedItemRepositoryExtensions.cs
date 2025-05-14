@@ -13,11 +13,11 @@ public static class OrderedItemRepositoryExtensions
     {
         filterNeighbours ??= Filter<T>.New;
 
-        var neighours = await readRepository.GetMany(filterNeighbours.And(x => !x.Id.Equals(item.Id)));
-        var itemOrder = Math.Clamp(item.Order, 0, neighours.Length);
+        var neighbours = await readRepository.GetMany(filterNeighbours.And(x => !x.Id.Equals(item.Id)));
+        var itemOrder = Math.Clamp(item.Order, 0, neighbours.Length);
         item = (T) item.ChangeOrder(itemOrder);
 
-        var itemList = neighours.OrderBy(x => x.Order).ToList();
+        var itemList = neighbours.OrderBy(x => x.Order).ToList();
         itemList.Insert(itemOrder, item);
 
         var reorderedEntities = itemList

@@ -1,5 +1,4 @@
-﻿using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours;
-using Mediator;
+﻿using Mediator;
 
 namespace Flashcards.WebApp.Shared.UseCases;
 

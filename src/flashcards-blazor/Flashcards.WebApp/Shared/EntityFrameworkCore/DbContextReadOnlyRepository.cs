@@ -1,5 +1,4 @@
 ﻿using Flashcards.WebApp.Shared.Entities;
-using Mediator;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

@@ -9,13 +9,14 @@ public record GetProjectTagsQuery(
     string ProjectId) : IQuery<GetProjectTagsQueryResponse>;
 
 public class GetProjectTagsQueryHandler(
-    DbContext context) : IQueryHandler<GetProjectTagsQuery, GetProjectTagsQueryResponse>
+    DbContext _context) : IQueryHandler<GetProjectTagsQuery, GetProjectTagsQueryResponse>
 {
     public async ValueTask<GetProjectTagsQueryResponse> Handle(
         GetProjectTagsQuery cmd, CancellationToken ct)
     {
+        var t = _context.Database.CurrentTransaction;
         var projectId = new ProjectId(cmd.ProjectId);
-        var projectTags = await context.Set<Tag>()
+        var projectTags = await _context.Set<Tag>()
             .AsNoTracking()
             .Where(x => x.ProjectId == projectId)
             .ToArrayAsync();

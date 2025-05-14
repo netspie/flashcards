@@ -1,5 +1,6 @@
 ﻿using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Features.Tags;
+using Flashcards.WebApp.Infrastructure.MessageTransmuters;
 using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours;
 using Flashcards.WebApp.Shared.Entities;
 using Flashcards.WebApp.Shared.EntityFrameworkCore;
@@ -15,10 +16,8 @@ public static class FlashcardsStartup
         services.AddMediator(opts => opts.ServiceLifetime = ServiceLifetime.Scoped);
         services.AddScoped<IScopedMediator, AsyncScopedMediator>();
 
-        services.AddScoped(typeof(IMessageTransmuter<>), typeof(BlazorServerUserIdInjectionBehavior<>));
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>));
-
-        services.AddScoped<IUnitOfWork, DbContextUnitOfWork>();
+        services.AddScoped(typeof(IMessageTransmuter<>), typeof(BlazorServerMessageUserIdTransmuter<>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(DbContextTransactionBehavior<,>));
 
         services.AddScoped<IReadOnlyRepository<Project, ProjectId>, DbContextReadOnlyRepository<Project, ProjectId>>();
         services.AddScoped<IWriteOnlyRepository<Project, ProjectId>, DbContextWriteOnlyRepository<Project, ProjectId>>();
