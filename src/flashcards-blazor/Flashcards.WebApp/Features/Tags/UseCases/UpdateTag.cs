@@ -23,6 +23,6 @@ public class UpdateTagCommandHandler(
         await _writeRepository.UpdateOrderedItem(
             tag,
             _readRepository,
-            filterNeighbors: x => x.ProjectId == tag.ProjectId && x.ParentTagId == tag.ParentTagId));
+            filterNeighbors: x => x.ProjectId == tag.ProjectId && x.ParentTagId == tag.ParentTagId);
     }
 }
