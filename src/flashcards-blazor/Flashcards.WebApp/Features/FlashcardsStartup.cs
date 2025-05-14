@@ -18,6 +18,8 @@ public static class FlashcardsStartup
         services.AddScoped(typeof(IMessageTransmuter<>), typeof(BlazorServerUserIdInjectionBehavior<>));
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnitOfWorkBehavior<,>));
 
+        services.AddScoped<IUnitOfWork, DbContextUnitOfWork>();
+
         services.AddScoped<IReadOnlyRepository<Project, ProjectId>, DbContextReadOnlyRepository<Project, ProjectId>>();
         services.AddScoped<IWriteOnlyRepository<Project, ProjectId>, DbContextWriteOnlyRepository<Project, ProjectId>>();
         services.AddScoped<IArchiveRepository<Project, ProjectId>, DbContextArchiveRepository<Project, ProjectId>>();

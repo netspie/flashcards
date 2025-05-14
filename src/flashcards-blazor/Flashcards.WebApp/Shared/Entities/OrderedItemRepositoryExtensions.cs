@@ -9,17 +9,21 @@ public static class OrderedItemRepositoryExtensions
         this IWriteOnlyRepository<T, TId> writeRepository,
         T item,
         IReadOnlyRepository<T, TId> readRepository,
-        Expression<Func<T, bool>>? filterNeighbours = null) where T : IOrderedItem
+        Expression<Func<T, bool>>? filterNeighbours = null) where T : IOrderedItem, IEntity<TId>
     {
         filterNeighbours ??= Filter<T>.New;
 
-        var neighboursCount = await readRepository.Count(filterNeighbours);
-        var itemOrder = Math.Clamp(item.Order, 0, neighboursCount);
+        var neighours = await readRepository.GetMany(filterNeighbours.And(x => !x.Id.Equals(item.Id)));
+        var itemOrder = Math.Clamp(item.Order, 0, neighours.Length);
         item = (T) item.ChangeOrder(itemOrder);
 
-        var neighourItems = await readRepository.GetMany(filterNeighbours.And(x => x.Order > item.Order));
+        var itemList = neighours.OrderBy(x => x.Order).ToList();
+        itemList.Insert(itemOrder, item);
 
-        var reorderedEntities = neighourItems.Select((x, i) => (T) x.ChangeOrder(item.Order + i + 1));
+        var reorderedEntities = itemList
+            .Where(x => !x.Id.Equals(item.Id))
+            .Select((x, i) => (T) x.ChangeOrder(i))
+            .ToArray();
 
         await writeRepository.UpdateMany(reorderedEntities);
         await writeRepository.Add(item);
@@ -33,15 +37,14 @@ public static class OrderedItemRepositoryExtensions
     {
         filterNeighbours ??= Filter<T>.New;
 
-        var neighboursCount = await readRepository.Count(filterNeighbours);
-        var itemOrder = Math.Clamp(item.Order, 0, neighboursCount);
-        item = (T) item.ChangeOrder(itemOrder);
+        var neighours = await readRepository.GetMany(filterNeighbours.And(x => !x.Id.Equals(item.Id)));
+        var itemOrder = Math.Clamp(item.Order, 0, neighours.Length);
 
-        var neighourItems = await readRepository.GetMany(filterNeighbours.And(x => x.Order >= item.Order).And(x => !x.Id.Equals(item.Id)));
+        var itemList = neighours.OrderBy(x => x.Order).ToList();
+        itemList.Insert(itemOrder, item);
         
-        var reorderedEntities = neighourItems
-            .Select((x, i) => (T) x.ChangeOrder(item.Order + i + 1))
-            .Append(item)
+        var reorderedEntities = itemList
+            .Select((x, i) => (T) x.ChangeOrder(i))
             .ToArray();
 
         await writeRepository.UpdateMany(reorderedEntities);
