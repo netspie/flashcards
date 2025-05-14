@@ -14,7 +14,6 @@ public class GetProjectTagsQueryHandler(
     public async ValueTask<GetProjectTagsQueryResponse> Handle(
         GetProjectTagsQuery cmd, CancellationToken ct)
     {
-        var t = _context.Database.CurrentTransaction;
         var projectId = new ProjectId(cmd.ProjectId);
         var projectTags = await _context.Set<Tag>()
             .AsNoTracking()

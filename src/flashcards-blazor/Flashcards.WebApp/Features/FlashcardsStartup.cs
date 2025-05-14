@@ -1,7 +1,7 @@
 ﻿using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Features.Tags;
 using Flashcards.WebApp.Infrastructure.MessageTransmuters;
-using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours;
+using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviors;
 using Flashcards.WebApp.Shared.Entities;
 using Flashcards.WebApp.Shared.EntityFrameworkCore;
 using Flashcards.WebApp.Shared.UseCases;

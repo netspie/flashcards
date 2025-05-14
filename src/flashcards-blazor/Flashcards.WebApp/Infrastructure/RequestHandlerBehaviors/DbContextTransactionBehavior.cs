@@ -1,7 +1,7 @@
 ﻿using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace Flashcards.WebApp.Infrastructure.RequestHandlerBehaviours;
+namespace Flashcards.WebApp.Infrastructure.RequestHandlerBehaviors;
 
 public class DbContextTransactionBehavior<TRequest, TResponse>(
     DbContext _context) : IPipelineBehavior<TRequest, TResponse>

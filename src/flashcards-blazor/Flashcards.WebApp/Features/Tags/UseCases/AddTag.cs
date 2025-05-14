@@ -30,6 +30,6 @@ public class AddTagCommandHandler(
         await _writeRepository.AddOrderedItem(
             entity, 
             _readRepository,
-            filterNeighbours: x => x.ProjectId == entity.ProjectId && x.ParentTagId == entity.ParentTagId);
+            filterNeighbors: x => x.ProjectId == entity.ProjectId && x.ParentTagId == entity.ParentTagId);
     }
 }
