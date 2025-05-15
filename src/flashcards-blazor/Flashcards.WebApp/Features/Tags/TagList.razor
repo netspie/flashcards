@@ -22,8 +22,8 @@
                                 <MudText>@item.Text</MudText>
                             </MudStack>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                                <MudMenuItem Label="Add After" OnClick="@(() => Add(parentTagId: item.Value?.ParentTagId))" />
-                                <MudMenuItem Label="Add Beneath" OnClick="@(() => Add(parentTagId: item.Value?.Id))" />
+                                <MudMenuItem Label="Add After" OnClick="@(() => Add(item.Value?.ParentTagId, order: item.Value?.Order + 1 ?? 0))" />
+                                <MudMenuItem Label="Add Beneath" OnClick="@(() => Add(item.Value?.Id))" />
                                 <MudMenuItem Label="Edit" OnClick="@(() => OnEdit(item.Value ?? TagDTO.Default))" />
                             </MudMenu>
                         </BodyContent>
@@ -47,7 +47,6 @@
     private async Task OnEdit(TagDTO dto)
     {
         var dialog = await DialogService.ShowAsync<TagDialog>("Edit Tag", new DialogParameters { { nameof(TagDialog.DTO), dto } });
-
         var result = await dialog.GetReturnValueAsync<TagDTO>();
         if (result is not null)
             await Update(result);
@@ -68,39 +67,9 @@
         var response = await Mediator.Send(new GetProjectTagsQuery(ProjectId));
         _tags = response.Values;
 
-        _treeItems.Clear();
-
-        var map = new Dictionary<string, TagTreeItemData>();
-
-        foreach (var tag in _tags)
-        {
-            if (!map.TryGetValue(tag.Id, out var treeItem))
-                map.Add(tag.Id, treeItem = new(tag));
-
-            if (treeItem.Value is null)
-            {
-                var children = treeItem.Children;
-                treeItem = new(tag);
-                treeItem.Children = children;
-            }
-
-            treeItem.Text = tag.Name;
-
-            if (tag.ParentTagId is not null)
-            {
-                if (!map.TryGetValue(tag.ParentTagId, out var parent))
-                    map.Add(tag.ParentTagId, parent = new());
-
-                parent.Children ??= new();
-                parent.Children.Add(treeItem);
-                parent.Children = parent.Children.OrderBy(x => x.Value?.Order).ToList();
-            }
-            else
-            {
-                _treeItems.Add(treeItem);
-                _treeItems = _treeItems.OrderBy(x => x.Value?.Order).ToList();
-            }
-        }
+        _treeItems = _tags.GetTreeItems<TagTreeItemData, TagDTO>(
+            x => x.Id, x => x?.ParentTagId, x => x.Name, x => x?.Order,
+            createTreeItem: x => new(x));
     }
 
     private async Task SendCommandAndFetchItems(ICommand command)
@@ -111,7 +80,8 @@
 
     public class TagTreeItemData : TreeItemData<TagDTO>
     {
-        public TagTreeItemData(TagDTO? value = null) : base(value)
+        public TagTreeItemData() {}
+        public TagTreeItemData(TagDTO value) : base(value)
         {
             Icon = Icons.Material.Filled.Bookmark;
         }
