@@ -16,17 +16,22 @@ public class DbContextDeleteOnlyRepository<T, TId>(
         .IOAsync((set, e) => set.Remove(e))
         .IOAsync(() => _context.SaveChangesAsync());
 
-    public Task DeleteMany(IEnumerable<TId> ids) => _set
-        .Join(set => set.AsNoTracking().AsQueryable())
-        .MapLast((set, q) => q.Where(x => ids.Contains(x.Id)))
-        .MapLast((set, q) => q.ToListAsync())
-        .IOAsync((set, e) => set.RemoveRange(e))
-        .IOAsync(() => _context.SaveChangesAsync());
+    public async Task DeleteMany(IEnumerable<TId> ids)
+    {
+        var entities = await _set
+            .AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync();
+        
+       _set.RemoveRange(entities);
+
+        await _context.SaveChangesAsync();
+    }
 
     public Task DeleteAll(Expression<Func<T, bool>>? filter) => _set
         .Join(set => set.AsNoTracking().AsQueryable())
         .MapLast((set, q) => filter is not null ? set.Where(filter) : q)
-        .MapLast((set, q) => q.ToListAsync())
+        .MapLastAsync((set, q) => q.ToListAsync())
         .IOAsync((set, e) => set.RemoveRange(e))
         .IOAsync(() => _context.SaveChangesAsync());
 }

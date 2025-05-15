@@ -66,6 +66,12 @@ public static class FunctionalExtensions
         return (source.Item1, itemLast);
     }
 
+    public static async Task<(T1, TOut)> MapLastAsync<T1, T2, TOut>(this (T1, T2) source, Func<T1, T2, Task<TOut>> mapper)
+    {
+        var itemLast = mapper(source.Item1, source.Item2);
+        return (source.Item1, await itemLast);
+    }
+
     public static async Task<(T1, T2, TOut)> MapLastAsync<T1, T2, T3, TOut>(this (T1, T2, Task<T3>) source, Func<T1, T2, T3, TOut> mapper)
     {
         var item3 = await source.Item3;
@@ -114,6 +120,19 @@ public static class FunctionalExtensions
         var source = await sourceTask;
         action();
         return (source.Item1, source.Item2);
+    }
+
+    public static async Task<(T1, T2, T3)> IOAsync<T1, T2, T3>(this Task<(T1, T2, T3)> sourceTask, Action action)
+    {
+        var source = await sourceTask;
+        action();
+        return (source.Item1, source.Item2, source.Item3);
+    }
+
+    public static async Task<(T1, T2, T3)> IOAsync<T1, T2, T3>(this (T1, T2, Task<T3>) source, Action<T1, T2, T3> action)
+    {
+        action(source.Item1, source.Item2, await source.Item3);
+        return (source.Item1, source.Item2, await source.Item3);
     }
 
     public static T ThrowIf<T>(this T source, Func<T, bool> throwIf, Func<Exception> exception) =>
