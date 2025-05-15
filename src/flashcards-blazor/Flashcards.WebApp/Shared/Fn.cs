@@ -14,7 +14,7 @@ public static class Fn
     public static Task IfTrueDo(bool value, Func<Task> func) =>
         value ? func() : Task.CompletedTask;
 
-    public static Action<TProperty> Bind<T, TProperty>(this T source, Expression<Func<T, TProperty>> property)
+    public static Action<TProperty> Setter<T, TProperty>(this T source, Expression<Func<T, TProperty>> property)
     {
         if (property.Body is not MemberExpression memberExpression)
             throw new ArgumentException("Expression must be a member expression", nameof(property));

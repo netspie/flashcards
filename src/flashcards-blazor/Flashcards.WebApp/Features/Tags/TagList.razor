@@ -18,12 +18,13 @@
                     <MudTreeViewItem Items="@item.Children">
                         <BodyContent>
                             <MudStack Row Class="!w-full gap-2">
-                                <MudIcon Icon="@item.Icon" Style=@($"color: {(item as TagTreeItemData)!.DTO.Color} !important") />
+                                <MudIcon Icon="@item.Icon" Style=@($"color: {item.Value?.Color} !important") />
                                 <MudText>@item.Text</MudText>
                             </MudStack>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                                <MudMenuItem Label="Add" OnClick="@(() => Add(parentTagId: (item as TagTreeItemData)!.DTO.Id))" />
-                                <MudMenuItem Label="Edit" OnClick="@(() => OnEdit((item as TagTreeItemData)!.DTO))" />
+                                <MudMenuItem Label="Add After" OnClick="@(() => Add(parentTagId: item.Value?.ParentTagId))" />
+                                <MudMenuItem Label="Add Beneath" OnClick="@(() => Add(parentTagId: item.Value?.Id))" />
+                                <MudMenuItem Label="Edit" OnClick="@(() => OnEdit(item.Value ?? TagDTO.Default))" />
                             </MudMenu>
                         </BodyContent>
                     </MudTreeViewItem>
@@ -74,9 +75,15 @@
         foreach (var tag in _tags)
         {
             if (!map.TryGetValue(tag.Id, out var treeItem))
-                map.Add(tag.Id, treeItem = new());
+                map.Add(tag.Id, treeItem = new(tag));
 
-            treeItem.DTO = tag;
+            if (treeItem.Value is null)
+            {
+                var children = treeItem.Children;
+                treeItem = new(tag);
+                treeItem.Children = children;
+            }
+
             treeItem.Text = tag.Name;
 
             if (tag.ParentTagId is not null)
@@ -86,12 +93,12 @@
 
                 parent.Children ??= new();
                 parent.Children.Add(treeItem);
-                parent.Children = parent.Children.OrderBy(x => (x as TagTreeItemData)!.DTO.Order).ToList();
+                parent.Children = parent.Children.OrderBy(x => x.Value?.Order).ToList();
             }
             else
             {
                 _treeItems.Add(treeItem);
-                _treeItems = _treeItems.OrderBy(x => (x as TagTreeItemData)!.DTO.Order).ToList();
+                _treeItems = _treeItems.OrderBy(x => x.Value?.Order).ToList();
             }
         }
     }
@@ -102,11 +109,9 @@
         await FetchItems();
     }
 
-    public class TagTreeItemData : TreeItemData<string>
+    public class TagTreeItemData : TreeItemData<TagDTO>
     {
-        public TagDTO? DTO;
-
-        public TagTreeItemData()
+        public TagTreeItemData(TagDTO? value = null) : base(value)
         {
             Icon = Icons.Material.Filled.Bookmark;
         }

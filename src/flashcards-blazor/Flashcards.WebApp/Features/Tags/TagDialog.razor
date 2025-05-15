@@ -4,8 +4,17 @@
 
 <SpyDialog @ref=@_dialog>
     <ChildContent>
-        <MudTextField Label="Name" Value="@_dto.Name" ValueChanged="@_dto.Bind(x => x.Name)"></MudTextField>
-        <MudNumericField Label="Order" Value="@_dto.Order" ValueChanged="@_dto.Bind(x => x.Order)"></MudNumericField>
+        <MudTextField Label="Name" Value="@_dto.Name" ValueChanged="@_dto.Setter(x => x.Name)"></MudTextField>
+        <MudNumericField Label="Order" Value="@_dto.Order" ValueChanged="@_dto.Setter(x => x.Order)"></MudNumericField>
+        <MudSelect Label="Color" Value=@_dto.Color ValueChanged="@_dto.Setter(x => x.Color)">
+            @foreach (var color in Colors)
+            {
+                <MudSelectItem Value="color.Color">
+                    <MudIcon Icon=@Icons.Material.Filled.Circle Style=@($"color: {color.Color}") />
+                    @color.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
     </ChildContent>
     <Buttons>
         <MudButton Color="Color.Primary" OnClick="x => _dialog?.Submit(_dto)">Save</MudButton>
@@ -23,4 +32,21 @@
     {
         _dto = DTO?.DeepCopy() ?? TagDTO.Default;
     }
+
+    private (string Color, string Name)[] Colors =
+    [
+        ("#ef4444", "Red"),
+        ("#22c55e", "Green"),
+        ("#3b82f6", "Blue"),
+        ("#eab308", "Yellow"),
+        ("#f97316", "Orange"),
+        ("#a855f7", "Purple"),
+        ("#000000", "Black"),
+        ("#ffffff", "White"),
+        ("#6b7280", "Gray"),
+        ("#78350f", "Brown"),
+        ("#ec4899", "Pink"),
+        ("#06b6d4", "Cyan"),
+        ("#d946ef", "Magenta"),
+    ];
 }
