@@ -22,9 +22,19 @@
                                 <MudText>@item.Text</MudText>
                             </MudStack>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                                <MudMenuItem Label="Add After" OnClick="@(() => Add(item.Value?.ParentTagId, order: item.Value?.Order + 1 ?? 0))" />
+                                <MudMenuItem Label="Add After" OnClick="@(() => Add(item.Value?.ParentTagId, color: item.Value?.Color ?? "", order: item.Value?.Order + 1 ?? 0))" />
                                 <MudMenuItem Label="Add Beneath" OnClick="@(() => Add(item.Value?.Id))" />
-                                <MudMenuItem Label="Edit" OnClick="@(() => OnEdit(item.Value ?? TagDTO.Default))" />
+                                <MudMenuItem Label="Edit" OnClick="@(() => OnEdit(item.Value!))" />
+                                @if (item.Value!.Order > 0)
+                                {
+                                    <MudMenuItem Label="Move To Start" OnClick="@(() => Update(item.Value! with { Order = 0 }))" />
+                                    <MudMenuItem Label="Move Up" OnClick="@(() => Update(item.Value! with { Order = item.Value!.Order - 1}))" />
+                                }
+                                @if (item.Value!.Order < _tags.Where(x => x.ParentTagId == item.Value!.ParentTagId).Count() - 1)
+                                {
+                                    <MudMenuItem Label="Move Down" OnClick="@(() => Update(item.Value! with { Order = item.Value!.Order + 1}))" />
+                                    <MudMenuItem Label="Move To End" OnClick="@(() => Update(item.Value! with { Order = int.MaxValue }))" />
+                                }
                                 <MudMenuItem Label="Delete" OnClick="@(() => Delete(item.Value?.Id ?? ""))" />
                             </MudMenu>
                         </BodyContent>
@@ -66,19 +76,24 @@
         }
     }   
 
-    private Task Update(GetProjectTagsQueryResponse.ProjectTagDTO item) => 
+    private Task Update(TagDTO item) => 
         SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color, item.Order));
 
-    private Task Delete(string itemId) => 
-        SendCommandAndFetchItems(new DeleteTagsCommand([itemId]));
+    private async Task Delete(string itemId)
+    {
+        if (await DialogService.ShowAndGetSubmittedAsync<SpyYesNoDialog>("Delete"))
+            await SendCommandAndFetchItems(new DeleteTagsCommand([itemId]));
+    }
 
     private async Task FetchItems()
     {
         var response = await Mediator.Send(new GetProjectTagsQuery(ProjectId));
         _tags = response.Values;
         _treeItems = _tags.GetTreeItems<TagTreeItemData, TagDTO>(
-            x => x.Id, x => x?.ParentTagId, x => x.Name, x => x?.Order,
+            x => x.Id, x => x?.ParentTagId, x => x?.Order,
             createTreeItem: x => new(x));
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SendCommandAndFetchItems(ICommand command)
@@ -93,6 +108,7 @@
         public TagTreeItemData(TagDTO value) : base(value)
         {
             Icon = Icons.Material.Filled.Bookmark;
+            Text = value.Name;
         }
     }
 }

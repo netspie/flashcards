@@ -1,0 +1,18 @@
+﻿
+<SpyDialog @ref=@_dialog>
+    <ChildContent>
+        <MudStack AlignItems="AlignItems.Center">
+            @Message
+        </MudStack>
+    </ChildContent>
+    <Buttons>
+        <MudButton OnClick="() => _dialog?.Submit(true)" Variant="Variant.Filled" Color="Color.Primary">Yes</MudButton>
+        <MudButton OnClick="() => _dialog?.Cancel()" Variant="Variant.Filled" Color="Color.Error">No</MudButton>
+    </Buttons>
+</SpyDialog>
+
+@code {
+    [Parameter] public string Message { get; set; } = "Are sure?";
+
+    private SpyDialog? _dialog;
+}

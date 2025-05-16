@@ -1,5 +1,4 @@
-﻿using Flashcards.WebApp.Features.Tags;
-using Flashcards.WebApp.Shared.Expressions;
+﻿using Flashcards.WebApp.Shared.Expressions;
 using System.Linq.Expressions;
 
 namespace Flashcards.WebApp.Shared.Entities;
@@ -22,12 +21,14 @@ public static class OrderedItemRepositoryExtensions
         itemList.Insert(itemOrder, item);
 
         var reorderedEntities = itemList
-            .Where(x => !x.Id.Equals(item.Id))
             .Select((x, i) => (T) x.ChangeOrder(i))
-            .ToArray();
+            .ToList();
 
-        await writeRepository.UpdateMany(reorderedEntities);
+        item = reorderedEntities.First(x => x.Id.Equals(item.Id));
+        reorderedEntities = reorderedEntities.Where(x => !x.Id.Equals(item.Id)).ToList();
+
         await writeRepository.Add(item);
+        await writeRepository.UpdateMany(reorderedEntities);
     }
 
     public static async Task UpdateOrderedItem<T, TId>(
@@ -55,6 +56,27 @@ public static class OrderedItemRepositoryExtensions
             .Select((x, i) => (T) x.ChangeOrder(i))
             .ToArray();
 
+        await writeRepository.UpdateMany(reorderedEntities);
+    }
+
+    public static async Task DeleteOrderedItems<T, TId>(
+        this IDeleteOnlyRepository<T, TId> deleteRepository,
+        IWriteOnlyRepository<T, TId> writeRepository,
+        IReadOnlyRepository<T, TId> readRepository,
+        TId[] itemIds,
+        Expression<Func<T, bool>>? filterNeighbors = null) where T : IOrderedItem, IEntity<TId>
+    {
+        filterNeighbors ??= Filter<T>.New;
+
+        var neighbors = await readRepository.GetMany(filterNeighbors.And(x => !itemIds.Contains(x.Id)));
+
+        var itemList = neighbors.OrderBy(x => x.Order).ToList();
+
+        var reorderedEntities = itemList
+            .Select((x, i) => (T) x.ChangeOrder(i))
+            .ToArray();
+
+        await deleteRepository.DeleteMany(itemIds);
         await writeRepository.UpdateMany(reorderedEntities);
     }
 }
