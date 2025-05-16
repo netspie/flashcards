@@ -15,9 +15,10 @@
                 </MudSelectItem>
             }
         </MudSelect>
+        <MudCheckBox Label="Apply Color To Children" @bind-Value=@_applyColorToChildren />
     </ChildContent>
     <Buttons>
-        <MudButton Color="Color.Primary" OnClick="x => _dialog?.Submit(_dto)">Save</MudButton>
+        <MudButton Color="Color.Primary" OnClick="x => _dialog?.Submit(new SubmitData(_dto, _applyColorToChildren))">Save</MudButton>
         <MudButton Color="Color.Error" OnClick="x => _dialog?.Cancel()">Cancel</MudButton>
     </Buttons>
 </SpyDialog>
@@ -27,6 +28,7 @@
     private TagDTO? _dto;
 
     private SpyDialog? _dialog;
+    private bool _applyColorToChildren;
 
     protected override void OnInitialized()
     {
@@ -49,4 +51,6 @@
         ("#06b6d4", "Cyan"),
         ("#d946ef", "Magenta"),
     ];
+
+    public record SubmitData(TagDTO DTO, bool ApplyColorToChildren);
 }

@@ -39,8 +39,10 @@
     [Parameter, EditorRequired] public string ProjectId { get; set; } = "";
 
     private TagDTO[] _tags = [];
+    private List<TagTreeItemData> _treeItems = new();
 
-    protected override Task OnInitializedAsync() => FetchItems();
+    protected override Task OnInitializedAsync() => 
+        FetchItems();
 
     private Task Add(string? parentTagId = null, string color = "black", int order = int.MaxValue) =>
         SendCommandAndFetchItems(new AddTagCommand("New Tag", color, ProjectId, parentTagId, order));
@@ -48,10 +50,21 @@
     private async Task OnEdit(TagDTO dto)
     {
         var dialog = await DialogService.ShowAsync<TagDialog>("Edit Tag", new DialogParameters { { nameof(TagDialog.DTO), dto } });
-        var result = await dialog.GetReturnValueAsync<TagDTO>();
-        if (result is not null)
-            await Update(result);
-    }
+        var result = await dialog.GetReturnValueAsync<TagDialog.SubmitData>();
+        if (result is null)
+            return;
+
+        await Update(result.DTO);
+        if (result.ApplyColorToChildren)
+        {
+            var treeItem = _treeItems.FindRecursive(x => 
+                x.Children.CastToListOrDefault<TagTreeItemData>(), x => x.Value?.Id == result.DTO.Id);
+
+            await (treeItem?.Children ?? []).ForEachRecursiveAsync(
+                x => x.Children,
+                x => x.Value.IfNotNull(x => Update(x with { Color = result.DTO.Color })));
+        }
+    }   
 
     private Task Update(GetProjectTagsQueryResponse.ProjectTagDTO item) => 
         SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color, item.Order));
@@ -59,15 +72,10 @@
     private Task Delete(string itemId) => 
         SendCommandAndFetchItems(new DeleteTagsCommand([itemId]));
 
-    private List<TagTreeItemData> _treeItems = new();
-
-    private string _newItemName = "";
-
     private async Task FetchItems()
     {
         var response = await Mediator.Send(new GetProjectTagsQuery(ProjectId));
         _tags = response.Values;
-
         _treeItems = _tags.GetTreeItems<TagTreeItemData, TagDTO>(
             x => x.Id, x => x?.ParentTagId, x => x.Name, x => x?.Order,
             createTreeItem: x => new(x));

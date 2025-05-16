@@ -17,12 +17,14 @@ public class UpdateTagCommandHandler(
     public override async Task Handle(UpdateTagCommand cmd, CancellationToken ct)
     {
         var tag = await _readRepository.GetById(new TagId(cmd.Id));
-
+        
         tag = tag with { Name = cmd.Name, Order = cmd.Order, Color = cmd.Color };
 
         await _writeRepository.UpdateOrderedItem(
             tag,
             _readRepository,
-            filterNeighbors: x => x.ProjectId == tag.ProjectId && x.ParentTagId == tag.ParentTagId);
+            filterNeighbors: x =>
+                x.ProjectId == tag.ProjectId && 
+                x.ParentTagId == tag.ParentTagId);
     }
 }

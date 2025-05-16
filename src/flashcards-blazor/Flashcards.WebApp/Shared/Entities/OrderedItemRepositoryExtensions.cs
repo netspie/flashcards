@@ -1,4 +1,5 @@
-﻿using Flashcards.WebApp.Shared.Expressions;
+﻿using Flashcards.WebApp.Features.Tags;
+using Flashcards.WebApp.Shared.Expressions;
 using System.Linq.Expressions;
 
 namespace Flashcards.WebApp.Shared.Entities;
@@ -36,6 +37,13 @@ public static class OrderedItemRepositoryExtensions
         Expression<Func<T, bool>>? filterNeighbors = null) where T : IOrderedItem, IEntity<TId>
     {
         filterNeighbors ??= Filter<T>.New;
+
+        var oldItem = await readRepository.GetById(item.Id);
+        if (oldItem.Order == item.Order)
+        {
+            await writeRepository.Update(item);
+            return;
+        }
 
         var neighbors = await readRepository.GetMany(filterNeighbors.And(x => !x.Id.Equals(item.Id)));
         var itemOrder = Math.Clamp(item.Order, 0, neighbors.Length);

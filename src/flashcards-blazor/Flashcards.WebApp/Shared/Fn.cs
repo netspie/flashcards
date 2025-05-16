@@ -29,4 +29,12 @@ public static class Fn
 
         return value => setMethod.Invoke(source, new object[] { value });
     }
+
+    public static Task IfNotNull<T>(this T? source, Func<T, Task> action)
+    {
+        if (source is null)
+            return Task.CompletedTask;
+
+        return action(source);
+    }
 }
