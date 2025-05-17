@@ -36,7 +36,17 @@ public static class EnumerableTreeExtensions
 
         return Task.WhenAll(itemTasks);
     }
-    
+
+    public static async Task ForEachRecursiveAsync<T>(this T source, Func<T, IEnumerable<T>?> getChildren, Func<T, Task> action)
+    {
+        var children = getChildren(source);
+        if (children is null)
+            return;
+
+        await action(source);
+        await children.ForEachRecursiveAsync(getChildren, action);
+    }
+
     public static List<T> Flatten<T>(this T source, Func<T, IEnumerable<T>?> getChildren)
     {
         var children = getChildren(source);
