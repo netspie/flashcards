@@ -36,7 +36,7 @@
             <ChildContent>
                 <MudTreeView @ref=@_treeView Items="@_treeItems" Hover="true" Dense>
                     <ItemTemplate Context="item">
-                        <MudTreeViewItem Items="@item.Children">
+                        <MudTreeViewItem Items="@item.Children" OnClick="@(() => OnEdit(item.Value!))">
                             <BodyContent>
                                 <MudStack Row Class="!w-full gap-2">
                                     <MudIcon Icon="@item.Icon" Style=@($"color: {item.Value?.Color} !important") />
@@ -102,7 +102,9 @@
             await Snackbar.Run(() => 
                 treeItem.ForEachRecursiveAsync(
                     x => x.Children.CastToListOrDefault<TagTreeItemData>(),
-                    x => x.Value.IfNotNull(async x => await Mediator.Send(new UpdateTagCommand(x.Id, x.Name, result.DTO.Color, x.Order)))));
+                    x => x.Value.IfNotNull(async x => 
+                        await Mediator.Send(
+                            new UpdateTagCommand(x.Id, x.Name, result.DTO.Color, x.Order, x.IsAbstract)))));
 
             await FetchItems();
         }
@@ -111,7 +113,7 @@
     }
 
     private Task Update(TagDTO item) => 
-        SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color, item.Order));
+        SendCommandAndFetchItems(new UpdateTagCommand(item.Id, item.Name, item.Color, item.Order, item.IsAbstract));
 
     private async Task Delete(string itemId)
     {

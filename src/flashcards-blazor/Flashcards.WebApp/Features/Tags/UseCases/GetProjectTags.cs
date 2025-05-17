@@ -26,15 +26,17 @@ public class GetProjectTagsQueryHandler(
                 x.Name, 
                 x.ParentTagId?.ToString(),
                 x.Color,
-                x.Order)));
+                x.Order,
+                x.IsAbstract)));
     }
 }
 
 public record GetProjectTagsQueryResponse(GetProjectTagsQueryResponse.ProjectTagDTO[] Values)
 {
-    public record ProjectTagDTO(string Id, string Name, string? ParentTagId, string Color, int Order)
+    public record ProjectTagDTO(
+        string Id, string Name, string? ParentTagId, string Color, int Order, bool IsAbstract)
     {
-        public static readonly ProjectTagDTO Default = new("", "", null, "", 0);
-        public ProjectTagDTO DeepCopy() => new(Id, Name, ParentTagId, Color, Order);
+        public static readonly ProjectTagDTO Default = new("", "", null, "", 0, false);
+        public ProjectTagDTO DeepCopy() => new(Id, Name, ParentTagId, Color, Order, IsAbstract);
     }
 }

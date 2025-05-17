@@ -9,7 +9,8 @@ public record Tag(
     string Color,
     ProjectId ProjectId,
     TagId? ParentTagId,
-    int Order) : IEntity<TagId>, IOrderedItem
+    int Order,
+    bool IsAbstract = false) : IEntity<TagId>, IOrderedItem
 {
     IOrderedItem IOrderedItem.ChangeOrder(int order) => this with { Order = order };
 }

@@ -8,7 +8,8 @@ public record UpdateTagCommand(
     string Id,
     string Name,
     string Color,
-    int Order = int.MaxValue) : ICommand;
+    int Order = int.MaxValue,
+    bool IsAbstract = false) : ICommand;
 
 public class UpdateTagCommandHandler(
     IReadOnlyRepository<Tag, TagId> _readRepository,
@@ -18,7 +19,13 @@ public class UpdateTagCommandHandler(
     {
         var tag = await _readRepository.GetById(new TagId(cmd.Id));
         
-        tag = tag with { Name = cmd.Name, Order = cmd.Order, Color = cmd.Color };
+        tag = tag with
+        { 
+            Name = cmd.Name, 
+            Order = cmd.Order, 
+            Color = cmd.Color,
+            IsAbstract = cmd.IsAbstract
+        };
 
         await _writeRepository.UpdateOrderedItem(
             tag,

@@ -5,6 +5,7 @@
 <SpyDialog @ref=@_dialog>
     <ChildContent>
         <MudTextField Label="Name" Value="@_dto.Name" ValueChanged="@_dto.Setter(x => x.Name)"></MudTextField>
+        <MudCheckBox Label="Abstract" Value=@_dto.IsAbstract ValueChanged="@_dto.Setter(x => x.IsAbstract)" />
         <MudNumericField Label="Order" Value="@_dto.Order" ValueChanged="@_dto.Setter(x => x.Order)"></MudNumericField>
         <MudSelect Label="Color" Value=@_dto.Color ValueChanged="@_dto.Setter(x => x.Color)">
             @foreach (var color in Colors)
