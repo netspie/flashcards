@@ -1,4 +1,5 @@
-﻿using Flashcards.WebApp.Features.Projects;
+﻿using Flashcards.WebApp.Features.ConceptTemplates;
+using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Features.Tags;
 using Flashcards.WebApp.Infrastructure.MessageTransmuters;
 using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviors;
@@ -26,6 +27,10 @@ public static class FlashcardsStartup
         services.AddScoped<IReadOnlyRepository<Tag, TagId>, DbContextReadOnlyRepository<Tag, TagId>>();
         services.AddScoped<IWriteOnlyRepository<Tag, TagId>, DbContextWriteOnlyRepository<Tag, TagId>>();
         services.AddScoped<IDeleteOnlyRepository<Tag, TagId>, DbContextDeleteOnlyRepository<Tag, TagId>>();
+
+        services.AddScoped<IReadOnlyRepository<ConceptTemplate, ConceptTemplateId>, DbContextReadOnlyRepository<ConceptTemplate, ConceptTemplateId>>();
+        services.AddScoped<IWriteOnlyRepository<ConceptTemplate, ConceptTemplateId>, DbContextWriteOnlyRepository<ConceptTemplate, ConceptTemplateId>>();
+        services.AddScoped<IArchiveRepository<ConceptTemplate, ConceptTemplateId>, DbContextArchiveRepository<ConceptTemplate, ConceptTemplateId>>();
 
         return services;
     }

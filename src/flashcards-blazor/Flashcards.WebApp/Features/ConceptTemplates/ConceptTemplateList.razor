@@ -1,0 +1,67 @@
+﻿@using Flashcards.WebApp.Infrastructure.RequestHandlerBehaviors
+@using Flashcards.WebApp.Shared.Entities
+@using Flashcards.WebApp.Shared.UseCases
+@using ConceptTemplateDTO = Flashcards.WebApp.Features.ConceptTemplates.GetConceptTemplatesQueryResponse.ConceptTemplate
+
+@inject IScopedMediator Mediator
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
+    <MudText Typo="@Typo.h3">Concept Templates</MudText>
+    <SpyRemoteDataGrid T="ConceptTemplateDTO"
+                       Items="@_conceptTemplates"
+                       OnAddedItem="@Add"
+                       OnCommittedItemChanges="@Update">
+        <Toolbar>
+            <MudIconButton Icon="@Icons.Material.Filled.Archive" Color="Color.Error" Variant="Variant.Filled" OnClick="@OpenArchivedDialog" />
+        </Toolbar>
+        <Columns>
+            <SpyPropertyColumn Property="@(x => x.Name)" Bold />
+        </Columns>
+        <RowMenuItems>
+            <MudMenuItem Label="Archive" OnClick="@(x => Archive(context.Id))"/>
+        </RowMenuItems>
+    </SpyRemoteDataGrid>
+</MudContainer>
+
+@code {
+    [Parameter, EditorRequired] public string ProjectId { get; set; } = "";
+
+    private ConceptTemplateDTO[] _conceptTemplates = [];
+
+    protected override Task OnInitializedAsync() => FetchItems();
+
+    private Task Add() => 
+        SendCommandAndFetchItems(new AddConceptTemplateCommand(ProjectId));
+
+    private Task Update(ConceptTemplateDTO item) => 
+        SendCommandAndFetchItems(
+            new UpdateConceptTemplateCommand(
+                item.Id, 
+                item.Name, 
+                item.Properties.SelectToArray(x => new UpdateConceptTemplateCommand.Property(x.Name))));
+
+    private Task Archive(string itemId) => 
+        SendCommandAndFetchItems(new ArchiveConceptTemplateCommand(itemId));
+
+    private async Task OpenArchivedDialog()
+    {
+        var dialog = await DialogService.ShowAsync<ConceptTemplatesArchivedDialog>("Archived ConceptTemplates");
+        await dialog.Result;
+        await FetchItems();
+    }
+
+    private async Task FetchItems()
+    {
+        var response = await Mediator.Send(new GetConceptTemplatesQuery(ProjectId));
+        _conceptTemplates = response.Values;
+    }
+
+    private async Task SendCommandAndFetchItems(ICommand command)
+    {
+        await Snackbar.Run(() => Mediator.Send(command));
+        await FetchItems();
+    }
+}

@@ -1,0 +1,41 @@
+﻿@using Flashcards.WebApp.Shared.Entities
+@using Flashcards.WebApp.Shared.UseCases
+@using ConceptTemplateDTO = Flashcards.WebApp.Features.ConceptTemplates.GetConceptTemplatesQueryResponse.ConceptTemplate
+
+@inject IScopedMediator Mediator
+@inject ISnackbar Snackbar
+
+<SpyDialog>
+    <MudContainer MaxWidth="MaxWidth.Medium">
+        <SpyRemoteDataGrid Items="@_conceptTemplates" Editable=false>
+            <Columns>
+                <SpyPropertyColumn Property="@(x => x.Name)" Bold />
+            </Columns>
+            <RowMenuItems>
+                <MudMenuItem Label="Restore" OnClick="@(x => Restore(context.Id))" />
+            </RowMenuItems>
+        </SpyRemoteDataGrid>
+    </MudContainer>
+</SpyDialog>
+
+@code {
+    [Parameter, EditorRequired] public string ProjectId { get; set; } = "";
+
+    private ConceptTemplateDTO[] _conceptTemplates = [];
+
+    protected override Task OnInitializedAsync() => FetchItems();
+
+    private Task Restore(string itemId) => SendCommandAndFetchItems(new RestoreConceptTemplateCommand(itemId));
+
+    private async Task FetchItems()
+    {
+        var response = await Mediator.Send(new GetConceptTemplatesQuery(ProjectId, AliveState.Archived));
+        _conceptTemplates = response.Values;
+    }
+
+    private async Task SendCommandAndFetchItems(ICommand command)
+    {
+        await Snackbar.Run(() => Mediator.Send(command));
+        await FetchItems();
+    }
+}
