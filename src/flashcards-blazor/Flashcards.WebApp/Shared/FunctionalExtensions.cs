@@ -1,4 +1,6 @@
-﻿namespace Flashcards.WebApp.Shared;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Flashcards.WebApp.Shared;
 
 public static class FunctionalExtensions
 {

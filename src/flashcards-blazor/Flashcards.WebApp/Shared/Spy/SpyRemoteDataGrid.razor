@@ -4,16 +4,10 @@
     @if (Editable)
     {
         <MudStack Row Class="!w-full">
-            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined" FullWidth>
-                <MudMenu @ref="@_menu" ListClass="flex !p-2" Icon="@Icons.Material.Filled.Add">
-                    <MudForm @ref="_form">
-                        <MudTextField Label="Name"
-                                      @bind-Value=@_newItemName
-                                      Required
-                                      OnKeyDown="@(() => Add(_newItemName))" />
-                    </MudForm>
-                    <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="@(() => Add(_newItemName))" Class="!h-fit" />
-                </MudMenu>
+            <MudButtonGroup Color="Color.Secondary" Variant="Variant.Filled">
+                <MudButton OnClick=@OnAddedItem>
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                </MudButton>
             </MudButtonGroup>
             @Toolbar
         </MudStack>
@@ -25,8 +19,8 @@
                  CommittedItemChanges="@OnCommittedItemChanges"
                  HeaderClass="!hidden"
                  Class="!w-full"
-                 RowClass="!flex align-center !w-full active:!bg-gray-200"
-                 RowClick="@OnRowClick" 
+                 RowClass="!flex align-center !w-full active:!bg-gray-200 hover:!cursor-pointer"
+                 RowClick="@OnRowClick"
                  Hover>
         <Columns>
             @Columns
@@ -55,31 +49,12 @@
     [Parameter] public IEnumerable<T> Items { get; set; } = [];
     [Parameter] public RenderFragment Columns { get; set; } = _ => { };
 
-    [Parameter] public EventCallback<string> OnAddedItem { get; set; }
+    [Parameter] public EventCallback OnAddedItem { get; set; }
     [Parameter] public EventCallback<T> OnCommittedItemChanges { get; set; }
     [Parameter] public EventCallback<DataGridRowClickEventArgs<T>> OnRowClick { get; set; }
 
     [Parameter] public RenderFragment Toolbar { get; set; } = _ => { };
     [Parameter] public RenderFragment<T> RowMenuItems { get; set; } = _ => builder => { };
-    
+
     [Parameter] public bool Editable { get; set; } = true;
-
-    private string _newItemName = "";
-
-    private MudForm? _form;
-    private MudMenu? _menu;
-
-    private async Task Add(string name)
-    {
-        if (_form is null || _menu is null)
-            return;
-
-        await _form.Validate();
-        if (!_form.IsValid)
-            return;
-
-        await _menu.CloseAllMenusAsync();
-
-        await OnAddedItem.InvokeAsync(name);
-    }
 }

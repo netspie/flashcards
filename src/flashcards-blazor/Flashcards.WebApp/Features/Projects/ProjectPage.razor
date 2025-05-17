@@ -3,28 +3,13 @@
 
 @inject IScopedMediator Mediator
 
-@* <PageTitle>Project - @_dto?.Name</PageTitle> *@
+@if (_dto is null) { return; }
 
-@* @if (_dto is null) { return; } *@
+<PageTitle>Project - @_dto?.Name</PageTitle>
 
 <MudMainContent>
     <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
-        @* <MudText Typo="@Typo.h3">@_dto.Name</MudText> *@
-        @* <SpyRemoteDataGrid T="GetProjectsQueryResponse.ProjectDTO"
-                           Items="@_projects"
-                           OnAddedItem="@Add"
-                           OnCommittedItemChanges="@Update"
-                           OnRowClick="@(x => Navigation.NavigateTo($"/projects/{x.Item.Id}"))">
-            <Toolbar>
-                <MudIconButton Icon="@Icons.Material.Filled.Archive" OnClick="@OpenArchivedDialog" />
-            </Toolbar>
-            <Columns>
-                <SpyPropertyColumn Property="@(x => x.Name)" Bold />
-            </Columns>
-            <RowMenuItems>
-                <MudMenuItem Label="Archive" OnClick="@(x => Archive(context.Id))" />
-            </RowMenuItems>
-        </SpyRemoteDataGrid> *@
+        <MudText Typo="@Typo.h3">@_dto.Name</MudText>
         <Flashcards.WebApp.Features.Tags.TagList ProjectId="@ProjectId" />
     </MudContainer>
 </MudMainContent>
@@ -34,11 +19,12 @@
 
     private GetProjectQueryResponse.ProjectDTO? _dto;
 
-    protected override Task OnInitializedAsync() => FetchItems();
+    protected override Task OnInitializedAsync() => 
+        FetchItems();
 
     private async Task FetchItems()
     {
-        //var response = await Mediator.Send(new GetProjectQuery(ProjectId));
-        //_dto = response.Value;
+        var response = await Mediator.Send(new GetProjectQuery(ProjectId));
+        _dto = response.Value;
     }
 }

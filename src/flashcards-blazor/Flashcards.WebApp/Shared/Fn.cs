@@ -37,4 +37,28 @@ public static class Fn
 
         return action(source);
     }
+
+    public static async ValueTask ThenAsync(this Task source, Func<Task?>? action)
+    {
+        await source;
+
+        if (action is null)
+            return;
+
+        var task = action();
+        if (task is not null)
+            await task;
+    }
+
+    public static async ValueTask ThenAsync(this ValueTask source, Func<Task?>? action)
+    {
+        await source;
+        
+        if (action is null)
+            return;
+
+        var task = action();
+        if (task is not null)
+            await task;
+    }
 }

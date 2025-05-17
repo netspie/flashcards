@@ -10,38 +10,61 @@
 <MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
     <MudText Typo="@Typo.h6">Tags</MudText>
     <MudStack Row Class="!w-full">
-        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="() => Add()" Class="!h-fit" />
+        <MudButtonGroup Color="Color.Secondary" Variant="Variant.Filled">
+            <MudButton OnClick="() => Add(order: 0)">
+                <MudIcon Icon="@Icons.Material.Filled.Add" />
+                <MudIcon Icon="@Icons.Material.Filled.Bookmark" />
+            </MudButton>
+            <MudButton OnClick="() => Add(order: int.MaxValue)">
+                <MudIcon Icon="@Icons.Material.Filled.Bookmark" />
+                <MudIcon Icon="@Icons.Material.Filled.Add" />
+            </MudButton>
+        </MudButtonGroup>
+        <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled">
+            <MudIconButton Icon="@Icons.Material.Filled.UnfoldMore" OnClick="() => _treeView?.ExpandAllAsync().ThenAsync(() => _expansionPanel?.ExpandAllAsync())" Class="!h-fit" />
+            <MudIconButton Icon="@Icons.Material.Filled.UnfoldLess" OnClick="() => _treeView?.CollapseAllAsync().ThenAsync(() => _expansionPanel?.CollapseAllAsync())" Class="!h-fit" />
+        </MudButtonGroup>
     </MudStack>
-    <MudExpansionPanels MultiExpansion>
-        <MudExpansionPanel Text="Tags" Expanded>
-            <MudTreeView Items="@_treeItems" Hover="true" Dense>
-                <ItemTemplate Context="item">
-                    <MudTreeViewItem Items="@item.Children">
-                        <BodyContent>
-                            <MudStack Row Class="!w-full gap-2">
-                                <MudIcon Icon="@item.Icon" Style=@($"color: {item.Value?.Color} !important") />
-                                <MudText>@item.Text</MudText>
-                            </MudStack>
-                            <MudMenu Icon="@Icons.Material.Filled.MoreVert">
-                                <MudMenuItem Label="Add After" OnClick="@(() => Add(item.Value?.ParentTagId, color: item.Value?.Color ?? "", order: item.Value?.Order + 1 ?? 0))" />
-                                <MudMenuItem Label="Add Beneath" OnClick="@(() => Add(item.Value?.Id))" />
-                                <MudMenuItem Label="Edit" OnClick="@(() => OnEdit(item.Value!))" />
-                                @if (item.Value!.Order > 0)
-                                {
-                                    <MudMenuItem Label="Move To Start" OnClick="@(() => Update(item.Value! with { Order = 0 }))" />
-                                    <MudMenuItem Label="Move Up" OnClick="@(() => Update(item.Value! with { Order = item.Value!.Order - 1}))" />
-                                }
-                                @if (item.Value!.Order < _tags.Where(x => x.ParentTagId == item.Value!.ParentTagId).Count() - 1)
-                                {
-                                    <MudMenuItem Label="Move Down" OnClick="@(() => Update(item.Value! with { Order = item.Value!.Order + 1}))" />
-                                    <MudMenuItem Label="Move To End" OnClick="@(() => Update(item.Value! with { Order = int.MaxValue }))" />
-                                }
-                                <MudMenuItem Label="Delete" OnClick="@(() => Delete(item.Value?.Id ?? ""))" />
-                            </MudMenu>
-                        </BodyContent>
-                    </MudTreeViewItem>
-                </ItemTemplate>
-            </MudTreeView>
+    <MudExpansionPanels @ref=@_expansionPanel MultiExpansion Elevation=2>
+        <MudExpansionPanel Text="Tags">
+            <TitleContent>
+                @foreach (var tag in _tags.Where(x => x.ParentTagId is null).OrderBy(x => x.Order))
+                {
+                    <MudChip Value="@tag.Name" Class="!text-white" Style=@($"background: {tag.Color} !important") />
+                }
+            </TitleContent>
+            <ChildContent>
+                <MudTreeView @ref=@_treeView Items="@_treeItems" Hover="true" Dense>
+                    <ItemTemplate Context="item">
+                        <MudTreeViewItem Items="@item.Children">
+                            <BodyContent>
+                                <MudStack Row Class="!w-full gap-2">
+                                    <MudIcon Icon="@item.Icon" Style=@($"color: {item.Value?.Color} !important") />
+                                    <MudText>@item.Text</MudText>
+                                </MudStack>
+                                <MudMenu Icon="@Icons.Material.Filled.MoreVert">
+                                    <MudMenuItem Label="Add At Start" OnClick="@(() => Add(item.Value?.ParentTagId, item.Value!.Color, order: 0))" />
+                                    <MudMenuItem Label="Add After" OnClick="@(() => Add(item.Value?.ParentTagId,item.Value!.Color, order: item.Value!.Order + 1))" />
+                                    <MudMenuItem Label="Add Beneath" OnClick="@(() => Add(item.Value?.Id))" />
+                                    <MudMenuItem Label="Add At End" OnClick="@(() => Add(item.Value?.ParentTagId, item.Value!.Color, order: int.MaxValue))" />
+                                    <MudMenuItem Label="Edit" OnClick="@(() => OnEdit(item.Value!))" />
+                                    @if (item.Value!.Order > 0)
+                                    {
+                                        <MudMenuItem Label="Move To Start" OnClick="@(() => Update(item.Value! with { Order = 0 }))" />
+                                        <MudMenuItem Label="Move Up" OnClick="@(() => Update(item.Value! with { Order = item.Value!.Order - 1}))" />
+                                    }
+                                    @if (item.Value!.Order < _tags.Where(x => x.ParentTagId == item.Value!.ParentTagId).Count() - 1)
+                                    {
+                                        <MudMenuItem Label="Move Down" OnClick="@(() => Update(item.Value! with { Order = item.Value!.Order + 1}))" />
+                                        <MudMenuItem Label="Move To End" OnClick="@(() => Update(item.Value! with { Order = int.MaxValue }))" />
+                                    }
+                                    <MudMenuItem Label="Delete" OnClick="@(() => Delete(item.Value?.Id ?? ""))" />
+                                </MudMenu>
+                            </BodyContent>
+                        </MudTreeViewItem>
+                    </ItemTemplate>
+                </MudTreeView>
+            </ChildContent>
         </MudExpansionPanel>
     </MudExpansionPanels>
 </MudContainer>
@@ -51,6 +74,9 @@
 
     private TagDTO[] _tags = [];
     private List<TagTreeItemData> _treeItems = new();
+
+    private MudExpansionPanels? _expansionPanel;
+    private MudTreeView<TagDTO>? _treeView;
 
     protected override Task OnInitializedAsync() => 
         FetchItems();
