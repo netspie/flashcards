@@ -32,8 +32,7 @@ builder.Services.AddOptions<BearerTokenOptions>(IdentityConstants.BearerScheme).
 builder.Services
     .AddEntityFrameworkNpgsql()
     .AddDbContext<ApplicationDbContext>()
-    .AddScoped<DbContext, ApplicationDbContext>()
-    .AddScoped<IDbContextFactory<ApplicationDbContext>, ApplicationDbContextFactory>();
+    .AddScoped<DbContext, ApplicationDbContext>();
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 

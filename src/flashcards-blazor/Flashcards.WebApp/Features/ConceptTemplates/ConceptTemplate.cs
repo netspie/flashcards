@@ -10,6 +10,8 @@ public record ConceptTemplate(
     IEnumerable<ConceptTemplate.Property> Properties,
     bool IsArchived = false) : IEntity<ConceptTemplateId>, IArchived
 {
+    public ConceptTemplate() : this(ConceptTemplateId.New(), ProjectId.New(), "New Concept Template", []) {}
+
     public record Property(string Name, int Order)
     {
         public static implicit operator Property(string Name) => new(Name);

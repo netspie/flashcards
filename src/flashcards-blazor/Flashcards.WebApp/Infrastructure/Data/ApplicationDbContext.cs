@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Flashcards.WebApp.Features.Account;
 using Flashcards.WebApp.Features.Projects;
 using Flashcards.WebApp.Features.Tags;
+using Flashcards.WebApp.Features.ConceptTemplates;
 
 namespace Flashcards.WebApp.Infrastructure.Data;
 
@@ -60,4 +61,5 @@ public class ApplicationDbContext(
 
     public DbSet<Project> Projects { get; set; }
     public DbSet<Tag> Tags { get; set; }
+    public DbSet<ConceptTemplate> ConceptTemplates { get; set; }
 }
