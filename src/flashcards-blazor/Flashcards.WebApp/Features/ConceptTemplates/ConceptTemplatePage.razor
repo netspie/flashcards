@@ -1,0 +1,14 @@
+﻿@page "/conceptTemplates/{conceptTemplateId}"
+@using Flashcards.WebApp.Shared.UseCases
+
+@inject IScopedMediator Mediator
+
+<PageTitle>Concept Template</PageTitle>
+
+<MudMainContent>
+    <ConceptTemplateWidget ConceptTemplateId="@ConceptTemplateId" />
+</MudMainContent>
+
+@code {
+    [Parameter] public string ConceptTemplateId { get; set; } = "";
+}

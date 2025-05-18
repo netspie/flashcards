@@ -12,8 +12,7 @@
     <MudText Typo="@Typo.h6">Concept Templates</MudText>
     <SpyRemoteDataGrid T="ConceptTemplateDTO"
                        Items="@_conceptTemplates"
-                       OnAddedItem="@Add"
-                       OnCommittedItemChanges="@Update">
+                       OnRowClick="@(x => Navigation.NavigateTo($"/conceptTemplates/{x.Item.Id}"))">
         <Toolbar>
             <MudIconButton Icon="@Icons.Material.Filled.Archive" Color="Color.Error" Variant="Variant.Filled" OnClick="@OpenArchivedDialog" />
         </Toolbar>

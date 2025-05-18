@@ -10,6 +10,7 @@ public record GetConceptTemplateQueryResponse(GetConceptTemplateQueryResponse.Co
 {
     public record ConceptTemplate(string Id, string ProjectId, string Name, ConceptTemplate.Property[] Properties)
     {
+        public static readonly ConceptTemplate Default = new("", "", "", []);
         public record Property(string Name);
     }
 }

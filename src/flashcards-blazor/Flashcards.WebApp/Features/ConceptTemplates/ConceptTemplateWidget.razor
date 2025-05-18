@@ -1,0 +1,62 @@
+﻿@using Flashcards.WebApp.Shared.UseCases
+@using ConceptTemplateDTO = Flashcards.WebApp.Features.ConceptTemplates.GetConceptTemplateQueryResponse.ConceptTemplate
+
+@inject IScopedMediator Mediator
+
+@if (DTO is null) { return; }
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="!flex !flex-col !gap-8">
+    <MudText Typo="@Typo.h6">Concept Template - @DTO.Name</MudText>
+    <MudStack>
+        <MudStack Row Class="!w-full">
+            <MudButtonGroup Color="Color.Secondary" Variant="Variant.Filled">
+                <MudButton OnClick="() => Add(order: 0)">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                    <MudIcon Icon="@Icons.Material.Filled.Bookmark" />
+                </MudButton>
+                <MudButton OnClick="() => Add(order: DTO.Properties.Length)">
+                    <MudIcon Icon="@Icons.Material.Filled.Bookmark" />
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />
+                </MudButton>
+            </MudButtonGroup>
+        </MudStack>
+        <MudStack>
+            @foreach (var property in DTO.Properties) 
+            {
+                <MudTextField Value="@property.Name" ValueChanged="property.Setter(x => x.Name)" />
+            }
+        </MudStack>
+    </MudStack>
+</MudContainer>
+
+@code {
+    [Parameter] public string? ConceptTemplateId { get; set; }
+
+    public ConceptTemplateDTO? DTO { get; private set; }
+
+    protected override Task OnInitializedAsync() =>
+        FetchItem();
+
+    private void Add(int order)
+    {
+        if (DTO is null)
+            return;
+
+        var properties = DTO.Properties.ToList();
+        properties.Insert(order, new("New Property"));
+
+        DTO = DTO with { Properties = properties.ToArray() };
+    }
+
+    protected async Task FetchItem()
+    {
+        if (ConceptTemplateId is null)
+        {
+            DTO = ConceptTemplateDTO.Default;
+            return;
+        }
+
+        var response = await Mediator.Send(new GetConceptTemplateQuery(ConceptTemplateId));
+        DTO = response.Value;
+    }
+}
