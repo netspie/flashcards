@@ -8,6 +8,9 @@ import "./main.css";
 
 import { StyledEngineProvider } from "@mui/material/styles";
 import Layout from "./Layout.tsx";
+import Create from "./pages/Create.tsx";
+import Explore from "./pages/Explore.tsx";
+import Pricing from "./pages/Pricing.tsx";
 
 const theme = createTheme({
   typography: {
@@ -43,10 +46,11 @@ const theme = createTheme({
 
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
-  { path: "/create", element: <About /> },
-  { path: "/explore", element: <About /> },
+  { path: "/create", element: <Create /> },
+  { path: "/explore", element: <Explore /> },
   { path: "/about", element: <About /> },
   { path: "/contact", element: <About /> },
+  { path: "/pricing", element: <Pricing /> },
   { path: "/sign-in", element: <About /> },
 ]);
 

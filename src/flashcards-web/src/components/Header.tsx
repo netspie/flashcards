@@ -93,6 +93,9 @@ function Header() {
               <MenuItem key="explore" href="/explore">
                 <Typography sx={{ textAlign: "center" }}>Explore</Typography>
               </MenuItem>
+              <MenuItem key="pricing" href="/pricing">
+                <Typography sx={{ textAlign: "center" }}>Pricing</Typography>
+              </MenuItem>
               <MenuItem key="about" href="/about">
                 <Typography sx={{ textAlign: "center" }}>About</Typography>
               </MenuItem>
@@ -139,6 +142,15 @@ function Header() {
               >
                 <Typography color="black" textTransform="none" noWrap>
                   Explore
+                </Typography>
+              </Button>
+              <Button
+                key={"pricing"}
+                href="pricing"
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                <Typography color="black" textTransform="none" noWrap>
+                  Pricing
                 </Typography>
               </Button>
               <Button
