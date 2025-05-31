@@ -1,4 +1,4 @@
-import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import MenuIcon from "@mui/icons-material/Menu";
 import AppBar from "@mui/material/AppBar";
@@ -41,22 +41,22 @@ function Header() {
             <RocketLaunchIcon color="primary" />
           </IconButton>
           <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              color="primary"
-              href="/"
-              sx={{
-                mr: 2,
-                display: { xs: "none", md: "flex" },
-                flexGrow: 1,
-                fontWeight: 700,
-                textDecoration: "none",
-                textTransform: "up"
-              }}
-            >
-              Flashcards
-            </Typography>
+            variant="h6"
+            noWrap
+            component="a"
+            color="primary"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              flexGrow: 1,
+              fontWeight: 700,
+              textDecoration: "none",
+              textTransform: "up",
+            }}
+          >
+            Flashcards
+          </Typography>
           <Box sx={{ display: { xs: "flex", md: "none" }, width: "fit" }}>
             <IconButton
               size="large"
@@ -86,6 +86,9 @@ function Header() {
             >
               <MenuItem key="home" href="/">
                 <Typography sx={{ textAlign: "center" }}>Home</Typography>
+              </MenuItem>
+              <MenuItem key="dashboard" href="/dashboard">
+                <Typography sx={{ textAlign: "center" }}>Dashboard</Typography>
               </MenuItem>
               <MenuItem key="create" href="/create">
                 <Typography sx={{ textAlign: "center" }}>Create</Typography>
@@ -133,6 +136,15 @@ function Header() {
               >
                 <Typography color="primary" textTransform="none" noWrap>
                   Create
+                </Typography>
+              </Button>
+              <Button
+                key={"dashboard"}
+                href="dashboard"
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                <Typography color="black" textTransform="none" noWrap>
+                  Dashboard
                 </Typography>
               </Button>
               <Button

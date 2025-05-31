@@ -11,6 +11,7 @@ import Layout from "./Layout.tsx";
 import Create from "./pages/Create.tsx";
 import Explore from "./pages/Explore.tsx";
 import Pricing from "./pages/Pricing.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
 
 const theme = createTheme({
   typography: {
@@ -48,6 +49,7 @@ const router = createBrowserRouter([
   { path: "/", element: <Home /> },
   { path: "/create", element: <Create /> },
   { path: "/explore", element: <Explore /> },
+  { path: "/dashboard", element: <Dashboard /> },
   { path: "/about", element: <About /> },
   { path: "/contact", element: <About /> },
   { path: "/pricing", element: <Pricing /> },
