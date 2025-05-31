@@ -12,6 +12,8 @@ import Create from "./pages/Create.tsx";
 import Explore from "./pages/Explore.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
+import Profile from "./pages/Profile.tsx";
+import Teachers from "./pages/Teachers.tsx";
 
 const theme = createTheme({
   typography: {
@@ -50,6 +52,8 @@ const router = createBrowserRouter([
   { path: "/create", element: <Create /> },
   { path: "/explore", element: <Explore /> },
   { path: "/dashboard", element: <Dashboard /> },
+  { path: "/teachers", element: <Teachers /> },
+  { path: "/profile", element: <Profile /> },
   { path: "/about", element: <About /> },
   { path: "/contact", element: <About /> },
   { path: "/pricing", element: <Pricing /> },
